@@ -2,7 +2,7 @@
  "version": 1,
  "generated": "2026-09-28",
  "week_of": "2026-09-28",
- "note": "Plan inicial. Precios, recetas y noticias llegan con la actualización del lunes.",
+ "note": "Plan de la semana del 28 de septiembre.",
  "targets": {
   "k": 2850,
   "p": 140,
@@ -784,7 +784,104 @@
    "tip": "Para llevar, envuélvelo en papel aluminio: no se abre y aguanta hasta la noche."
   }
  ],
- "news": [],
+ "news": [
+  {
+   "id": "volumen-frecuencia-2025",
+   "tema": "Volumen y frecuencia",
+   "titulo": "Más series semanales = más músculo, pero cada serie extra rinde menos",
+   "resumen": "Meta-regresión de 67 estudios (2.058 participantes): la hipertrofia y la fuerza aumentan con más series semanales por músculo, pero con rendimientos decrecientes. Con el volumen igualado, entrenar más veces por semana no cambió la hipertrofia de forma clara; para la fuerza sí ayudó. Los compuestos que trabajan un músculo de forma indirecta se modelaron mejor contándolos como media serie.",
+   "aplica": "Acumula volumen suficiente por músculo en los 5 días, cuenta como 0,5 las series indirectas (tríceps en press de banca) y sube el volumen poco a poco en vez de agregar series sin límite.",
+   "cita": "Pelland JC et al., 2025. Sports Medicine",
+   "url": "https://doi.org/10.1007/s40279-025-02344-w",
+   "fecha": "2025-12",
+   "tipo": "meta-análisis",
+   "agregado": "2026-09-28"
+  },
+  {
+   "id": "fallo-rir-2024",
+   "tema": "Proximidad al fallo",
+   "titulo": "Cerca del fallo crece más el músculo; para la fuerza da casi igual",
+   "resumen": "Meta-regresiones: la hipertrofia aumentó a medida que las series terminaban con menos repeticiones en reserva (RIR), mientras que la fuerza fue parecida en un rango amplio. Los autores piden cautela: el análisis es exploratorio y las RIR se estimaron a partir de las descripciones de los estudios.",
+   "aplica": "En las series de trabajo quédate en unas 0-3 reps en reserva, sobre todo en aislamientos y máquinas; guarda el fallo total para ejercicios seguros.",
+   "cita": "Robinson ZP et al., 2024. Sports Medicine",
+   "url": "https://doi.org/10.1007/s40279-024-02069-2",
+   "fecha": "2024-07",
+   "tipo": "meta-análisis",
+   "agregado": "2026-09-28"
+  },
+  {
+   "id": "descanso-2024",
+   "tema": "Descanso entre series",
+   "titulo": "Descansa más de 60-90 s: menos no ayuda a crecer",
+   "resumen": "Meta-análisis bayesiano de 9 estudios aleatorizados: hubo un beneficio pequeño en hipertrofia al descansar más de 60 s, probablemente porque se mantiene el volumen de carga. Por encima de unos 90 s no aparecieron diferencias apreciables. Son pocos estudios, así que la evidencia es limitada.",
+   "aplica": "Descansa al menos 90 s (más en compuestos pesados) y no acortes los descansos para 'bombear': cuestan repeticiones.",
+   "cita": "Singer A et al., 2024. Frontiers in Sports and Active Living",
+   "url": "https://doi.org/10.3389/fspor.2024.1429789",
+   "fecha": "2024-08",
+   "tipo": "meta-análisis",
+   "agregado": "2026-09-28"
+  },
+  {
+   "id": "longitud-muscular-2025",
+   "tema": "Rangos largos",
+   "titulo": "Entrenar estirado: ventaja pequeña o nula, no mágica",
+   "resumen": "Meta-análisis bayesiano de 12 estudios: entrenar con el músculo en posiciones más largas o más cortas dio una hipertrofia regional similar, con una tendencia leve a favor de las posiciones largas en zonas distales. Las diferencias entre condiciones eran modestas, así que la conclusión es provisional.",
+   "aplica": "Usa rango completo o enfatiza la parte estirada, pero no lo pongas por encima del volumen y el esfuerzo.",
+   "cita": "Varovic D et al., 2025. International Journal of Sports Medicine",
+   "url": "https://doi.org/10.1055/a-2615-4935",
+   "fecha": "2025-06",
+   "tipo": "meta-análisis",
+   "agregado": "2026-09-28"
+  },
+  {
+   "id": "proteina-2022",
+   "tema": "Proteína",
+   "titulo": "Proteína: el beneficio aparece desde unos 1,6 g/kg al día",
+   "resumen": "Meta-análisis de 74 ensayos aleatorizados: comer más proteína durante el entrenamiento de fuerza dio ganancias pequeñas pero consistentes de masa magra (evidencia moderada). En menores de 65 años el efecto fue significativo con 1,6 g/kg/día o más.",
+   "aplica": "Con tus 140 g estás en unos 2,1 g/kg: suficiente. Repártelos en 4-6 comidas; subir más aporta poco.",
+   "cita": "Nunes EA et al., 2022. Journal of Cachexia, Sarcopenia and Muscle",
+   "url": "https://doi.org/10.1002/jcsm.12922",
+   "fecha": "2022-02",
+   "tipo": "meta-análisis",
+   "agregado": "2026-09-28"
+  },
+  {
+   "id": "creatina-2023",
+   "tema": "Creatina",
+   "titulo": "La creatina suma algo de músculo, pero el efecto es pequeño",
+   "resumen": "Meta-análisis de 10 ensayos con imagen directa (ecografía, RM o TC): creatina + fuerza produjo un aumento pequeño del grosor muscular frente a placebo, en tren superior e inferior. Varios autores declaran vínculos con la industria de la creatina.",
+   "aplica": "Si la usas: monohidrato, 3-5 g al día todos los días. Ayuda un poco; no reemplaza entrenamiento ni comida.",
+   "cita": "Burke R et al., 2023. Nutrients",
+   "url": "https://doi.org/10.3390/nu15092116",
+   "fecha": "2023-04",
+   "tipo": "meta-análisis",
+   "agregado": "2026-09-28"
+  },
+  {
+   "id": "superavit-2023",
+   "tema": "Superávit calórico",
+   "titulo": "Un superávit grande suma sobre todo grasa, no más músculo",
+   "resumen": "Ensayo de 8 semanas con levantadores entrenados en mantenimiento, +5 % o +15 % de calorías. Subir de peso más rápido predijo sobre todo más grasa, sin más grosor muscular ni más fuerza en sentadilla. Solo 17 terminaron, así que es evidencia preliminar.",
+   "aplica": "Mantén un superávit pequeño y mira el pesaje: si subes más de 0,3 kg por semana, baja un poco los carbos.",
+   "cita": "Helms ER et al., 2023. Sports Medicine - Open",
+   "url": "https://doi.org/10.1186/s40798-023-00651-y",
+   "fecha": "2023-11",
+   "tipo": "ensayo",
+   "agregado": "2026-09-28"
+  },
+  {
+   "id": "cardio-2022",
+   "tema": "Cardio",
+   "titulo": "El cardio no frena la hipertrofia (con dosis sensatas)",
+   "resumen": "Meta-análisis de 43 estudios: combinar cardio con fuerza no redujo la hipertrofia ni la fuerza máxima frente a hacer solo fuerza. Sí bajó la fuerza explosiva, sobre todo cuando ambos iban en la misma sesión.",
+   "aplica": "Puedes hacer 2-3 sesiones de cardio moderado a la semana, separado de la pesa por unas horas o al final de la sesión.",
+   "cita": "Schumann M et al., 2022. Sports Medicine",
+   "url": "https://doi.org/10.1007/s40279-021-01587-7",
+   "fecha": "2021-11",
+   "tipo": "meta-análisis",
+   "agregado": "2026-09-28"
+  }
+ ],
  "market": {
   "days": 15,
   "updated": "2026-09-28",

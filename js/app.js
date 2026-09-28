@@ -403,6 +403,10 @@
       <div class="glasses">${Array.from({ length: goal }, (_, i) => `<span class="g ${i < w ? 'on' : ''}"></span>`).join('')}</div></div>
       <button class="round pri" data-a="water" data-v="1" aria-label="Sumar vaso">+</button></div>`;
 
+    if (PLAN && PLAN.news && PLAN.news.length) {
+      h += `<div class="sec-title">Ciencia de la semana <a class="small link-btn" href="#/noticias">Ver todas</a></div><div class="card" style="padding-top:6px;padding-bottom:6px">${PLAN.news.slice(0, 2).map(n => `<a class="list-item" style="text-decoration:none;color:inherit" href="#/noticias"><div class="grow"><div class="d">${esc(n.tema)} · ${esc(n.tipo)}</div><div class="t">${esc(n.titulo)}</div></div>${ic('right')}</a>`).join('')}</div>`;
+    }
+
     app.innerHTML = h;
   }
 
@@ -715,6 +719,58 @@
     app.innerHTML = h;
   }
 
+  function viewNoticias() {
+    const N = (PLAN && PLAN.news) || [];
+    let h = `<div class="page-head">${backBtn}<div class="ttl">Ciencia y noticias</div></div>
+      <p class="small muted" style="margin:4px 2px 14px">Resúmenes de estudios con revisión por pares. Cada lunes llegan nuevos. Toca "Ver estudio" para leer la fuente.</p>`;
+    if (!N.length) h += '<div class="card empty">Las noticias llegan con la actualización del lunes.</div>';
+    N.forEach(n => {
+      h += `<article class="card"><div class="chips" style="margin-bottom:8px"><span class="chip acc">${esc(n.tema)}</span><span class="chip">${esc(n.tipo)}</span></div>
+        <h2 style="font-size:19px;line-height:1.25">${esc(n.titulo)}</h2><p style="margin:0 0 10px">${esc(n.resumen)}</p>
+        <div class="tip"><b>En la práctica:</b> ${esc(n.aplica)}</div>
+        <div class="row" style="margin-top:10px"><div class="grow small muted">${esc(n.cita)}</div><a class="btn ghost" style="min-height:44px;padding:0 14px" href="${esc(n.url)}" target="_blank" rel="noopener">Ver estudio</a></div></article>`;
+    });
+    app.innerHTML = h;
+  }
+
+  /* ---------- recordatorios ---------- */
+  const DAYCODE = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
+  function reminders() {
+    const T = S.settings.remT || {}, off = S.settings.remOff || {};
+    const L = [];
+    (PLAN ? PLAN.slots : []).forEach(sl => L.push({ id: sl.id, label: sl.label, times: [T[sl.id] || sl.time], days: null, text: `Toca ${sl.label.toLowerCase()}. Mira qué hay en Plan Fitness.` }));
+    L.push({ id: 'entreno', label: 'Entreno', times: [T.entreno || '18:30'], days: S.schedule.map((r, i) => r ? i : -1).filter(i => i >= 0), text: 'En 30 minutos arranca el entreno. Si no has comido el pre-entreno, es ahora.' });
+    L.push({ id: 'agua', label: 'Agua', times: ['09:00', '11:00', '13:00', '15:00', '17:00'], days: null, text: 'Tómate 2 vasos de agua.' });
+    L.push({ id: 'pesaje', label: 'Pesaje', times: [T.pesaje || '06:15'], days: [+S.settings.weighDay], text: 'Pésate en ayunas y anótalo en la app.' });
+    return L.map(r => Object.assign(r, { on: !off[r.id] }));
+  }
+  function firstDate(days) {
+    let d = addDays(now(), 1);
+    if (days) while (!days.includes(wIdx(d))) d = addDays(d, 1);
+    return d;
+  }
+  const icsDate = (d, t) => `${d.getFullYear()}${pad(d.getMonth() + 1)}${pad(d.getDate())}T${t.replace(':', '')}00`;
+  const rrule = r => r.days ? `FREQ=WEEKLY;BYDAY=${r.days.map(i => DAYCODE[i]).join(',')}` : 'FREQ=DAILY';
+  const plus15 = t => { const [h, m] = t.split(':').map(Number); const x = h * 60 + m + 15; return `${pad(Math.floor(x / 60) % 24)}:${pad(x % 60)}`; };
+  function buildIcs() {
+    const stamp = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '');
+    const out = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Plan Fitness//ES', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH',
+      'BEGIN:VTIMEZONE', 'TZID:America/Bogota', 'BEGIN:STANDARD', 'DTSTART:19700101T000000', 'TZOFFSETFROM:-0500', 'TZOFFSETTO:-0500', 'TZNAME:-05', 'END:STANDARD', 'END:VTIMEZONE'];
+    reminders().filter(r => r.on).forEach(r => r.times.forEach((t, j) => {
+      const d = firstDate(r.days);
+      out.push('BEGIN:VEVENT', `UID:pf-${r.id}-${j}@plan-fitness`, `DTSTAMP:${stamp}`, `DTSTART;TZID=America/Bogota:${icsDate(d, t)}`, 'DURATION:PT15M',
+        `RRULE:${rrule(r)}`, `SUMMARY:${r.label} · Plan Fitness`, `DESCRIPTION:${r.text}`, 'TRANSP:TRANSPARENT',
+        'BEGIN:VALARM', 'ACTION:DISPLAY', `DESCRIPTION:${r.label}`, 'TRIGGER:PT0M', 'END:VALARM', 'END:VEVENT');
+    }));
+    out.push('END:VCALENDAR');
+    return out.join('\r\n');
+  }
+  function gcalLink(r, t) {
+    const d = firstDate(r.days);
+    const p = new URLSearchParams({ action: 'TEMPLATE', text: r.label + ' · Plan Fitness', details: r.text, dates: icsDate(d, t) + '/' + icsDate(d, plus15(t)), ctz: 'America/Bogota', recur: 'RRULE:' + rrule(r) });
+    return 'https://calendar.google.com/calendar/render?' + p.toString();
+  }
+
   /* ---------- ajustes ---------- */
   function viewAjustes() {
     const st = S.settings;
@@ -730,6 +786,18 @@
         <label class="lbl">Rotar accesorios cada</label><div class="seg">${[4, 5, 6].map(n => `<button class="${+st.rotWeeks === n ? 'on' : ''}" data-a="rot" data-v="${n}">${n} semanas</button>`).join('')}</div>
         <label class="lbl" for="sStart">Inicio del programa</label><input class="field" id="sStart" type="date" data-set="start" value="${S.start}">
         <label class="lbl">Semana tipo</label>${DAYS.map((d, i) => `<div class="sched-row"><b>${d}</b><select class="field" data-sched="${i}">${opts(S.schedule[i])}</select></div>`).join('')}</div>
+      <div class="card"><h2>Recordatorios</h2>
+        <p class="small muted" style="margin-top:0">El navegador no puede avisarte con la app cerrada, así que los recordatorios van a tu calendario, que sí suena.</p>
+        ${reminders().map(r => `<div class="list-item" style="flex-wrap:wrap">
+          <label class="row grow" style="gap:10px;min-height:44px"><input type="checkbox" data-rem-on="${r.id}" ${r.on ? 'checked' : ''} style="width:22px;height:22px;accent-color:var(--accent-text)"><span><b>${r.label}</b><br><span class="small muted">${r.days ? r.days.map(i => DAYS[i]).join(', ') : 'todos los días'}</span></span></label>
+          ${r.id === 'agua' ? '<span class="small muted">9, 11, 1, 3 y 5</span>' : `<input class="field num" type="time" data-rem-t="${r.id}" value="${r.times[0]}" style="width:140px;min-height:44px;font-size:16px;padding:0 8px">`}
+          ${r.on ? `<div style="width:100%;display:flex;gap:6px;flex-wrap:wrap;padding-left:32px">${r.times.map(t => `<a class="chip line" style="text-decoration:none" href="${gcalLink(r, t)}" target="_blank" rel="noopener">+ Google Calendar${r.times.length > 1 ? ' ' + t : ''}</a>`).join('')}</div>` : ''}</div>`).join('')}
+        <button class="btn pri block" style="margin-top:12px" data-a="ics">${ic('dl')} Descargar todos (.ics)</button>
+        <details class="eq" style="margin-top:8px"><summary>¿Cómo los activo?</summary><ul>
+          <li><b>Google Calendar:</b> toca "+ Google Calendar" en cada uno y dale Guardar. Se repite solo.</li>
+          <li><b>Samsung u otro calendario:</b> descarga el .ics y ábrelo; importa todos de una vez.</li>
+          <li>También puedes importar el .ics en calendar.google.com desde un computador (Configuración → Importar).</li>
+          <li>Si cambias horarios, vuelve a agregarlos y borra los viejos del calendario.</li></ul></details></div>
       <div class="card"><h2>Plan semanal</h2><p class="small muted" style="margin-top:0">Plan del ${PLAN ? shortDate(PLAN.generated) : '—'}. Cada lunes llega uno nuevo con menú, recetas, precios y noticias.</p>
         <button class="btn block" data-a="plan-refresh">${ic('refresh')} Buscar actualización</button></div>
       <div class="card"><h2>Respaldo</h2><p class="small muted" style="margin-top:0">Tus registros viven en este celular. Descarga un respaldo de vez en cuando.</p>
@@ -754,11 +822,11 @@
   function render(keepScroll) {
     const raw = location.hash.replace(/^#\/?/, '') || 'hoy';
     const [name, ...args] = raw.split('/').map(decodeURIComponent);
-    const full = ['entreno', 'ej', 'ajustes', 'resumen'].includes(name);
+    const full = ['entreno', 'ej', 'ajustes', 'resumen', 'noticias'].includes(name);
     app.className = 'app' + (full ? ' full' : '');
     nav.classList.toggle('hidden', full);
     if (name !== 'entreno') keepAwake(false);
-    const views = { hoy: viewHoy, semana: viewSemana, progreso: viewProgreso, comida: viewComida, mercado: viewMercado, entreno: viewEntreno, ej: viewEj, ajustes: viewAjustes, resumen: viewResumen };
+    const views = { hoy: viewHoy, semana: viewSemana, progreso: viewProgreso, comida: viewComida, mercado: viewMercado, entreno: viewEntreno, ej: viewEj, ajustes: viewAjustes, resumen: viewResumen, noticias: viewNoticias };
     (views[name] || viewHoy)(...args);
     nav.querySelectorAll('a').forEach(a => a.classList.toggle('on', a.dataset.r === name));
     if (raw !== lastRoute && !keepScroll) window.scrollTo(0, 0);
@@ -1091,6 +1159,15 @@
     'timer-skip'() { stopRest(); },
 
     // ajustes
+    ics() {
+      const blob = new Blob([buildIcs()], { type: 'text/calendar' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'plan-fitness-recordatorios.ics';
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+      toast('Calendario descargado: ábrelo para importarlo');
+    },
     theme(b) { S.settings.theme = b.dataset.v; save(); applyTheme(); rerender(); },
     rot(b) { S.settings.rotWeeks = +b.dataset.v; save(); rerender(); toast('Rotación actualizada'); },
     'plan-refresh'() { loadPlan(true); },
@@ -1146,6 +1223,8 @@
       if (f === 'waterGoal' && !S.settings.waterGoal) S.settings.waterGoal = 10;
       save(); toast('Guardado');
     }
+    if (t.dataset.remOn) { S.settings.remOff = S.settings.remOff || {}; if (t.checked) delete S.settings.remOff[t.dataset.remOn]; else S.settings.remOff[t.dataset.remOn] = true; save(); rerender(); return; }
+    if (t.dataset.remT) { S.settings.remT = S.settings.remT || {}; if (t.value) S.settings.remT[t.dataset.remT] = t.value; save(); toast('Hora guardada'); rerender(); return; }
     if (t.dataset.sched != null) { S.schedule[+t.dataset.sched] = t.value || null; save(); toast('Semana tipo guardada'); }
     if (t.id === 'kgIn' || t.id === 'repsIn') { readInputs(); save(); }
   });
