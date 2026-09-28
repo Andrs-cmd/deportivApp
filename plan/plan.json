@@ -1,5 +1,5 @@
 {
- "version": 1,
+ "version": 2,
  "generated": "2026-09-28",
  "week_of": "2026-09-28",
  "note": "Plan de la semana del 28 de septiembre.",
@@ -460,6 +460,133 @@
     "c": 51,
     "f": 21
    }
+  },
+  "d5": {
+   "slot": "desayuno",
+   "n": "Huevos con arepa, aguacate y jugo de naranja",
+   "items": [
+    "2 huevos revueltos",
+    "1 arepa mediana (80 g)",
+    "¼ de aguacate",
+    "Jugo de naranja natural (250 ml)"
+   ],
+   "m": {
+    "k": 540,
+    "p": 19,
+    "c": 72,
+    "f": 21
+   }
+  },
+  "d6": {
+   "slot": "desayuno",
+   "n": "Changua con huevo, arepa con queso y café",
+   "items": [
+    "1 changua con huevo poché, cilantro y cebolla larga",
+    "1 arepa mediana con 30 g de queso campesino",
+    "Café"
+   ],
+   "m": {
+    "k": 520,
+    "p": 22,
+    "c": 64,
+    "f": 17
+   }
+  },
+  "m5": {
+   "slot": "mediamanana",
+   "n": "Yogurt griego con granola y mandarina",
+   "items": [
+    "150 g de yogurt griego natural",
+    "30 g de granola",
+    "1 mandarina"
+   ],
+   "m": {
+    "k": 270,
+    "p": 18,
+    "c": 37,
+    "f": 5
+   },
+   "lleva": true
+  },
+  "a6": {
+   "slot": "almuerzo",
+   "n": "Pechuga sudada con arroz y ensalada fresca",
+   "items": [
+    "180 g de pechuga en trozos (peso cocido)",
+    "1½ taza de arroz cocido",
+    "Ensalada de tomate, lechuga y limón",
+    "1 cdta de aceite"
+   ],
+   "m": {
+    "k": 700,
+    "p": 58,
+    "c": 90,
+    "f": 12
+   },
+   "lleva": true
+  },
+  "a7": {
+   "slot": "almuerzo",
+   "n": "Garbanzos guisados con arroz y huevo",
+   "items": [
+    "1½ taza de garbanzos cocidos guisados",
+    "1 taza de arroz cocido",
+    "1 huevo cocido",
+    "Ensalada"
+   ],
+   "m": {
+    "k": 690,
+    "p": 35,
+    "c": 105,
+    "f": 13
+   },
+   "lleva": true
+  },
+  "o5": {
+   "slot": "onces",
+   "n": "Yogurt griego con avena y banano",
+   "items": [
+    "200 g de yogurt griego natural",
+    "3 cdas de avena",
+    "1 banano"
+   ],
+   "m": {
+    "k": 315,
+    "p": 24,
+    "c": 49,
+    "f": 3
+   },
+   "lleva": true
+  },
+  "pr5": {
+   "slot": "pre",
+   "n": "Banano con crema de maní",
+   "items": [
+    "1 banano",
+    "1 cda de mantequilla de maní"
+   ],
+   "m": {
+    "k": 270,
+    "p": 6,
+    "c": 38,
+    "f": 11
+   },
+   "lleva": true
+  },
+  "c6": {
+   "slot": "cena",
+   "n": "Pollo al horno con arroz y ensalada de aguacate",
+   "items": [
+    "180 g de pechuga al horno (peso cocido)",
+    "1 taza de arroz cocido",
+    "Ensalada de tomate y aguacate (¼ aguacate)"
+   ],
+   "m": {
+    "k": 640,
+    "p": 56,
+    "c": 64,
+    "f": 17
+   }
   }
  },
  "menu": [
@@ -467,7 +594,7 @@
    "desayuno": "d1",
    "mediamanana": "m1",
    "almuerzo": "a1",
-   "onces": "o1",
+   "onces": "o4",
    "pre": "pr1",
    "cena": "c1"
   },
@@ -475,7 +602,7 @@
    "desayuno": "d2",
    "mediamanana": "m2",
    "almuerzo": "a3",
-   "onces": "o2",
+   "onces": "o3",
    "pre": "pr2",
    "cena": "c2"
   },
@@ -490,34 +617,34 @@
   {
    "desayuno": "d4",
    "mediamanana": "m4",
-   "almuerzo": "a4",
+   "almuerzo": "a6",
    "onces": "o4",
    "pre": "pr4",
    "cena": "c4"
   },
   {
-   "desayuno": "d1",
-   "mediamanana": "m1",
+   "desayuno": "d5",
+   "mediamanana": "m5",
    "almuerzo": "a5",
-   "onces": "o1",
-   "pre": "pr1",
+   "onces": "o5",
+   "pre": "pr5",
    "cena": "c5"
   },
   {
-   "desayuno": "d2",
-   "mediamanana": "m2",
-   "almuerzo": "a1",
-   "onces": "o2",
-   "pre": "pr2",
-   "cena": "c1"
+   "desayuno": "d6",
+   "mediamanana": "m1",
+   "almuerzo": "a6",
+   "onces": "o1",
+   "pre": "pr1",
+   "cena": "c6"
   },
   {
    "desayuno": "d3",
-   "mediamanana": "m3",
-   "almuerzo": "a3",
-   "onces": "o3",
-   "pre": "pr3",
-   "cena": "c2"
+   "mediamanana": "m5",
+   "almuerzo": "a7",
+   "onces": "o2",
+   "pre": "pr2",
+   "cena": "c1"
   }
  ],
  "equivalencias": [
@@ -652,27 +779,27 @@
    "tip": "Si no hiciste lentejas el domingo: 100 g de lentejas crudas + 2 tazas de agua + hogao, 25 min."
   },
   {
-   "id": "r_a4",
-   "meal": "a4",
-   "n": "Pasta con atún, maíz y salsa casera",
-   "min": 20,
+   "id": "r_a6",
+   "meal": "a6",
+   "n": "Pechuga sudada con arroz y ensalada fresca",
+   "min": 30,
    "rinde": "1 porción",
    "lleva": true,
    "ing": [
-    "100 g de pasta",
-    "1 lata de atún en agua escurrido",
-    "½ taza de maíz tierno",
-    "2 tomates rallados + 1 cda de pasta de tomate",
-    "Ajo, orégano, sal",
-    "1 cdta de aceite de oliva"
+    "180 g de pechuga en trozos",
+    "½ cebolla y 1 tomate picados",
+    "Ajo, comino, color, sal",
+    "1½ taza de arroz cocido",
+    "Lechuga, tomate y limón",
+    "1 cdta de aceite"
    ],
    "pasos": [
-    "Cocina la pasta en agua con sal según el paquete (8-10 min).",
-    "Mientras tanto, sofríe el ajo con el aceite, agrega el tomate rallado y la pasta de tomate, 6 min.",
-    "Echa el atún y el maíz a la salsa, 2 min más.",
-    "Mezcla con la pasta escurrida. Orégano y sal al gusto."
+    "Sofríe cebolla y tomate con el aceite 3 min.",
+    "Agrega la pechuga en trozos, sal, ajo y comino; dora 5 min.",
+    "Añade ½ taza de agua, tapa y cocina a fuego bajo 12-15 min hasta que esté bien cocida.",
+    "Sirve con el arroz y la ensalada aliñada con limón."
    ],
-   "tip": "Sirve caliente o fría. Aguanta 2 días en la nevera."
+   "tip": "Corta la pechuga en trozos parejos para que se cocine rápido y no quede seca."
   },
   {
    "id": "r_a5",
@@ -699,6 +826,28 @@
    "tip": "Congela la segunda porción: dura un mes y se descongela en la nevera de un día para otro."
   },
   {
+   "id": "r_a7",
+   "meal": "a7",
+   "n": "Garbanzos guisados con arroz y huevo",
+   "min": 20,
+   "rinde": "1 porción",
+   "lleva": true,
+   "ing": [
+    "1½ taza de garbanzos cocidos (o 1 lata escurrida)",
+    "½ cebolla y 1 tomate picados",
+    "Ajo, comino, color, sal",
+    "1 taza de arroz cocido",
+    "1 huevo"
+   ],
+   "pasos": [
+    "Sofríe cebolla, tomate y ajo con un poco de aceite 4 min.",
+    "Agrega los garbanzos, comino, color y sal; cocina 8-10 min con un chorrito de agua para que agarren sabor.",
+    "Cocina el huevo 10 min en agua hirviendo y pélalo.",
+    "Sirve los garbanzos sobre el arroz con el huevo partido encima."
+   ],
+   "tip": "Si usas garbanzos secos, remójalos la noche anterior y cocínalos 25-30 min en la olla a presión."
+  },
+  {
    "id": "r_c1",
    "meal": "c1",
    "n": "Pechuga a la plancha con arroz y aguacate",
@@ -718,6 +867,27 @@
     "Calienta el arroz y sirve con aguacate y ensalada."
    ],
    "tip": "Si la pechuga es gruesa, ábrela en mariposa: se hace en la mitad del tiempo y no queda seca."
+  },
+  {
+   "id": "r_c2",
+   "meal": "c2",
+   "n": "Huevos revueltos con arepa y frijoles",
+   "min": 15,
+   "rinde": "1 porción",
+   "lleva": false,
+   "ing": [
+    "3 huevos",
+    "1 arepa grande de maíz",
+    "1 taza de frijoles cocidos (del domingo)",
+    "Sal y cebolla larga al gusto"
+   ],
+   "pasos": [
+    "Bate los huevos con sal y un poco de cebolla larga picada.",
+    "Cocínalos revueltos a fuego medio 3-4 min, sin dejar de mover.",
+    "Calienta la arepa en sartén o tostadora.",
+    "Calienta los frijoles del domingo y sirve todo junto."
+   ],
+   "tip": "Si no tienes frijoles del domingo, usa una lata de frijoles rojos escurridos."
   },
   {
    "id": "r_c3",
@@ -782,9 +952,67 @@
     "Rellena con pollo y verduras, enrolla y dóralas 1 min por lado."
    ],
    "tip": "Para llevar, envuélvelo en papel aluminio: no se abre y aguanta hasta la noche."
+  },
+  {
+   "id": "r_c6",
+   "meal": "c6",
+   "n": "Pollo al horno con arroz y ensalada de aguacate",
+   "min": 35,
+   "rinde": "1 porción",
+   "lleva": false,
+   "ing": [
+    "180 g de pechuga",
+    "Limón, ajo, sal, pimienta y orégano",
+    "1 taza de arroz cocido",
+    "¼ de aguacate",
+    "Tomate en rodajas"
+   ],
+   "pasos": [
+    "Adoba la pechuga con limón, ajo, sal, pimienta y orégano (desde la mañana si puedes).",
+    "Hornea a 200 °C por 20-22 min o hasta que esté bien cocida (o freidora de aire 15 min).",
+    "Deja reposar 3 min y córtala en tajadas.",
+    "Sirve con el arroz y la ensalada de tomate y aguacate."
+   ],
+   "tip": "Si no tienes horno, hazla a la plancha 5-6 min por lado a fuego medio."
   }
  ],
  "news": [
+  {
+   "id": "carbohidratos-hipertrofia-2026",
+   "tema": "Carbohidratos",
+   "titulo": "Más carbos no suman músculo extra si las calorías ya cuadran",
+   "resumen": "Revisión sistemática y metaanálisis de ensayos que compararon dietas con más o menos carbohidratos con las calorías igualadas: la hipertrofia no fue mayor con más carbohidratos, ni siquiera en el subgrupo con medición directa por ecografía. La certeza de la evidencia es baja por el número limitado de estudios.",
+   "aplica": "Tus 415 g de carbos son para rendir y sentirte bien en los 90 minutos de entreno, no para crecer más músculo por sí solos; si algún día tienes que bajarlos por presupuesto, prioriza mantener la proteína y las calorías totales.",
+   "cita": "Henselmans M et al., 2026. Sports Medicine",
+   "url": "https://doi.org/10.1007/s40279-025-02341-z",
+   "fecha": "2026-02",
+   "tipo": "meta-análisis",
+   "agregado": "2026-09-28"
+  },
+  {
+   "id": "cafeina-potencia-2025",
+   "tema": "Cafeína",
+   "titulo": "La cafeína sube un poco la velocidad y potencia al levantar",
+   "resumen": "Metaanálisis de 12 estudios (230 participantes): la cafeína antes de entrenar mejoró la velocidad media y la potencia media en ejercicios de fuerza. El beneficio fue mayor en hombres, en quienes no toman café a diario y en ejercicios de tren inferior.",
+   "aplica": "Un café antes de las 7 p.m. (unos 200 mg de cafeína) te puede ayudar a mover más rápido las cargas, sobre todo en sentadilla y peso muerto; no lo tomes todos los días si quieres que siga haciendo efecto.",
+   "cita": "Xiao Y et al., 2025. Frontiers in Nutrition",
+   "url": "https://doi.org/10.3389/fnut.2025.1686283",
+   "fecha": "2025-10",
+   "tipo": "meta-análisis",
+   "agregado": "2026-09-28"
+  },
+  {
+   "id": "proteina-antes-dormir-2025",
+   "tema": "Proteína antes de dormir",
+   "titulo": "Proteína antes de dormir: no suma si ya comes suficiente en el día",
+   "resumen": "Ensayo de 12 semanas en adultos mayores sin entrenamiento previo: dar 40 g de proteína después de entrenar o antes de dormir no mejoró el grosor muscular ni la fuerza frente a solo entrenar, cuando la proteína diaria ya era adecuada. Es una muestra pequeña (30 personas) y en población mayor, no en jóvenes entrenados.",
+   "aplica": "Lo que más importa es llegar a tus 140 g de proteína al día repartidos en las comidas; un batido o comida extra antes de dormir no es obligatorio si ya cumpliste la meta diaria.",
+   "cita": "Klemp AO et al., 2025. Journal of the International Society of Sports Nutrition",
+   "url": "https://doi.org/10.1080/15502783.2025.2519511",
+   "fecha": "2025-06",
+   "tipo": "ensayo",
+   "agregado": "2026-09-28"
+  },
   {
    "id": "volumen-frecuencia-2025",
    "tema": "Volumen y frecuencia",
@@ -891,12 +1119,12 @@
     "id": "pechuga",
     "cat": "Proteínas",
     "n": "Pechuga de pollo",
-    "q": "2 kg",
-    "price": 29000,
+    "q": "3 bolsas de 1,1 kg (3,3 kg)",
+    "price": 47850,
     "store": "D1",
     "date": "2026-09-28",
     "src": "https://www.d1.com.co/pechugas-pollo-brasset-1100g-12001287/p",
-    "prod": "Pechugas Brasset 1.100 g (congelada, marinada) a $15.950; 2 bolsas salen $31.900"
+    "prod": "Pechugas Brasset 1.100 g (congelada, marinada) a $15.950 c/u; 3 bolsas salen $47.850"
    },
    {
     "id": "muslo",
@@ -946,12 +1174,12 @@
     "id": "atun",
     "cat": "Proteínas",
     "n": "Atún en agua",
-    "q": "4 latas",
-    "price": 11980,
+    "q": "2 latas (1 duopack)",
+    "price": 5990,
     "store": "D1",
     "date": "2026-09-28",
     "src": "https://www.d1.com.co/duopack-atun-agua-carlo-forte-12005690/p",
-    "prod": "2 duopacks de atún en agua Carlo Forte 160 g"
+    "prod": "1 duopack de atún en agua Carlo Forte 160 g"
    },
    {
     "id": "huevos",
@@ -965,15 +1193,26 @@
     "prod": "2 cubetas x30 huevo tipo A Sol Naciente"
    },
    {
+    "id": "garbanzo",
+    "cat": "Granos y harinas",
+    "n": "Garbanzo",
+    "q": "500 g",
+    "price": 2690,
+    "store": "D1",
+    "date": "2026-09-28",
+    "src": "https://www.d1.com.co/garbanzo-el-estio-500g-12000044/p",
+    "prod": "Garbanzo El Estío 500 g"
+   },
+   {
     "id": "queso",
     "cat": "Lácteos",
     "n": "Queso campesino",
-    "q": "500 g",
-    "price": 13557,
+    "q": "400 g",
+    "price": 10846,
     "store": "D1",
     "date": "2026-09-28",
     "src": "https://www.d1.com.co/queso-campesino-bloque-latti-x350g-12006219/p",
-    "prod": "Queso campesino Latti 350 g a $9.490 (2 bloques = $18.980)"
+    "prod": "Queso campesino Latti 350 g a $9.490; con un bloque chico extra llega a 400 g ($10.846 aprox.)"
    },
    {
     "id": "leche",
@@ -998,15 +1237,39 @@
     "prod": "Kumis bolsa Latti 1 L"
    },
    {
+    "id": "yogurt_griego",
+    "cat": "Lácteos",
+    "n": "Yogurt griego natural",
+    "q": "1 pote de 1000 g",
+    "price": 19930,
+    "store": "Éxito",
+    "date": "2026-09-28",
+    "src": "https://www.exito.com/yogurt-griego-natural-frescampo-descremado-sin-dulce-1000-gr-3182153/p",
+    "prod": "Yogurt griego Frescampo natural descremado sin dulce 1000 g"
+   },
+   {
+    "id": "granola",
+    "cat": "Despensa",
+    "n": "Granola",
+    "q": "1 bolsa de 500 g",
+    "price": 11450,
+    "store": "Jumbo",
+    "date": "2026-09-28",
+    "src": "https://www.jumbocolombia.com/granola-toning-500g-40620/p",
+    "prod": "Granola Toning tradicional 500 g",
+    "mes": true,
+    "nota": "Dura aproximadamente un mes: en el promedio quincenal cuenta la mitad."
+   },
+   {
     "id": "arroz",
     "cat": "Granos y harinas",
     "n": "Arroz",
-    "q": "2 kg",
-    "price": 5550,
+    "q": "2,5 kg",
+    "price": 6940,
     "store": "Éxito",
     "date": "2026-09-28",
     "src": "https://www.exito.com/arroz-blanco-ekono-2000-gr-3161048/p",
-    "prod": "Arroz Ekono 2 kg"
+    "prod": "Arroz Ekono 2 kg a $5.550/2kg ($2.775/kg); para 2,5 kg salen $6.940"
    },
    {
     "id": "lentejas",
@@ -1042,17 +1305,6 @@
     "prod": "Avena Ekono 500 g"
    },
    {
-    "id": "pasta",
-    "cat": "Granos y harinas",
-    "n": "Pasta",
-    "q": "500 g",
-    "price": 2310,
-    "store": "Jumbo",
-    "date": "2026-09-28",
-    "src": "https://tiendasjumbo.co/pasta-pan-spaguetti-x500g-369928/p",
-    "prod": "Spaguetti 500 g"
-   },
-   {
     "id": "arepas",
     "cat": "Panadería",
     "n": "Arepas de maíz",
@@ -1067,12 +1319,12 @@
     "id": "pan_int",
     "cat": "Panadería",
     "n": "Pan integral tajado",
-    "q": "2 bolsas",
-    "price": 5800,
+    "q": "1 bolsa",
+    "price": 2900,
     "store": "Éxito",
     "date": "2026-09-28",
     "src": "https://www.exito.com/pan-integral-mediano-frescampo-320-gr-652316/p",
-    "prod": "2 bolsas de pan integral Frescampo 320 g"
+    "prod": "Pan integral Frescampo 320 g"
    },
    {
     "id": "pan",
@@ -1157,12 +1409,12 @@
     "id": "guayaba",
     "cat": "Frutas",
     "n": "Guayaba",
-    "q": "1 kg",
-    "price": 5200,
+    "q": "500 g",
+    "price": 2600,
     "store": "Corabastos (SIPSA +30 %)",
     "date": "2026-09-25",
     "src": "https://www.dane.gov.co/files/operaciones/SIPSA/anex-SIPSASemanal-19sep25sep-2026.xlsx",
-    "prod": "Guayaba pera",
+    "prod": "Guayaba pera (medio kilo)",
     "nota": "Precio mayorista de Corabastos (boletín SIPSA del DANE) más 30 % para estimar lo que pagas en plaza."
    },
    {
@@ -1181,8 +1433,8 @@
     "id": "aguacate",
     "cat": "Frutas",
     "n": "Aguacate",
-    "q": "3 medianos",
-    "price": 6540,
+    "q": "4 medianos",
+    "price": 8720,
     "store": "Jumbo",
     "date": "2026-09-28",
     "src": "https://www.jumbocolombia.com/aguacate-injerto-unidad/p",
@@ -1250,8 +1502,8 @@
     "id": "tomate",
     "cat": "Verduras",
     "n": "Tomate",
-    "q": "1,5 kg",
-    "price": 8346,
+    "q": "2 kg",
+    "price": 11128,
     "store": "Corabastos (SIPSA +30 %)",
     "date": "2026-09-25",
     "src": "https://www.dane.gov.co/files/operaciones/SIPSA/anex-SIPSASemanal-19sep25sep-2026.xlsx",
@@ -1262,8 +1514,8 @@
     "id": "cebolla",
     "cat": "Verduras",
     "n": "Cebolla cabezona",
-    "q": "1 kg",
-    "price": 2487,
+    "q": "1,3 kg",
+    "price": 3233,
     "store": "Corabastos (SIPSA +30 %)",
     "date": "2026-09-25",
     "src": "https://www.dane.gov.co/files/operaciones/SIPSA/anex-SIPSASemanal-19sep25sep-2026.xlsx",
@@ -1286,20 +1538,20 @@
     "id": "verduras",
     "cat": "Verduras",
     "n": "Zanahoria, habichuela y arveja",
-    "q": "1 kg",
-    "price": 6892,
+    "q": "700 g",
+    "price": 4824,
     "store": "Corabastos (SIPSA +30 %)",
     "date": "2026-09-25",
     "src": "https://www.dane.gov.co/files/operaciones/SIPSA/anex-SIPSASemanal-19sep25sep-2026.xlsx",
-    "prod": "1/3 kg de cada una",
+    "prod": "0,7 kg: 1/3 de cada una aprox.",
     "nota": "Precio mayorista de Corabastos (boletín SIPSA del DANE) más 30 % para estimar lo que pagas en plaza."
    },
    {
     "id": "lechuga",
     "cat": "Verduras",
     "n": "Lechuga",
-    "q": "2 unidades",
-    "price": 3051,
+    "q": "3 unidades",
+    "price": 4577,
     "store": "Corabastos (SIPSA +30 %)",
     "date": "2026-09-25",
     "src": "https://www.dane.gov.co/files/operaciones/SIPSA/anex-SIPSASemanal-19sep25sep-2026.xlsx",
@@ -1310,8 +1562,8 @@
     "id": "limon",
     "cat": "Verduras",
     "n": "Limón",
-    "q": "6 unidades",
-    "price": 1442,
+    "q": "8 unidades",
+    "price": 1923,
     "store": "Corabastos (SIPSA +30 %)",
     "date": "2026-09-25",
     "src": "https://www.dane.gov.co/files/operaciones/SIPSA/anex-SIPSASemanal-19sep25sep-2026.xlsx",
@@ -1393,28 +1645,6 @@
     "nota": "Dura aproximadamente un mes: en el promedio quincenal cuenta la mitad."
    },
    {
-    "id": "maiz",
-    "cat": "Despensa",
-    "n": "Maíz tierno en lata",
-    "q": "2 latas",
-    "price": 7980,
-    "store": "Olímpica",
-    "date": "2026-09-28",
-    "src": "https://www.olimpica.com/maiz-tierno-gracol-185-g/p",
-    "prod": "2 latas de maíz tierno Gracol 185 g"
-   },
-   {
-    "id": "tomate_salsa",
-    "cat": "Despensa",
-    "n": "Pasta de tomate",
-    "q": "1 unidad",
-    "price": 2800,
-    "store": "Olímpica",
-    "date": "2026-09-28",
-    "src": "https://www.olimpica.com/pasta-de-tomate-olimpica-doy-pack-200-g-7701008143081--1245558/p",
-    "prod": "Pasta de tomate 200 g"
-   },
-   {
     "id": "cafe",
     "cat": "Despensa",
     "n": "Café",
@@ -1444,33 +1674,34 @@
   "sources": "Boletín SIPSA del DANE (Corabastos, semana 19-25 sep), d1.com.co, exito.com, carulla.com, jumbocolombia.com, olimpica.com. Los precios web de supermercado son los que muestra cada sitio por defecto y pueden variar un poco en Bogotá.",
   "subs": [
    {
-    "de": "Pechuga (2 kg)",
-    "por": "Pernil de pollo (2 kg) en Éxito",
-    "ahorro": 9200,
-    "nota": "Quita piel y hueso: rinde algo menos de proteína; compensa con 1 huevo más al día."
+    "de": "Pechuga (3 bolsas de 1,1 kg)",
+    "por": "Pernil de pollo I.Marín (2 unidades ≈ 2 kg) en Éxito",
+    "ahorro": 34040,
+    "nota": "Quita piel y hueso: rinde algo menos de proteína; compénsalo con un huevo extra en la cena si notas que falta."
    },
    {
     "de": "Carne molida de res",
-    "por": "Carne molida de pollo en D1",
+    "por": "Carne molida de pollo Friko 500 g en D1",
     "ahorro": 12610,
     "nota": "Proteína parecida. Revisa que no venga condimentada."
    },
    {
-    "de": "Mango Tommy",
+    "de": "Mango (4 unidades)",
     "por": "4 bananos extra",
-    "ahorro": 13400,
+    "ahorro": 13445,
     "nota": "Mismos carbos en el pre-entreno."
    },
    {
-    "de": "Maní + uvas pasas",
-    "por": "Banano + 1 cda de la crema de maní que ya compras",
-    "ahorro": 16280,
-    "nota": "Para la media mañana del jueves."
+    "de": "Yogurt griego (1 pote de 1000 g)",
+    "por": "2 potes de Yogurt griego Frescampo de 330 g",
+    "ahorro": 5370,
+    "nota": "Rinde casi lo mismo (660 g) por menos plata; ajusta un poco las porciones."
    },
    {
-    "de": "Café Máxima 250 g",
-    "por": "Café Lukafe 195 g en Éxito",
-    "ahorro": 5890
+    "de": "Granola (500 g)",
+    "por": "Avena tostada con miel casera",
+    "ahorro": 5725,
+    "nota": "Tuesta la avena 3 min en sartén seco y mézclala con la miel que ya compras: mismo crocante, sin comprarla aparte."
    },
    {
     "de": "Bistec",
@@ -1495,11 +1726,6 @@
     "ahorro": 3610
    },
    {
-    "de": "Maíz tierno (2 latas)",
-    "por": "1 lata",
-    "ahorro": 3990
-   },
-   {
     "de": "Leche en bolsa Éxito",
     "por": "Leche Latti UHT en D1",
     "ahorro": 2030
@@ -1508,6 +1734,47 @@
     "de": "Tilapia en Éxito",
     "por": "Lomitos de tilapia en D1",
     "ahorro": 1170
+   },
+   {
+    "de": "Café Máxima 250 g",
+    "por": "Café Lukafe 195 g en Éxito",
+    "ahorro": 5890
+   },
+   {
+    "de": "Aguacate (4 medianos)",
+    "por": "3 medianos",
+    "ahorro": 2180,
+    "nota": "Un aguacate menos en la semana; refuerza la ensalada con más tomate y lechuga."
+   },
+   {
+    "de": "Tomate (2 kg)",
+    "por": "1,5 kg",
+    "ahorro": 2782
+   },
+   {
+    "de": "Queso campesino (400 g)",
+    "por": "350 g (1 sola presentación Latti)",
+    "ahorro": 2711
+   },
+   {
+    "de": "Pan integral (2 bolsas)",
+    "por": "1 bolsa",
+    "ahorro": 2900
+   },
+   {
+    "de": "Mandarina (8 unidades)",
+    "por": "6 unidades",
+    "ahorro": 1579
+   },
+   {
+    "de": "Naranja (1 kg)",
+    "por": "0,8 kg",
+    "ahorro": 739
+   },
+   {
+    "de": "Cebolla cabezona (1,3 kg)",
+    "por": "1 kg",
+    "ahorro": 746
    }
   ]
  }
