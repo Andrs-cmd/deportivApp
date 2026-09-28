@@ -116,6 +116,9 @@ a { color: var(--accent-text); }
 .hero .btn { background: var(--accent-ink); color: var(--accent); }
 .hero.rest { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
 .hero.rest .btn { background: var(--surface-2); color: var(--text); }
+.loc-seg { background: rgba(0,0,0,.12); margin-bottom: 14px; }
+.loc-seg button { color: var(--accent-ink); opacity: .75; min-height: 40px; }
+.loc-seg button.on { background: var(--accent-ink); color: var(--accent); opacity: 1; }
 .hero .meta { display: flex; gap: 14px; margin-bottom: 16px; font-weight: 600; font-size: 14px; }
 .hero-art { position: absolute; right: -8px; top: -6px; width: 120px; opacity: .22; pointer-events: none; }
 .hero-art .fg-body, .hero-art .fg-head { stroke: var(--accent-ink); }

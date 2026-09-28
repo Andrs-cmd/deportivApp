@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  const { E, G, R } = window.PF_DATA;
+  const { E, G, R, LOC } = window.PF_DATA;
   const FIG = window.PF_POSES;
 
   /* ---------- utilidades ---------- */
@@ -54,7 +54,7 @@
     v: 1,
     start: dk(monday(now())),
     schedule: ['empuje', 'tiron', 'piernas', null, 'torso', 'pierna_core', null],
-    weekMoves: {}, swaps: {}, logs: {}, body: [], meals: {}, mealSwaps: {}, water: {}, market: {}, myPrices: {}, eaten: {}, adjLog: [], adjSkip: null, measures: [], profile: { sex: 'h', age: 26, height: 171, act: 1.55 },
+    weekMoves: {}, swaps: {}, logs: {}, body: [], meals: {}, mealSwaps: {}, water: {}, market: {}, myPrices: {}, eaten: {}, adjLog: [], adjSkip: null, locs: {}, measures: [], profile: { sex: 'h', age: 26, height: 171, act: 1.55 },
     settings: { theme: 'auto', name: '', budget: 250000, waterGoal: 10, rotWeeks: 5, weighDay: 0 }
   });
   function load() {
@@ -67,6 +67,7 @@
     out.eaten = out.eaten || {};
     out.adjLog = out.adjLog || [];
     out.measures = out.measures || [];
+    out.locs = out.locs || {};
     out.profile = Object.assign({ sex: 'h', age: 26, height: 171, act: 1.55 }, out.profile || {});
     out.settings = Object.assign(defaults().settings, s.settings || {});
     if (!out.settings.budget) out.settings.budget = 250000;
@@ -106,17 +107,40 @@
     return { block, week: (w % len) + 1, len, next: addDays(monday(parse(S.start)), (block + 1) * len * 7) };
   }
 
+  const PLACES = { gym: 'Gimnasio', casa: 'Casa', parque: 'Parque' };
+  const locOn = d => S.locs[dk(d || now())] || S.settings.defLoc || 'gym';
+  const swapKey = (slotId, d) => { const l = locOn(d); return l === 'gym' ? slotId : l + ':' + slotId; };
+  // Alternativas de un ejercicio según el lugar
+  function altsFor(exId, loc) {
+    const g = E[exId].g;
+    if (loc === 'gym') return G[g].filter(x => x !== exId && !E[x].cal);
+    return ((LOC[loc] || {})[g] || []).filter(x => x !== exId);
+  }
+
   function slotsFor(rid, d) {
     const r = R[rid];
     if (!r) return [];
     const { block } = blockInfo(d);
+    const loc = locOn(d);
+    if (loc !== 'gym') {
+      const used = new Set();
+      return r.slots.map(s => {
+        const list = (LOC[loc] || {})[E[s.ex].g] || [s.ex];
+        let ex = list[0];
+        const sw = S.swaps[loc + ':' + s.id];
+        if (sw && sw.block === block && E[sw.ex]) ex = sw.ex;
+        else for (let k = 0; k < list.length; k++) { const c = list[(block + k) % list.length]; if (!used.has(c)) { ex = c; break; } }
+        used.add(ex);
+        return Object.assign({}, s, { ex, reps: E[ex].reps || s.reps });
+      });
+    }
     const used = new Set(r.slots.filter(s => s.b).map(s => s.ex));
     return r.slots.map(s => {
       let ex = s.ex;
       const sw = S.swaps[s.id];
       if (sw && sw.block === block && E[sw.ex]) ex = sw.ex;
       else if (!s.b) {
-        const grp = G[E[s.ex].g].filter(id => !BASICS.has(id) || id === s.ex);
+        const grp = G[E[s.ex].g].filter(id => !E[id].cal && (!BASICS.has(id) || id === s.ex));
         const i0 = grp.indexOf(s.ex);
         for (let k = 0; k < grp.length; k++) {
           const c = grp[(i0 + block + k) % grp.length];
@@ -518,6 +542,7 @@
       h += `<section class="hero fade-in">
         <div class="hero-art">${fig(slots[0].ex, 1)}</div>
         <div class="k">Hoy toca</div><h2>${R[rid].n}</h2><p>${R[rid].d}</p>
+        <div class="seg loc-seg" role="group" aria-label="Dónde entrenas hoy">${Object.entries(PLACES).map(([v, l]) => `<button class="${locOn(d) === v ? 'on' : ''}" data-a="loc-set" data-v="${v}">${l}</button>`).join('')}</div>
         <div class="meta"><span>${slots.length} ejercicios</span><span>≈ ${mins} min</span><span>${doneN}/${slots.length} hechos</span></div>
         ${finished
           ? `<a class="btn block big" href="#/resumen/${k}">${ic('check', 2.6)} Entreno terminado · ver resumen</a>`
@@ -611,7 +636,7 @@
       h += `<div class="card day-card ${isToday ? 'today' : ''}"><div class="day ${isToday ? 'today' : ''}">
         <div class="dn"><span>${DAYS[i]}</span><b>${d.getDate()}</b></div>
         <div class="grow"><div style="font-weight:700;font-size:17px">${rid ? R[rid].n : 'Descanso'}</div>
-        <div class="small muted">${rid ? R[rid].d : 'Recuperación'}</div>${st}</div>
+        <div class="small muted">${rid ? R[rid].d : 'Recuperación'}</div>${st}${rid && !(L && L.done) ? `<button class="chip line" style="margin-top:6px" data-a="loc-cycle" data-k="${k}">${PLACES[locOn(d)]} · cambiar</button>` : ''}</div>
         ${rid && !(L && L.done) ? `<button class="btn ghost" style="min-height:44px;padding:0 14px" data-a="move" data-i="${i}">${ic('swap')} Mover</button>` : ''}
       </div></div>`;
     }
@@ -756,7 +781,7 @@
     if (!ex) { location.hash = '#/hoy'; return; }
     const slot = slotId ? findSlot(slotId) : null;
     const isBasic = slot ? !!slot.b : BASICS.has(id);
-    const alts = G[ex.g].filter(x => x !== id);
+    const alts = slotId ? altsFor(id, locOn()) : G[ex.g].filter(x => x !== id);
     let h = `<div class="page-head">${backBtn}<div class="ttl">Ficha del ejercicio</div></div>
       <h1 class="ex-title">${ex.n}</h1>
       <div class="chips"><span class="chip acc">${isBasic ? 'Básico · progresa carga' : 'Accesorio · rota por bloques'}</span><span class="chip">${PROP[ex.prop]}</span></div>
@@ -837,7 +862,7 @@
     const last = prev ? prev.sets.map(p => seg ? p.reps + ' s' : `${fmt(+p.kg)}×${p.reps}`).join(' · ') : null;
 
     let h = `<div class="live-head"><button class="icon-btn" data-a="live-exit" aria-label="Salir">${ic('close', 2.4)}</button>
-      <div class="ttl"><b>${R[rid].n}</b><span class="num" id="elapsed">${mmss((Date.now() - L.started) / 1000)}</span></div>
+      <div class="ttl"><b>${R[rid].n} · ${PLACES[locOn()]}</b><span class="num" id="elapsed">${mmss((Date.now() - L.started) / 1000)}</span></div>
       <button class="btn pri" style="min-height:44px;padding:0 16px" data-a="finish">Terminar</button></div>
       <div class="dots">${slots.map((o, i) => `<button class="${L.ex[o.id] && L.ex[o.id].done ? 'done' : ''} ${i === LV.idx ? 'cur' : ''}" data-a="go-ex" data-i="${i}" aria-label="Ejercicio ${i + 1}"></button>`).join('')}</div>
       <div class="ex-card fade-in">
@@ -964,6 +989,8 @@
         <label class="lbl" for="sAct">Nivel de actividad</label><select class="field" id="sAct" data-prof="act">${[[1.375, 'Ligero: entreno 1-3 días'], [1.55, 'Moderado: entreno 4-5 días, trabajo sentado'], [1.725, 'Alto: entreno diario o trabajo de pie'], [1.9, 'Muy alto: trabajo físico + entreno']].map(([v, l]) => `<option value="${v}" ${+S.profile.act === v ? 'selected' : ''}>${l}</option>`).join('')}</select>
         <label class="lbl" for="sWd">Día de pesaje</label><select class="field" id="sWd" data-set="weighDay">${DAYS_L.map((d, i) => `<option value="${i}" ${+st.weighDay === i ? 'selected' : ''}>${d}</option>`).join('')}</select></div>
       <div class="card"><h2>Entreno</h2>
+        <label class="lbl">Dónde entrenas normalmente</label><div class="seg">${Object.entries(PLACES).map(([v, l]) => `<button class="${(st.defLoc || 'gym') === v ? 'on' : ''}" data-a="loc-def" data-v="${v}">${l}</button>`).join('')}</div>
+        <p class="small muted" style="margin:6px 0 0">Cada día lo puedes cambiar en Hoy o en Semana.</p>
         <label class="lbl">Rotar accesorios cada</label><div class="seg">${[4, 5, 6].map(n => `<button class="${+st.rotWeeks === n ? 'on' : ''}" data-a="rot" data-v="${n}">${n} semanas</button>`).join('')}</div>
         <label class="lbl" for="sStart">Inicio del programa</label><input class="field" id="sStart" type="date" data-set="start" value="${S.start}">
         <label class="lbl">Semana tipo</label>${DAYS.map((d, i) => `<div class="sched-row"><b>${d}</b><select class="field" data-sched="${i}">${opts(S.schedule[i])}</select></div>`).join('')}</div>
@@ -1077,6 +1104,18 @@
     });
   }
 
+  // Cambia el lugar de un día y rehace los ejercicios que aún no tienen series hechas
+  function setLoc(k, v) {
+    S.locs[k] = v;
+    const L = S.logs[k];
+    if (L) {
+      Object.keys(L.ex).forEach(id => { if (!L.ex[id].sets.some(x => x.done)) delete L.ex[id]; });
+      ensureLog(k, L.routine);
+    }
+    LV.set = {};
+    save();
+  }
+
   function eatPush(k, sl, item) {
     const day = S.eaten[k] = S.eaten[k] || {};
     const arr = day[sl] = day[sl] || [];
@@ -1166,11 +1205,18 @@
       setWeekPlan(now(), plan);
       closeSheet(); toast('Listo, rutina movida'); rerender();
     },
+    'loc-set'(b) { setLoc(dk(now()), b.dataset.v); toast(`Hoy entrenas en: ${PLACES[b.dataset.v].toLowerCase()}`); rerender(); },
+    'loc-cycle'(b) {
+      const order = Object.keys(PLACES), k = b.dataset.k;
+      const next = order[(order.indexOf(locOn(parse(k))) + 1) % order.length];
+      setLoc(k, next); rerender();
+    },
+    'loc-def'(b) { S.settings.defLoc = b.dataset.v; save(); rerender(); toast('Guardado'); },
     'week-reset'() { delete S.weekMoves[dk(monday(now()))]; save(); rerender(); },
     'open-ex'(b) { location.hash = `#/ej/${b.dataset.id}${b.dataset.slot ? '/' + b.dataset.slot : ''}`; },
     'use-alt'(b) {
       const slotId = b.dataset.slot, id = b.dataset.id;
-      S.swaps[slotId] = { ex: id, block: blockInfo().block };
+      S.swaps[swapKey(slotId)] = { ex: id, block: blockInfo().block };
       const { L } = liveCtx(slotId);
       if (L && L.ex[slotId] && !L.ex[slotId].sets.some(s => s.done)) { L.ex[slotId].ex = id; L.ex[slotId].sets = []; }
       save(); toast(`Cambiado por ${E[id].n}`);
@@ -1334,13 +1380,13 @@
     swap(b) {
       readInputs(); save();
       const { x } = liveCtx(b.dataset.slot);
-      const alts = G[E[x.ex].g].filter(id => id !== x.ex);
+      const alts = altsFor(x.ex, locOn());
       openSheet(`<h3>Cambiar ${esc(E[x.ex].n)}</h3><p class="small muted" style="margin:0 0 6px">Por equipo ocupado, molestia o aburrimiento. Se mantiene hasta el próximo bloque.</p>
         ${alts.map(id => `<button class="opt" data-a="swap-to" data-slot="${b.dataset.slot}" data-id="${id}"><div style="width:48px;height:48px;flex:none;border-radius:10px;overflow:hidden">${still(id, 0)}</div><div class="grow"><div class="t">${E[id].n}</div><div class="d">${E[id].m.join(', ')} · ${PROP[E[id].prop]}</div></div></button>`).join('')}`);
     },
     'swap-to'(b) {
       const slotId = b.dataset.slot, id = b.dataset.id;
-      S.swaps[slotId] = { ex: id, block: blockInfo().block };
+      S.swaps[swapKey(slotId)] = { ex: id, block: blockInfo().block };
       const { x } = liveCtx(slotId);
       x.ex = id;
       x.sets = x.sets.filter(s => s.done).length ? x.sets : [];
