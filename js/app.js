@@ -46,7 +46,7 @@
     refresh: '<path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6"/>',
     flag: '<path d="M5 21V4M5 4h11l-2 4 2 4H5"/>'
   };
-  const ic = (n, sw) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw || 2}" stroke-linecap="round" stroke-linejoin="round">${I[n]}</svg>`;
+  const ic = (n, sw) => `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw || 2}" stroke-linecap="round" stroke-linejoin="round">${I[n]}</svg>`;
 
   /* ---------- estado ---------- */
   const KEY = 'pf.v1';
@@ -308,6 +308,69 @@
       <text x="${(L[0] + 8).toFixed(1)}" y="${(L[1] + 4).toFixed(1)}" class="lastv">${fmt(ys[ys.length - 1])}${unit || ''}</text>
       <text x="${pl}" y="${H - 6}" class="ax">${shortDate(pts[0].x)}</text>
       <text x="${W - pr}" y="${H - 6}" text-anchor="end" class="ax">${shortDate(pts[pts.length - 1].x)}</text></svg>`;
+  }
+
+  /* ---------- volumen semanal por músculo ---------- */
+  const MUSCLES = ['Pecho', 'Espalda', 'Hombro frontal', 'Hombro lateral', 'Hombro posterior', 'Bíceps', 'Tríceps', 'Cuádriceps', 'Isquiotibiales', 'Glúteos', 'Gemelos', 'Abdomen'];
+  function muscleOf(name) {
+    const n = name.toLowerCase();
+    if (n.includes('pectoral')) return 'Pecho';
+    if (n.includes('dorsal') || n.includes('romboides') || n.includes('trapecio medio') || n.includes('trapecio inferior') || n.includes('espalda alta')) return 'Espalda';
+    if (n.includes('deltoides anterior') || n === 'hombros') return 'Hombro frontal';
+    if (n.includes('deltoides lateral')) return 'Hombro lateral';
+    if (n.includes('deltoides posterior')) return 'Hombro posterior';
+    if (n.includes('bíceps') || n.includes('braquial') || n.includes('braquiorradial')) return 'Bíceps';
+    if (n.includes('tríceps')) return 'Tríceps';
+    if (n.includes('cuádriceps')) return 'Cuádriceps';
+    if (n.includes('isquiotibiales')) return 'Isquiotibiales';
+    if (n.includes('glúteo')) return 'Glúteos';
+    if (n.includes('gastrocnemio') || n.includes('sóleo') || n.includes('gemelos')) return 'Gemelos';
+    if (n.includes('abdominal') || n.includes('oblicuos') || n.includes('transverso') || n === 'core' || n.includes('flexores de cadera')) return 'Abdomen';
+    return null;
+  }
+  // Peso por músculo de un ejercicio: principal 1, secundario 0,5 (sin contar dos veces el mismo músculo)
+  const exWeights = {};
+  function weightsOf(exId) {
+    if (exWeights[exId]) return exWeights[exId];
+    const w = {};
+    E[exId].s.forEach(m => { const g = muscleOf(m); if (g) w[g] = Math.max(w[g] || 0, 0.5); });
+    E[exId].m.forEach(m => { const g = muscleOf(m); if (g) w[g] = 1; });
+    return (exWeights[exId] = w);
+  }
+  function weekVolume(d0) {
+    const done = {}, plan = {};
+    const add = (o, exId, n) => { const w = weightsOf(exId); for (const g in w) o[g] = (o[g] || 0) + w[g] * n; };
+    for (let i = 0; i < 7; i++) {
+      const d = addDays(d0, i), k = dk(d), L = S.logs[k];
+      const rid = L && (L.started || hasDone(L)) ? L.routine : weekPlan(d)[i];
+      if (rid) (L && L.routine === rid ? logSlots(k) : slotsFor(rid, d)).forEach(sl => add(plan, sl.ex, sl.sets));
+      if (L) Object.values(L.ex || {}).forEach(x => { const n = (x.sets || []).filter(st => st.done).length || (x.done ? (R[L.routine].slots.find(o => L.ex[o.id] === x) || { sets: 0 }).sets : 0); if (n) add(done, x.ex, n); });
+    }
+    return { done, plan };
+  }
+  let volWeekOffset = 0;
+  function volumeCard() {
+    const d0 = addDays(monday(now()), -7 * volWeekOffset);
+    const { done, plan } = weekVolume(d0);
+    const MAX = 26;
+    const pct = v => Math.min(100, v / MAX * 100);
+    const zone = v => v < 10 ? ['Bajo', 'var(--warn)'] : v <= 20 ? ['En zona', 'var(--accent-text)'] : ['Alto', 'var(--danger)'];
+    const low = MUSCLES.filter(m => (plan[m] || 0) < 10);
+    let h = `<div class="card"><div class="row" style="align-items:flex-start"><div class="grow"><h2 style="margin-bottom:2px">Volumen semanal por músculo</h2>
+      <div class="small muted">Series efectivas · semana del ${d0.getDate()} ${MONTHS[d0.getMonth()]}</div></div>
+      <div class="seg" style="grid-template-columns:1fr 1fr;width:150px;flex:none">${['Esta', 'Pasada'].map((l, i) => `<button class="${volWeekOffset === i ? 'on' : ''}" data-a="vol-week" data-v="${i}" style="min-height:36px;font-size:13px">${l}</button>`).join('')}</div></div>
+      <div style="margin-top:12px">${MUSCLES.map(m => {
+        const dn = Math.round((done[m] || 0) * 2) / 2, pl = Math.round((plan[m] || 0) * 2) / 2, [zl, zc] = zone(volWeekOffset ? dn : pl);
+        return `<div style="margin-bottom:10px"><div class="row small" style="justify-content:space-between;gap:8px"><b>${m}</b><span class="num"><b>${fmt(dn)}</b> de ${fmt(pl)} <span style="color:${zc};font-weight:700">· ${zl}</span></span></div>
+          <div style="position:relative;height:10px;border-radius:99px;background:var(--ring-bg);margin-top:4px;overflow:hidden">
+            <div style="position:absolute;left:${pct(10)}%;width:${pct(20) - pct(10)}%;top:0;bottom:0;background:var(--accent-text);opacity:.14"></div>
+            <div style="position:absolute;left:0;width:${pct(pl)}%;top:0;bottom:0;border-radius:99px;background:var(--text);opacity:.14"></div>
+            <div style="position:absolute;left:0;width:${pct(dn)}%;top:0;bottom:0;border-radius:99px;background:var(--accent-text)"></div></div></div>`;
+      }).join('')}</div>
+      <div class="small muted" style="display:flex;gap:12px;flex-wrap:wrap"><span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--accent-text);vertical-align:-1px"></span> hecho</span><span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--text);opacity:.25;vertical-align:-1px"></span> planeado</span><span><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:var(--accent-text);opacity:.2;vertical-align:-1px"></span> zona 10-20</span></div>
+      ${!volWeekOffset && low.length ? `<div class="tip">Con el plan de esta semana quedan cortos: <b>${low.join(', ')}</b>. Si te sobra energía, suma 2-3 series de un ejercicio de ese músculo o no te saltes su día.</div>` : ''}
+      <p class="small muted" style="margin:10px 0 0">Una serie cuenta 1 para el músculo principal y 0,5 para los que ayudan. Solo cuentan series cerca del fallo (0-3 reps en reserva). <a href="https://doi.org/10.1007/s40279-025-02344-w" target="_blank" rel="noopener">Pelland et al., 2025</a></p></div>`;
+    return h;
   }
 
   /* ---------- fotos de progreso (solo en este celular, IndexedDB) ---------- */
@@ -741,6 +804,7 @@
       </div>
       <p class="small muted" style="margin:12px 0 0">Meta para ganar músculo sin mucha grasa: subir <b>${fmt(Math.round(ref * 0.0025 * 100) / 100)}-${fmt(Math.round(ref * 0.005 * 100) / 100)} kg por semana</b> (0,25-0,5 % del peso). Si subes más rápido, baja un poco los carbos; si no subes en 2 semanas, súbelos. <a href="https://doi.org/10.3390/sports7070154" target="_blank" rel="noopener">Iraki et al., 2019</a></p></div>`;
     h += adjCard();
+    h += volumeCard();
     h += bodySummary();
     const nW = Object.keys(S.photoWeeks).length;
     h += `<a class="card" style="display:block;text-decoration:none;color:inherit" href="#/fotos"><div class="row"><div class="grow"><h2 style="margin:0">Fotos de progreso</h2><div class="small muted" style="margin-top:4px">${nW ? nW + (nW === 1 ? ' semana guardada' : ' semanas guardadas') + (photosPending() ? ' · faltan las de esta semana' : ' · esta semana lista') : 'Frente, lado y espalda cada semana para ver el cambio que la báscula no muestra'}</div></div>${ic('right')}</div></a>`;
@@ -1252,6 +1316,7 @@
       renderFotos();
     },
     'ph-pose'(b) { cmp.pose = b.dataset.v; renderFotos(); },
+    'vol-week'(b) { volWeekOffset = +b.dataset.v; rerender(); },
     'measure-save'() {
       const m = { d: dk(now()) };
       ['waist', 'neck', 'hip', 'chest', 'arm', 'thigh'].forEach(k => { const v = parseFloat(($('#m_' + k).value || '').replace(',', '.')); if (v > 0) m[k] = v; });
