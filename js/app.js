@@ -54,7 +54,7 @@
     v: 1,
     start: dk(monday(now())),
     schedule: ['empuje', 'tiron', 'piernas', null, 'torso', 'pierna_core', null],
-    weekMoves: {}, swaps: {}, logs: {}, body: [], meals: {}, mealSwaps: {}, water: {}, market: {}, myPrices: {}, eaten: {},
+    weekMoves: {}, swaps: {}, logs: {}, body: [], meals: {}, mealSwaps: {}, water: {}, market: {}, myPrices: {}, eaten: {}, adjLog: [], adjSkip: null,
     settings: { theme: 'auto', name: '', budget: 250000, waterGoal: 10, rotWeeks: 5, weighDay: 0 }
   });
   function load() {
@@ -65,6 +65,7 @@
     const out = Object.assign(d, s);
     out.myPrices = out.myPrices || {};
     out.eaten = out.eaten || {};
+    out.adjLog = out.adjLog || [];
     out.settings = Object.assign(defaults().settings, s.settings || {});
     if (!out.settings.budget) out.settings.budget = 250000;
     return out;
@@ -282,6 +283,63 @@
       <text x="${W - pr}" y="${H - 6}" text-anchor="end" class="ax">${shortDate(pts[pts.length - 1].x)}</text></svg>`;
   }
 
+  /* ---------- ajuste de calorías por pesaje ---------- */
+  const ADJ_STEP = 150, ADJ_MIN = -450, ADJ_MAX = 600;
+  const kcalAdj = () => S.adjLog.reduce((a, x) => a + x.delta, 0);
+  function targets() {
+    const T = PLAN.targets, a = kcalAdj();
+    return { k: T.k + a, p: T.p, c: Math.round(T.c + a / 4), f: T.f };
+  }
+  // Tendencia de peso (regresión lineal) desde el último ajuste, máximo 28 días atrás
+  function weightTrend() {
+    const last = S.adjLog[S.adjLog.length - 1];
+    let from = dk(addDays(now(), -28));
+    if (last && last.d > from) from = last.d;
+    const pts = S.body.filter(b => b.d >= from).sort((a, b) => a.d < b.d ? -1 : 1);
+    if (pts.length < 2) return { need: true, n: pts.length };
+    const t0 = parse(pts[0].d).getTime();
+    const xs = pts.map(p => (parse(p.d).getTime() - t0) / 864e5), ys = pts.map(p => p.kg);
+    const span = xs[xs.length - 1];
+    if (span < 13) return { wait: Math.ceil(14 - span), n: pts.length };
+    const mx = xs.reduce((a, b) => a + b, 0) / xs.length, my = ys.reduce((a, b) => a + b, 0) / ys.length;
+    const slope = xs.reduce((a, x, i) => a + (x - mx) * (ys[i] - my), 0) / xs.reduce((a, x) => a + (x - mx) ** 2, 0);
+    const rate = slope * 7;
+    return { rate, pct: rate / my * 100, kg: my, n: pts.length, span };
+  }
+  function adjSuggestion() {
+    const t = weightTrend();
+    if (t.need || t.wait) return t;
+    const lo = t.kg * 0.0025, hi = t.kg * 0.005;
+    const ritmo = `${t.rate >= 0 ? '+' : ''}${fmt(Math.round(t.rate * 100) / 100)} kg por semana`;
+    const meta = `${fmt(Math.round(lo * 100) / 100)} a ${fmt(Math.round(hi * 100) / 100)} kg`;
+    const cur = kcalAdj();
+    if (t.rate < lo && cur + ADJ_STEP <= ADJ_MAX) return Object.assign(t, { delta: ADJ_STEP, text: `Vas ${ritmo} y la meta es subir ${meta}. Sube ${ADJ_STEP} kcal al día (unos 38 g de carbos).` });
+    if (t.rate > hi && cur - ADJ_STEP >= ADJ_MIN) return Object.assign(t, { delta: -ADJ_STEP, text: `Vas ${ritmo}: más rápido de lo ideal (${meta}), así que parte es grasa. Baja ${ADJ_STEP} kcal al día (unos 38 g de carbos).` });
+    return Object.assign(t, { ok: true, text: `Vas ${ritmo}, dentro de la meta (${meta}). No cambies nada.` });
+  }
+  const adjFoodHint = a => a > 0
+    ? `Suma unas ${a} kcal al día: ${a >= 300 ? Math.round(a / 150) + ' arepas medianas' : '1 arepa mediana'} o ${fmt(Math.round(a / 205 * 4) / 4)} taza de arroz extra.`
+    : `Quita unas ${-a} kcal al día: ${-a >= 300 ? Math.round(-a / 150) + ' arepas medianas' : '1 arepa mediana'} o ${fmt(Math.round(-a / 205 * 4) / 4)} taza de arroz menos.`;
+  const adjPending = () => { const sg = adjSuggestion(); return sg.delta && S.adjSkip !== (S.body.slice().sort((a, b) => a.d < b.d ? -1 : 1).pop() || {}).d ? sg : null; };
+  function adjCard() {
+    const sg = adjSuggestion(), a = kcalAdj(), T = targets();
+    let h = `<div class="card"><h2>Ajuste de calorías</h2>
+      <div class="small" style="margin:-4px 0 10px">Meta actual: <b class="num">${T.k.toLocaleString('es-CO')} kcal</b> · ${T.c} g carbos${a ? ` <span class="muted">(${a > 0 ? '+' : ''}${a} sobre el plan)</span>` : ''}</div>`;
+    if (sg.need && S.adjLog.length) h += `<p class="small muted" style="margin:0">Ajuste aplicado. Sigue pesándote (mejor 2-3 veces por semana, en ayunas); en 2 semanas te digo si funcionó.</p>`;
+    else if (sg.need) h += `<p class="small muted" style="margin:0">Pésate al menos 2 veces con 2 semanas de diferencia (mejor 2-3 veces por semana, en ayunas) y aquí te digo si subir o bajar calorías.</p>`;
+    else if (sg.wait) h += `<p class="small muted" style="margin:0">Faltan ${sg.wait} días de pesajes${S.adjLog.length ? ' desde el último ajuste' : ''} para ver una tendencia confiable.</p>`;
+    else if (sg.ok) h += `<div class="tip">${esc(sg.text)}</div>`;
+    else {
+      const skipped = !adjPending();
+      h += `<div class="tip">${esc(sg.text)}<br><span class="small">${esc(adjFoodHint(sg.delta))}</span></div>`;
+      h += skipped ? '<p class="small muted" style="margin:8px 0 0">Lo dejaste para después. Te lo vuelvo a proponer con el próximo pesaje.</p>'
+        : `<div class="row" style="margin-top:10px"><button class="btn pri grow" data-a="adj-apply" data-v="${sg.delta}">Aplicar ${sg.delta > 0 ? '+' : ''}${sg.delta} kcal</button><button class="btn ghost" data-a="adj-skip">Ahora no</button></div>`;
+    }
+    if (a) h += `<p class="small muted" style="margin:10px 0 0">${esc(adjFoodHint(a))}</p>`;
+    if (S.adjLog.length) h += `<details class="eq" style="margin-top:6px"><summary>Historial</summary><ul>${S.adjLog.slice().reverse().map(x => `<li>${shortDate(x.d)}: ${x.delta > 0 ? '+' : ''}${x.delta} kcal (ibas ${x.rate >= 0 ? '+' : ''}${fmt(Math.round(x.rate * 100) / 100)} kg/sem)</li>`).join('')}</ul><button class="link-btn" data-a="adj-reset">Volver a la meta del plan</button></details>`;
+    return h + '</div>';
+  }
+
   /* ---------- comida: helpers ---------- */
   function dayMeals(d) {
     if (!PLAN) return [];
@@ -314,7 +372,7 @@
   }
 
   function macroBars(done, plan) {
-    const T = PLAN.targets;
+    const T = targets();
     const row = (l, key, u) => {
       const pct = Math.min(100, Math.round(done[key] / T[key] * 100));
       return `<div class="mbar"><div class="top"><span>${l}</span><span class="num"><b>${Math.round(done[key])}</b> / ${T[key]} ${u} <span class="muted">· plan ${Math.round(plan[key])}</span></span></div><div class="track"><div class="fill" style="width:${pct}%"></div></div></div>`;
@@ -363,6 +421,8 @@
         <div class="weigh"><input class="field num" id="wIn" type="number" inputmode="decimal" step="0.1" placeholder="kg"><button class="btn pri" data-a="weigh-save">Guardar</button></div></div>`;
     }
 
+    if (PLAN && adjPending()) h += `<a class="card" style="display:block;text-decoration:none;color:inherit;outline:2px solid var(--accent-text);outline-offset:-2px" href="#/progreso"><div class="row"><div class="grow"><b>Ajuste de calorías sugerido</b><div class="small muted">${esc(adjPending().text)}</div></div>${ic('right')}</div></a>`;
+
     // Ejercicios de hoy
     if (rid) {
       const slots = L ? logSlots(k) : slotsFor(rid, d);
@@ -383,8 +443,8 @@
       const chk = S.meals[k] || {};
       const doneM = dayDone(d, meals);
       h += `<div class="sec-title">Comidas de hoy <a class="small link-btn" href="#/comida">Ver menú</a></div><div class="card">
-        <div class="mbar" style="margin-bottom:6px"><div class="top"><span>Calorías</span><span class="num"><b>${doneM.k}</b> / ${PLAN.targets.k} kcal · <b>${doneM.p}</b> g proteína</span></div>
-        <div class="track"><div class="fill" style="width:${Math.min(100, doneM.k / PLAN.targets.k * 100)}%"></div></div></div>`;
+        <div class="mbar" style="margin-bottom:6px"><div class="top"><span>Calorías</span><span class="num"><b>${doneM.k}</b> / ${targets().k} kcal · <b>${doneM.p}</b> g proteína</span></div>
+        <div class="track"><div class="fill" style="width:${Math.min(100, doneM.k / targets().k * 100)}%"></div></div></div>`;
       meals.forEach(x => {
         const ea = eatenOf(k, x.slot.id);
         const on = !!chk[x.slot.id] || ea.length > 0;
@@ -460,6 +520,7 @@
         <div class="stat"><div class="l">Cambio semanal</div><div class="v num">${delta == null ? '—' : (delta > 0 ? '+' : '') + fmt(Math.round(delta * 100) / 100) + ' kg'}</div><div class="h">promedio 7 días vs anteriores</div></div>
       </div>
       <p class="small muted" style="margin:12px 0 0">Meta para ganar músculo sin mucha grasa: subir <b>${fmt(Math.round(ref * 0.0025 * 100) / 100)}-${fmt(Math.round(ref * 0.005 * 100) / 100)} kg por semana</b> (0,25-0,5 % del peso). Si subes más rápido, baja un poco los carbos; si no subes en 2 semanas, súbelos. <a href="https://doi.org/10.3390/sports7070154" target="_blank" rel="noopener">Iraki et al., 2019</a></p></div>`;
+    h += adjCard();
 
     const ids = [];
     Object.keys(S.logs).sort().reverse().forEach(k => Object.values(S.logs[k].ex || {}).forEach(x => {
@@ -495,7 +556,7 @@
 
   let comidaDay = null;
   function viewComida() {
-    let h = head('Comida', PLAN ? `Meta: ${PLAN.targets.k} kcal · ${PLAN.targets.p} P · ${PLAN.targets.c} C · ${PLAN.targets.f} G` : '', gearBtn);
+    let h = head('Comida', PLAN ? `Meta: ${targets().k} kcal · ${targets().p} P · ${targets().c} C · ${targets().f} G` : '', gearBtn);
     if (!PLAN) { app.innerHTML = h + '<div class="card empty">Cargando el plan…</div>'; return; }
     const d0 = monday(now());
     const sel = comidaDay == null ? wIdx(now()) : comidaDay;
@@ -505,7 +566,7 @@
     const meals = dayMeals(d);
     const chk = S.meals[k] || {};
     h += `<div class="card">${macroBars(dayDone(d, meals), sumMacros(meals))}
-      <p class="small muted" style="margin:10px 0 0">Las barras suman lo que marcas y lo que registras. Macros aproximadas.</p></div>`;
+      <p class="small muted" style="margin:10px 0 0">Las barras suman lo que marcas y lo que registras. Macros aproximadas.</p>${kcalAdj() ? `<div class="tip">${esc(adjFoodHint(kcalAdj()))} El menú sigue en ${PLAN.targets.k} kcal.</div>` : ''}</div>`;
     meals.forEach(x => {
       const m = PLAN.meals[x.id];
       const ea = eatenOf(k, x.slot.id), et = sumEaten(ea);
@@ -906,7 +967,7 @@
   function refreshEat(k, sl) { const el = $('#eatList'); if (el) el.innerHTML = eatListHtml(k, sl); rerender(); }
 
   const A = {
-    back() { if (navCount > 0) history.back(); else location.hash = '#/hoy'; },
+    back() { if (navCount > 0) window.history.back(); else location.hash = '#/hoy'; },
     'sheet-close'() { closeSheet(); },
     start() {
       const k = dk(now());
@@ -944,6 +1005,14 @@
       S.body = S.body.filter(x => x.d !== k).concat({ d: k, kg: Math.round(v * 10) / 10 });
       save(); toast('Peso guardado'); rerender();
     },
+    'adj-apply'(b) {
+      const t = weightTrend();
+      S.adjLog.push({ d: dk(now()), delta: +b.dataset.v, rate: t.rate || 0 });
+      S.adjSkip = null;
+      save(); toast(`Meta ajustada: ${targets().k} kcal`); rerender();
+    },
+    'adj-skip'() { S.adjSkip = (S.body.slice().sort((a, b) => a.d < b.d ? -1 : 1).pop() || {}).d || null; save(); rerender(); },
+    'adj-reset'() { if (!confirm('¿Volver a la meta del plan (' + PLAN.targets.k + ' kcal)?')) return; S.adjLog = []; S.adjSkip = null; save(); rerender(); },
     'rest-pick'() {
       const d0 = monday(now());
       const plan = weekPlan();
