@@ -54,7 +54,7 @@
     v: 1,
     start: dk(monday(now())),
     schedule: ['empuje', 'tiron', 'piernas', null, 'torso', 'pierna_core', null],
-    weekMoves: {}, swaps: {}, logs: {}, body: [], meals: {}, mealSwaps: {}, water: {}, market: {}, myPrices: {}, eaten: {}, adjLog: [], adjSkip: null, locs: {}, measures: [], profile: { sex: 'h', age: 26, height: 171, act: 1.55 },
+    weekMoves: {}, swaps: {}, logs: {}, body: [], meals: {}, mealSwaps: {}, water: {}, market: {}, myPrices: {}, eaten: {}, adjLog: [], adjSkip: null, locs: {}, photoWeeks: {}, measures: [], profile: { sex: 'h', age: 26, height: 171, act: 1.55 },
     settings: { theme: 'auto', name: '', budget: 250000, waterGoal: 10, rotWeeks: 5, weighDay: 0 }
   });
   function load() {
@@ -68,6 +68,7 @@
     out.adjLog = out.adjLog || [];
     out.measures = out.measures || [];
     out.locs = out.locs || {};
+    out.photoWeeks = out.photoWeeks || {};
     out.profile = Object.assign({ sex: 'h', age: 26, height: 171, act: 1.55 }, out.profile || {});
     out.settings = Object.assign(defaults().settings, s.settings || {});
     if (!out.settings.budget) out.settings.budget = 250000;
@@ -307,6 +308,82 @@
       <text x="${(L[0] + 8).toFixed(1)}" y="${(L[1] + 4).toFixed(1)}" class="lastv">${fmt(ys[ys.length - 1])}${unit || ''}</text>
       <text x="${pl}" y="${H - 6}" class="ax">${shortDate(pts[0].x)}</text>
       <text x="${W - pr}" y="${H - 6}" text-anchor="end" class="ax">${shortDate(pts[pts.length - 1].x)}</text></svg>`;
+  }
+
+  /* ---------- fotos de progreso (solo en este celular, IndexedDB) ---------- */
+  const POSES = [['frente', 'Frente'], ['lado', 'Lado'], ['espalda', 'Espalda']];
+  const IDB = (() => {
+    let dbp = null;
+    const open = () => dbp || (dbp = new Promise((res, rej) => {
+      const r = indexedDB.open('pf-fotos', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('fotos', { keyPath: 'id' });
+      r.onsuccess = () => res(r.result);
+      r.onerror = () => { dbp = null; rej(r.error); };
+    }));
+    const run = (mode, fn) => open().then(db => new Promise((res, rej) => {
+      const t = db.transaction('fotos', mode), req = fn(t.objectStore('fotos'));
+      t.oncomplete = () => res(req && req.result);
+      t.onerror = () => rej(t.error);
+    }));
+    return { put: o => run('readwrite', st => st.put(o)), del: id => run('readwrite', st => st.delete(id)), all: () => run('readonly', st => st.getAll()) };
+  })();
+  async function compressPhoto(file) {
+    let img;
+    try { img = await createImageBitmap(file, { imageOrientation: 'from-image' }); }
+    catch (e) { img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = URL.createObjectURL(file); }); }
+    const sc = Math.min(1, 1280 / Math.max(img.width, img.height));
+    const c = document.createElement('canvas');
+    c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    return new Promise(r => c.toBlob(r, 'image/jpeg', 0.82));
+  }
+  const thisWeek = () => dk(monday(now()));
+  const photosPending = () => (S.photoWeeks[thisWeek()] || []).length < POSES.length;
+  let photoURLs = [];
+  let cmp = { a: null, b: null, pose: 'frente' };
+
+  function viewFotos() {
+    let h = `<div class="page-head">${backBtn}<div class="ttl">Fotos de progreso</div></div>
+      <p class="small muted" style="margin:4px 2px 12px">Se guardan solo en este celular: no se suben a internet ni van en el respaldo. Mismo lugar, misma luz y a la misma hora (mejor en ayunas, el día del pesaje).</p>
+      <div id="fotosBody"><div class="card empty">Cargando fotos…</div></div>
+      <input type="file" id="phIn" accept="image/*" class="hidden">`;
+    app.innerHTML = h;
+    renderFotos();
+  }
+  async function renderFotos() {
+    const box = $('#fotosBody');
+    if (!box) return;
+    let all = [];
+    try { all = await IDB.all(); } catch (e) { box.innerHTML = '<div class="card empty">Este navegador no deja guardar fotos. Prueba en Chrome sin modo incógnito.</div>'; return; }
+    photoURLs.forEach(u => URL.revokeObjectURL(u)); photoURLs = [];
+    const url = b => { const u = URL.createObjectURL(b); photoURLs.push(u); return u; };
+    const byWeek = {};
+    all.forEach(p => { (byWeek[p.week] = byWeek[p.week] || {})[p.pose] = p; });
+    const weeks = Object.keys(byWeek).sort();
+    // sincroniza el índice liviano del estado
+    S.photoWeeks = {}; weeks.forEach(w => { S.photoWeeks[w] = Object.keys(byWeek[w]); }); save();
+    const wk = thisWeek(), cur = byWeek[wk] || {};
+    const kgOf = w => { const b = S.body.filter(x => x.d >= w && x.d <= dk(addDays(parse(w), 6))).pop(); return b ? b.kg : null; };
+    let h = `<div class="sec-title" style="margin-top:4px">Esta semana <span class="small muted">desde el ${shortDate(wk)}</span></div>
+      <div class="figs" style="grid-template-columns:repeat(3,minmax(0,1fr))">${POSES.map(([p, l]) => cur[p]
+        ? `<div class="f"><img src="${url(cur[p].blob)}" alt="${l}" style="width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:10px;display:block;margin-bottom:6px">${l}<div style="display:flex;justify-content:center;flex-wrap:wrap;gap:0 6px;margin-top:2px"><button class="link-btn" style="padding:4px;font-size:12px" data-a="ph-add" data-pose="${p}">Cambiar</button><button class="link-btn" style="padding:4px;font-size:12px;color:var(--danger)" data-a="ph-del" data-id="${cur[p].id}">Borrar</button></div></div>`
+        : `<button class="f" data-a="ph-add" data-pose="${p}" style="aspect-ratio:3/4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;border:2px dashed var(--line);box-shadow:none">${ic('plus')}<span>${l}</span></button>`).join('')}</div>`;
+    if (weeks.length >= 2) {
+      if (!byWeek[cmp.a]) cmp.a = weeks[0];
+      if (!byWeek[cmp.b]) cmp.b = weeks[weeks.length - 1];
+      const opt = sel => weeks.map(w => `<option value="${w}" ${w === sel ? 'selected' : ''}>Semana del ${shortDate(w)}</option>`).join('');
+      const A = byWeek[cmp.a][cmp.pose], B = byWeek[cmp.b][cmp.pose];
+      const ka = kgOf(cmp.a), kb = kgOf(cmp.b);
+      const side = (P, w, kg) => P ? `<div><img src="${url(P.blob)}" alt="" style="width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:12px;display:block"><div class="small" style="text-align:center;margin-top:4px"><b>${shortDate(w)}</b>${kg ? ' · ' + fmt(kg) + ' kg' : ''}</div></div>` : `<div class="empty small" style="aspect-ratio:3/4;display:grid;place-items:center;background:var(--surface-2);border-radius:12px">Sin foto de ${cmp.pose}</div>`;
+      h += `<div class="sec-title">Comparar</div><div class="card">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><select class="field" data-cmp="a" style="font-size:14px">${opt(cmp.a)}</select><select class="field" data-cmp="b" style="font-size:14px">${opt(cmp.b)}</select></div>
+        <div class="seg" style="margin:10px 0">${POSES.map(([p, l]) => `<button class="${cmp.pose === p ? 'on' : ''}" data-a="ph-pose" data-v="${p}">${l}</button>`).join('')}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">${side(A, cmp.a, ka)}${side(B, cmp.b, kb)}</div>
+        ${ka && kb ? `<p class="small" style="margin:10px 0 0;text-align:center">Diferencia: <b class="num">${kb - ka >= 0 ? '+' : ''}${fmt(Math.round((kb - ka) * 10) / 10)} kg</b> en ${Math.round((parse(cmp.b) - parse(cmp.a)) / 6048e5)} semanas</p>` : ''}</div>`;
+    } else h += `<p class="small muted" style="margin:10px 2px 0">Con fotos de 2 semanas distintas aparece la comparación lado a lado.</p>`;
+    const past = weeks.filter(w => w !== wk).reverse();
+    if (past.length) h += `<div class="sec-title">Semanas anteriores</div>${past.map(w => `<div class="card" style="padding:12px"><div class="small" style="margin-bottom:8px"><b>Semana del ${shortDate(w)}</b>${kgOf(w) ? ' · ' + fmt(kgOf(w)) + ' kg' : ''}</div><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">${POSES.map(([p]) => byWeek[w][p] ? `<a href="${url(byWeek[w][p].blob)}" download="progreso-${w}-${p}.jpg"><img src="${photoURLs[photoURLs.length - 1]}" alt="" style="width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:8px;display:block"></a>` : '<div style="aspect-ratio:3/4;background:var(--surface-2);border-radius:8px"></div>').join('')}</div></div>`).join('')}<p class="small muted" style="margin:6px 2px 0">Toca una foto para guardarla en tu galería.</p>`;
+    box.innerHTML = h;
   }
 
   /* ---------- composición corporal ---------- */
@@ -564,6 +641,8 @@
 
     if (PLAN && adjPending()) h += `<a class="card" style="display:block;text-decoration:none;color:inherit;outline:2px solid var(--accent-text);outline-offset:-2px" href="#/progreso"><div class="row"><div class="grow"><b>Ajuste de calorías sugerido</b><div class="small muted">${esc(adjPending().text)}</div></div>${ic('right')}</div></a>`;
 
+    if (wIdx(d) === +S.settings.weighDay && photosPending()) h += `<a class="card" style="display:block;text-decoration:none;color:inherit" href="#/fotos"><div class="row"><div class="grow"><b>Fotos de progreso de la semana</b><div class="small muted">Frente, lado y espalda, con la misma luz de siempre.</div></div>${ic('right')}</div></a>`;
+
     // Ejercicios de hoy
     if (rid) {
       const slots = L ? logSlots(k) : slotsFor(rid, d);
@@ -663,6 +742,8 @@
       <p class="small muted" style="margin:12px 0 0">Meta para ganar músculo sin mucha grasa: subir <b>${fmt(Math.round(ref * 0.0025 * 100) / 100)}-${fmt(Math.round(ref * 0.005 * 100) / 100)} kg por semana</b> (0,25-0,5 % del peso). Si subes más rápido, baja un poco los carbos; si no subes en 2 semanas, súbelos. <a href="https://doi.org/10.3390/sports7070154" target="_blank" rel="noopener">Iraki et al., 2019</a></p></div>`;
     h += adjCard();
     h += bodySummary();
+    const nW = Object.keys(S.photoWeeks).length;
+    h += `<a class="card" style="display:block;text-decoration:none;color:inherit" href="#/fotos"><div class="row"><div class="grow"><h2 style="margin:0">Fotos de progreso</h2><div class="small muted" style="margin-top:4px">${nW ? nW + (nW === 1 ? ' semana guardada' : ' semanas guardadas') + (photosPending() ? ' · faltan las de esta semana' : ' · esta semana lista') : 'Frente, lado y espalda cada semana para ver el cambio que la báscula no muestra'}</div></div>${ic('right')}</div></a>`;
 
     const ids = [];
     Object.keys(S.logs).sort().reverse().forEach(k => Object.values(S.logs[k].ex || {}).forEach(x => {
@@ -1030,11 +1111,11 @@
   function render(keepScroll) {
     const raw = location.hash.replace(/^#\/?/, '') || 'hoy';
     const [name, ...args] = raw.split('/').map(decodeURIComponent);
-    const full = ['entreno', 'ej', 'ajustes', 'resumen', 'noticias', 'cuerpo'].includes(name);
+    const full = ['entreno', 'ej', 'ajustes', 'resumen', 'noticias', 'cuerpo', 'fotos'].includes(name);
     app.className = 'app' + (full ? ' full' : '');
     nav.classList.toggle('hidden', full);
     if (name !== 'entreno') keepAwake(false);
-    const views = { hoy: viewHoy, semana: viewSemana, progreso: viewProgreso, comida: viewComida, mercado: viewMercado, entreno: viewEntreno, ej: viewEj, ajustes: viewAjustes, resumen: viewResumen, noticias: viewNoticias, cuerpo: viewCuerpo };
+    const views = { hoy: viewHoy, semana: viewSemana, progreso: viewProgreso, comida: viewComida, mercado: viewMercado, entreno: viewEntreno, ej: viewEj, ajustes: viewAjustes, resumen: viewResumen, noticias: viewNoticias, cuerpo: viewCuerpo, fotos: viewFotos };
     (views[name] || viewHoy)(...args);
     nav.querySelectorAll('a').forEach(a => a.classList.toggle('on', a.dataset.r === name));
     if (raw !== lastRoute && !keepScroll) window.scrollTo(0, 0);
@@ -1164,6 +1245,13 @@
       S.body = S.body.filter(x => x.d !== k).concat({ d: k, kg: Math.round(v * 10) / 10 });
       save(); toast('Peso guardado'); rerender();
     },
+    'ph-add'(b) { A._pose = b.dataset.pose; const i = $('#phIn'); i.value = ''; i.click(); },
+    async 'ph-del'(b) {
+      if (!confirm('¿Borrar esta foto? No se puede recuperar.')) return;
+      try { await IDB.del(b.dataset.id); toast('Foto borrada'); } catch (e) { toast('No se pudo borrar'); }
+      renderFotos();
+    },
+    'ph-pose'(b) { cmp.pose = b.dataset.v; renderFotos(); },
     'measure-save'() {
       const m = { d: dk(now()) };
       ['waist', 'neck', 'hip', 'chest', 'arm', 'thigh'].forEach(k => { const v = parseFloat(($('#m_' + k).value || '').replace(',', '.')); if (v > 0) m[k] = v; });
@@ -1449,6 +1537,16 @@
 
   document.addEventListener('change', e => {
     const t = e.target;
+    if (t.id === 'phIn' && t.files[0]) {
+      const pose = A._pose || 'frente', wk = thisWeek();
+      toast('Guardando foto…');
+      compressPhoto(t.files[0])
+        .then(blob => IDB.put({ id: wk + '_' + pose, week: wk, pose, d: dk(now()), blob }))
+        .then(() => { toast('Foto guardada'); renderFotos(); })
+        .catch(() => toast('No se pudo guardar la foto'));
+      return;
+    }
+    if (t.dataset.cmp) { cmp[t.dataset.cmp] = t.value; renderFotos(); return; }
     if (t.id === 'impFile' && t.files[0]) {
       const r = new FileReader();
       r.onload = () => {

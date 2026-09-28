@@ -788,38 +788,74 @@
     ['Posición de flexión con brazos estirados', 'Lleva una rodilla al pecho y cambia', 'Cadera baja y estable', 'Ritmo constante'],
     ['Cadera muy arriba', 'Hombros detrás de las manos', 'Rebotar'], 'Continuo', 45, { unit: 'seg', reps: [30, 45] });
 
+
+  // Ejercicios propios del parque de barras
+  C('fondos_pecho', 'Fondos en paralelas (pecho)', 'chest dips', 'pecho_h', 'dip',
+    [['Pectoral mayor', 'Pectoral inferior'], ['Tríceps', 'Deltoides anterior']],
+    ['Inclina el torso adelante unos 30°', 'Codos un poco abiertos', 'Baja hasta sentir estiramiento en el pecho', 'Mochila con peso cuando pases de 15'],
+    ['Bajar demasiado si molesta el hombro', 'Encoger los hombros', 'Balancear las piernas'], '2-1-1', 120, { reps: [6, 15] });
+  C('flexiones_profundas_paralelas', 'Flexiones profundas en paralelas bajas', 'deep parallette push up', 'pecho_inc', 'pushup',
+    [['Pectoral mayor'], ['Deltoides anterior', 'Tríceps']],
+    ['Manos en las paralelas bajas del parque', 'Baja el pecho por debajo del nivel de las manos', 'Pies en un banco para cargar más la parte alta del pecho', 'Sube completo'],
+    ['Quedarte corto arriba de las barras', 'Cadera caída', 'Codos totalmente abiertos'], '3-1-1', 90, { reps: [8, 15] });
+  C('flexiones_pica_elevadas', 'Flexiones pica con pies en el banco', 'elevated pike push up', 'hombro_v', 'pushup',
+    [['Deltoides anterior'], ['Tríceps', 'Trapecio superior']],
+    ['Pies en un banco, manos en el piso o en paralelas bajas', 'Cadera arriba, torso casi vertical', 'Baja la cabeza entre las manos', 'Es el paso previo a la flexión en pino'],
+    ['Bajar el pecho en vez de la cabeza', 'Codos muy abiertos', 'Perder la cadera arriba'], '2-1-1', 120, { reps: [5, 10] });
+  C('curl_barra_corporal', 'Curl de bíceps colgado en barra baja', 'bodyweight bar biceps curl', 'biceps', 'curl',
+    [['Bíceps'], ['Braquial']],
+    ['Agarre supino en una barra a la altura de la cintura', 'Cuerpo recto e inclinado hacia atrás', 'Dobla solo los codos llevando la frente a la barra', 'Más horizontal = más difícil'],
+    ['Tirar con la espalda', 'Cadera caída', 'Codos que se mueven'], '2-1-2', 75, { reps: [8, 15] });
+  C('face_pull_australiano', 'Face pull en barra baja', 'bodyweight face pull', 'hombro_post', 'row',
+    [['Deltoides posterior'], ['Trapecio medio', 'Romboides', 'Manguito rotador']],
+    ['Agarre prono y cerrado en barra baja', 'Cuerpo recto inclinado atrás', 'Lleva la barra hacia la frente con codos altos y abiertos', 'Pausa 1 s'],
+    ['Codos abajo: se vuelve remo', 'Cadera caída', 'Ir rápido'], '2-1-2', 60, { reps: [10, 15] });
+  C('sentadilla_salto', 'Sentadilla con salto', 'jump squat', 'sentadilla', 'squat',
+    [['Cuádriceps', 'Glúteo mayor'], ['Gemelos']],
+    ['Baja a media sentadilla con el pecho arriba', 'Salta explosivo', 'Cae suave, rodillas en dirección de las puntas', 'Enlaza la siguiente sin pausa larga'],
+    ['Caer con las rodillas hacia adentro', 'Caer con las piernas rectas', 'Perder la técnica por cansancio'], 'Explosivo', 90, { reps: [10, 15] });
+  C('l_sit_paralelas', 'L-sit en paralelas', 'parallel bar l sit', 'core_est', 'legraise',
+    [['Recto abdominal', 'Flexores de cadera'], ['Tríceps', 'Cuádriceps']],
+    ['Sube en las paralelas con brazos estirados y hombros abajo', 'Levanta las piernas rectas hasta formar una L', 'Si cuesta, dobla las rodillas', 'Aguanta respirando'],
+    ['Encoger los hombros', 'Piernas que caen', 'Doblar los codos'], 'Isométrico', 75, { unit: 'seg', reps: [10, 30] });
+
+  C('pullover_mochila', 'Pullover con mochila', 'backpack pullover', 'espalda_v', 'bench',
+    [['Dorsal ancho'], ['Pectoral mayor', 'Tríceps (cabeza larga)']],
+    ['Acostado en el piso o en la cama, mochila cargada con ambas manos sobre el pecho', 'Brazos casi rectos', 'Llévala por detrás de la cabeza hasta sentir el estiramiento del dorsal', 'Vuelve apretando la espalda'],
+    ['Doblar mucho los codos', 'Arquear la lumbar', 'Bajar más de lo que controlas'], '3-1-1', 75, { reps: [10, 15] });
+
   // Equivalentes por lugar: mismo grupo muscular, lo que se puede hacer ahí
   const LOC = {
     casa: {
-      pecho_h: ['flexiones', 'flexiones_anchas'], pecho_inc: ['flexiones_declinadas', 'flexiones_arquero'], pecho_ais: ['flexiones_anchas', 'flexiones'],
+      pecho_h: ['flexiones', 'flexiones_anchas'], pecho_inc: ['flexiones_declinadas', 'flexiones_arquero'], pecho_ais: ['flexiones_anchas', 'flexiones_arquero'],
       hombro_v: ['flexiones_pica'], hombro_lat: ['elev_laterales_casa'], hombro_post: ['ytw_piso'],
-      triceps: ['fondos_banco', 'flexiones_diamante'], triceps_oh: ['ext_triceps_corporal', 'flexiones_diamante'],
-      espalda_v: ['remo_mesa', 'remo_mochila'], espalda_h: ['remo_mochila', 'remo_mesa'],
+      triceps: ['fondos_banco', 'flexiones_diamante'], triceps_oh: ['flexiones_diamante', 'fondos_banco'],
+      espalda_v: ['remo_mesa', 'pullover_mochila', 'remo_mochila'], espalda_h: ['remo_mochila', 'remo_mesa'],
       biceps: ['curl_mochila'], biceps_b: ['curl_mochila_martillo'],
-      sentadilla: ['sentadilla_mochila', 'sentadilla_pistol_asistida'], prensa: ['sentadilla_mochila', 'zancadas_caminando'],
-      unilateral: ['sentadilla_bulgara', 'zancadas_caminando', 'step_up'], cuadriceps_ais: ['sentadilla_sissy', 'sentadilla_pared'],
-      bisagra: ['pmr_una_pierna', 'puente_gluteo'], peso_muerto: ['hip_thrust_una_pierna', 'pmr_una_pierna'],
+      sentadilla: ['sentadilla_mochila', 'sentadilla_pistol_asistida'], prensa: ['zancadas_caminando', 'sentadilla_mochila'],
+      unilateral: ['sentadilla_bulgara', 'zancadas_caminando'], cuadriceps_ais: ['sentadilla_pared', 'sentadilla_sissy'],
+      bisagra: ['pmr_una_pierna', 'puente_gluteo'], peso_muerto: ['puente_gluteo', 'hip_thrust_una_pierna'],
       femoral: ['curl_deslizante', 'curl_nordico'], gemelos: ['elev_talones_una_pierna'],
       core_flex: ['crunch_suelo', 'escaladores'], core_cadera: ['elev_piernas_suelo'], core_est: ['plancha', 'plancha_lateral']
     },
     parque: {
-      pecho_h: ['flexiones', 'fondos'], pecho_inc: ['flexiones_declinadas', 'flexiones_arquero'], pecho_ais: ['fondos', 'flexiones_anchas'],
-      hombro_v: ['flexiones_pica'], hombro_lat: ['elev_laterales_casa'], hombro_post: ['ytw_piso', 'remo_australiano'],
-      triceps: ['fondos', 'fondos_banco', 'flexiones_diamante'], triceps_oh: ['ext_triceps_corporal', 'fondos_banco'],
-      espalda_v: ['dominadas', 'chin_ups', 'dominadas_negativas'], espalda_h: ['remo_australiano', 'remo_mochila'],
-      biceps: ['chin_ups', 'curl_mochila'], biceps_b: ['curl_mochila_martillo', 'chin_ups'],
-      sentadilla: ['sentadilla_mochila', 'sentadilla_pistol_asistida'], prensa: ['step_up', 'sentadilla_mochila'],
-      unilateral: ['sentadilla_bulgara', 'step_up', 'zancadas_caminando'], cuadriceps_ais: ['sentadilla_sissy', 'sentadilla_pared'],
-      bisagra: ['pmr_una_pierna', 'puente_gluteo'], peso_muerto: ['hip_thrust_una_pierna', 'pmr_una_pierna'],
+      pecho_h: ['fondos_pecho', 'flexiones'], pecho_inc: ['flexiones_profundas_paralelas', 'flexiones_declinadas'], pecho_ais: ['flexiones', 'flexiones_arquero'],
+      hombro_v: ['flexiones_pica_elevadas', 'flexiones_pica'], hombro_lat: ['elev_laterales_casa'], hombro_post: ['face_pull_australiano', 'ytw_piso'],
+      triceps: ['ext_triceps_corporal', 'fondos'], triceps_oh: ['ext_triceps_corporal', 'flexiones_diamante'],
+      espalda_v: ['dominadas', 'chin_ups', 'dominadas_negativas'], espalda_h: ['remo_australiano', 'face_pull_australiano'],
+      biceps: ['curl_barra_corporal', 'chin_ups'], biceps_b: ['chin_ups', 'curl_barra_corporal', 'curl_mochila_martillo'],
+      sentadilla: ['sentadilla_pistol_asistida', 'sentadilla_salto'], prensa: ['sentadilla_salto', 'step_up'],
+      unilateral: ['step_up', 'sentadilla_bulgara'], cuadriceps_ais: ['sentadilla_sissy', 'sentadilla_salto'],
+      bisagra: ['hip_thrust_una_pierna', 'pmr_una_pierna'], peso_muerto: ['pmr_una_pierna', 'hip_thrust_una_pierna'],
       femoral: ['curl_nordico', 'curl_deslizante'], gemelos: ['elev_talones_una_pierna'],
-      core_flex: ['crunch_suelo', 'escaladores'], core_cadera: ['elev_piernas_colgado', 'elev_rodillas_paralelas'], core_est: ['plancha', 'plancha_lateral']
+      core_flex: ['elev_rodillas_paralelas', 'escaladores'], core_cadera: ['elev_piernas_colgado', 'elev_rodillas_paralelas'], core_est: ['l_sit_paralelas', 'plancha_lateral']
     }
   };
   // Ejercicios con peso corporal que sirven fuera del gimnasio (aparte de los nuevos)
   ['zancadas_caminando', 'step_up', 'sentadilla_bulgara', 'sentadilla_sissy', 'curl_nordico', 'elev_piernas_suelo', 'plancha', 'plancha_lateral', 'fondos', 'dominadas', 'elev_piernas_colgado', 'elev_rodillas_paralelas'].forEach(id => { E[id].out = 1; });
 
   // Fotos inicio/final (free-exercise-db, dominio público): img/ex/<id>_0.jpg y _1.jpg
-  ["aperturas_manc","aperturas_polea","buenos_dias","chin_ups","crunch_declinado","crunch_polea","crunch_suelo","curl_barra","curl_deslizante","curl_femoral_pie","curl_femoral_sentado","curl_femoral_tumbado","curl_inclinado_manc","curl_invertido","curl_martillo","curl_martillo_cuerda","curl_mochila","curl_mochila_martillo","curl_nordico","curl_polea","curl_predicador","dominadas","dominadas_asistidas","dominadas_negativas","elev_laterales_casa","elev_laterales_manc","elev_laterales_polea","elev_piernas_colgado","elev_piernas_suelo","elev_rodillas_paralelas","elev_talones_pie","elev_talones_prensa","elev_talones_sentado","elev_talones_una_pierna","escaladores","extension_cuadriceps","extension_unilateral","ext_sobre_cabeza_manc","ext_triceps_corporal","ext_triceps_polea","ext_triceps_sobre_cabeza","ext_triceps_una_mano","face_pull","flexiones","flexiones_anchas","flexiones_declinadas","flexiones_diamante","flexiones_lastre","fondos","fondos_banco","hiperextension_45","hip_thrust","hip_thrust_una_pierna","jalon_neutro","jalon_pecho","pajaros_manc","pallof_press","pec_deck","peso_muerto","peso_muerto_rumano","peso_muerto_rumano_manc","peso_muerto_sumo","peso_muerto_trap","plancha","plancha_lateral","pmr_una_pierna","prensa","press_banca","press_banca_manc","press_cerrado","press_frances","press_hombro_manc","press_hombro_maquina","press_inclinado_barra","press_inclinado_manc","press_inclinado_maquina","press_inclinado_smith","press_maquina_pecho","press_militar","puente_gluteo","remo_australiano","remo_barra","remo_mancuerna","remo_mesa","remo_mochila","remo_pecho_apoyado","remo_polea_sentado","reverse_pec_deck","rueda_abdominal","sentadilla","sentadilla_bulgara","sentadilla_frontal","sentadilla_goblet","sentadilla_hack","sentadilla_mochila","sentadilla_pistol_asistida","sentadilla_sissy","sentadilla_smith","step_up","ytw_piso","zancadas_caminando"].forEach(id => { if (E[id]) E[id].img = 1; });
+  ["aperturas_manc","aperturas_polea","buenos_dias","chin_ups","crunch_declinado","crunch_polea","crunch_suelo","curl_barra","curl_deslizante","curl_femoral_pie","curl_femoral_sentado","curl_femoral_tumbado","curl_inclinado_manc","curl_invertido","curl_martillo","curl_martillo_cuerda","curl_mochila","curl_mochila_martillo","curl_nordico","curl_polea","curl_predicador","dominadas","dominadas_asistidas","dominadas_negativas","elev_laterales_casa","elev_laterales_manc","elev_laterales_polea","elev_piernas_colgado","elev_piernas_suelo","elev_rodillas_paralelas","elev_talones_pie","elev_talones_prensa","elev_talones_sentado","elev_talones_una_pierna","escaladores","extension_cuadriceps","extension_unilateral","ext_sobre_cabeza_manc","ext_triceps_corporal","ext_triceps_polea","ext_triceps_sobre_cabeza","ext_triceps_una_mano","face_pull","face_pull_australiano","flexiones","flexiones_anchas","flexiones_declinadas","flexiones_diamante","flexiones_lastre","fondos","fondos_banco","fondos_pecho","hiperextension_45","hip_thrust","hip_thrust_una_pierna","jalon_neutro","jalon_pecho","pajaros_manc","pallof_press","pec_deck","peso_muerto","peso_muerto_rumano","peso_muerto_rumano_manc","peso_muerto_sumo","peso_muerto_trap","plancha","plancha_lateral","pmr_una_pierna","prensa","press_banca","press_banca_manc","press_cerrado","press_frances","press_hombro_manc","press_hombro_maquina","press_inclinado_barra","press_inclinado_manc","press_inclinado_maquina","press_inclinado_smith","press_maquina_pecho","press_militar","puente_gluteo","pullover_mochila","remo_australiano","remo_barra","remo_mancuerna","remo_mesa","remo_mochila","remo_pecho_apoyado","remo_polea_sentado","reverse_pec_deck","rueda_abdominal","sentadilla","sentadilla_bulgara","sentadilla_frontal","sentadilla_goblet","sentadilla_hack","sentadilla_mochila","sentadilla_pistol_asistida","sentadilla_salto","sentadilla_sissy","sentadilla_smith","step_up","ytw_piso","zancadas_caminando"].forEach(id => { if (E[id]) E[id].img = 1; });
 
   // Grupos: el orden define alternativas y rotación
   const G = {};
