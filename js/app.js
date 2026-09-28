@@ -54,7 +54,7 @@
     v: 1,
     start: dk(monday(now())),
     schedule: ['empuje', 'tiron', 'piernas', null, 'torso', 'pierna_core', null],
-    weekMoves: {}, swaps: {}, logs: {}, body: [], meals: {}, mealSwaps: {}, water: {}, market: {},
+    weekMoves: {}, swaps: {}, logs: {}, body: [], meals: {}, mealSwaps: {}, water: {}, market: {}, myPrices: {}, eaten: {},
     settings: { theme: 'auto', name: '', budget: 250000, waterGoal: 10, rotWeeks: 5, weighDay: 0 }
   });
   function load() {
@@ -63,6 +63,8 @@
     const d = defaults();
     if (!s || typeof s !== 'object') return d;
     const out = Object.assign(d, s);
+    out.myPrices = out.myPrices || {};
+    out.eaten = out.eaten || {};
     out.settings = Object.assign(defaults().settings, s.settings || {});
     if (!out.settings.budget) out.settings.budget = 250000;
     return out;
@@ -291,6 +293,26 @@
   function sumMacros(list) {
     return list.reduce((a, x) => { const m = PLAN.meals[x.id].m; a.k += m.k; a.p += m.p; a.c += m.c; a.f += m.f; return a; }, { k: 0, p: 0, c: 0, f: 0 });
   }
+  const eatenOf = (k, sl) => ((S.eaten[k] || {})[sl] || []);
+  const sumEaten = arr => arr.reduce((a, x) => { a.k += x.k * x.q; a.p += x.p * x.q; a.c += x.c * x.q; a.f += x.f * x.q; return a; }, { k: 0, p: 0, c: 0, f: 0 });
+  function dayDone(d, meals) {
+    const k = dk(d), chk = S.meals[k] || {}, t = { k: 0, p: 0, c: 0, f: 0 };
+    const add = m => { t.k += m.k; t.p += m.p; t.c += m.c; t.f += m.f; };
+    meals.forEach(x => { const e = eatenOf(k, x.slot.id); if (e.length) add(sumEaten(e)); else if (chk[x.slot.id]) add(PLAN.meals[x.id].m); });
+    add(sumEaten(eatenOf(k, 'extra')));
+    ['k', 'p', 'c', 'f'].forEach(z => { t[z] = Math.round(t[z]); });
+    return t;
+  }
+  const eatNames = arr => arr.map(x => (x.q !== 1 ? fmt(x.q) + ' × ' : '') + x.n).join(', ');
+  function eatListHtml(k, sl) {
+    const arr = eatenOf(k, sl);
+    if (!arr.length) return '<p class="small muted" style="margin:0 0 6px">Aún no has agregado nada.</p>';
+    const t = sumEaten(arr);
+    const qb = (i, v, l) => `<button class="round" style="width:40px;height:40px;font-size:20px" data-a="eat-q" data-k="${k}" data-slot="${sl}" data-i="${i}" data-v="${v}" aria-label="${v > 0 ? 'Más' : 'Menos'}">${l}</button>`;
+    return arr.map((x, i) => `<div class="list-item"><div class="grow"><div class="t">${esc(x.n)}</div><div class="d num">${esc(x.u || '')} · ${Math.round(x.k * x.q)} kcal</div></div>${qb(i, -1, '−')}<b class="num" style="min-width:30px;text-align:center">${fmt(x.q)}</b>${qb(i, 1, '+')}</div>`).join('')
+      + `<div class="small num" style="margin:8px 0 4px"><b>Total: ${Math.round(t.k)} kcal</b> · ${Math.round(t.p)} g P · ${Math.round(t.c)} g C · ${Math.round(t.f)} g G</div>`;
+  }
+
   function macroBars(done, plan) {
     const T = PLAN.targets;
     const row = (l, key, u) => {
@@ -359,16 +381,17 @@
     if (PLAN) {
       const meals = dayMeals(d);
       const chk = S.meals[k] || {};
-      const doneM = sumMacros(meals.filter(x => chk[x.slot.id]));
+      const doneM = dayDone(d, meals);
       h += `<div class="sec-title">Comidas de hoy <a class="small link-btn" href="#/comida">Ver menú</a></div><div class="card">
         <div class="mbar" style="margin-bottom:6px"><div class="top"><span>Calorías</span><span class="num"><b>${doneM.k}</b> / ${PLAN.targets.k} kcal · <b>${doneM.p}</b> g proteína</span></div>
         <div class="track"><div class="fill" style="width:${Math.min(100, doneM.k / PLAN.targets.k * 100)}%"></div></div></div>`;
       meals.forEach(x => {
-        const on = !!chk[x.slot.id];
-        h += `<div class="list-item ${on ? 'done' : ''}"><div class="grow"><div class="d">${x.slot.time} · ${x.slot.label}</div><div class="t">${esc(PLAN.meals[x.id].n)}</div></div>
+        const ea = eatenOf(k, x.slot.id);
+        const on = !!chk[x.slot.id] || ea.length > 0;
+        h += `<div class="list-item ${on && !ea.length ? 'done' : ''}"><button class="tap" data-a="eat-open" data-k="${k}" data-slot="${x.slot.id}"><div class="d">${x.slot.time} · ${x.slot.label}${ea.length ? ' · lo que comiste' : ''}</div><div class="t">${esc(ea.length ? eatNames(ea) : PLAN.meals[x.id].n)}</div></button>
           <button class="check ${on ? 'on' : ''}" data-a="meal-check" data-k="${k}" data-slot="${x.slot.id}" aria-label="Marcar comida">${ic('check', 3)}</button></div>`;
       });
-      h += `</div>`;
+      h += `<button class="link-btn" data-a="eat-open" data-k="${k}" data-slot="extra">+ Registrar algo más (antojos, extras)</button><p class="small muted" style="margin:2px 0 0">Toca una comida para anotar lo que comiste si no seguiste el menú.</p></div>`;
     }
 
     // Agua
@@ -477,19 +500,23 @@
     h += `<div class="day-chips">${DAYS.map((n, i) => `<button class="${i === sel ? 'on' : ''} ${i === wIdx(now()) ? 'today' : ''}" data-a="day" data-i="${i}">${n}<b>${addDays(d0, i).getDate()}</b></button>`).join('')}</div>`;
     const meals = dayMeals(d);
     const chk = S.meals[k] || {};
-    h += `<div class="card">${macroBars(sumMacros(meals.filter(x => chk[x.slot.id])), sumMacros(meals))}
-      <p class="small muted" style="margin:10px 0 0">Las barras se llenan con lo que vas marcando. Macros aproximadas.</p></div>`;
+    h += `<div class="card">${macroBars(dayDone(d, meals), sumMacros(meals))}
+      <p class="small muted" style="margin:10px 0 0">Las barras suman lo que marcas y lo que registras. Macros aproximadas.</p></div>`;
     meals.forEach(x => {
       const m = PLAN.meals[x.id];
-      const on = !!chk[x.slot.id];
-      h += `<div class="card meal-card ${on ? 'done' : ''}"><div class="meal"><div class="grow">
+      const ea = eatenOf(k, x.slot.id), et = sumEaten(ea);
+      const on = !!chk[x.slot.id] || ea.length > 0;
+      h += `<div class="card meal-card ${on && !ea.length ? 'done' : ''}"><div class="meal"><div class="grow">
         <div class="time">${x.slot.time} · ${x.slot.label.toUpperCase()}</div>
         <div class="name">${esc(m.n)}</div>
         <ul>${m.items.map(i => `<li>${esc(i)}</li>`).join('')}</ul>
         <div class="mac num">${m.m.k} kcal · ${m.m.p} g P · ${m.m.c} g C · ${m.m.f} g G</div>
-        <div class="acts">${m.lleva ? '<span class="chip line">Para llevar</span>' : ''}<button class="link-btn" data-a="meal-swap" data-k="${k}" data-slot="${x.slot.id}">Cambiar por otra</button>${recipeFor(x.id) ? `<button class="link-btn" data-a="recipe" data-id="${recipeFor(x.id).id}">Ver receta</button>` : ''}</div>
+        ${ea.length ? `<div class="tip"><b>Lo que comiste:</b> ${esc(eatNames(ea))}<br><span class="num">${Math.round(et.k)} kcal · ${Math.round(et.p)} g P</span></div>` : ''}
+        <div class="acts">${m.lleva ? '<span class="chip line">Para llevar</span>' : ''}<button class="link-btn" data-a="meal-swap" data-k="${k}" data-slot="${x.slot.id}">Cambiar por otra</button><button class="link-btn" data-a="eat-open" data-k="${k}" data-slot="${x.slot.id}">${ea.length ? 'Editar lo que comí' : 'Comí otra cosa'}</button>${recipeFor(x.id) ? `<button class="link-btn" data-a="recipe" data-id="${recipeFor(x.id).id}">Ver receta</button>` : ''}</div>
         </div><button class="check ${on ? 'on' : ''}" data-a="meal-check" data-k="${k}" data-slot="${x.slot.id}" aria-label="Marcar comida">${ic('check', 3)}</button></div></div>`;
     });
+    const ex = eatenOf(k, 'extra');
+    h += `<div class="card"><div class="small muted" style="font-weight:700">EXTRAS Y ANTOJOS</div>${ex.length ? `<div style="font-weight:700;margin:4px 0">${esc(eatNames(ex))}</div><div class="small num">${Math.round(sumEaten(ex).k)} kcal</div>` : '<p class="small muted" style="margin:4px 0">Lo que comiste fuera de las comidas del plan.</p>'}<button class="link-btn" data-a="eat-open" data-k="${k}" data-slot="extra">${ex.length ? 'Editar' : '+ Agregar'}</button></div>`;
     h += `<div class="sec-title">Equivalencias</div><div class="card">
       <p class="small muted" style="margin:0 0 6px">Cambia un alimento por otro del mismo grupo y mantienes las macros.</p>
       ${PLAN.equivalencias.map(g => `<details class="eq"><summary>${esc(g.grupo)} <span class="small muted" style="margin-left:auto;margin-right:10px">${esc(g.base)}</span></summary><ul>${g.opciones.map(o => `<li>${esc(o)}</li>`).join('')}</ul></details>`).join('')}</div>`;
@@ -505,7 +532,7 @@
     if (!PLAN) { app.innerHTML = h + '<div class="card empty">Cargando el plan…</div>'; return; }
     const M = PLAN.market;
     const chk = S.market[M.updated] || {};
-    const items = M.items;
+    const items = M.items.map(i => S.myPrices[i.id] ? Object.assign({}, i, { price: S.myPrices[i.id].price, store: 'Tu precio', date: S.myPrices[i.id].date, mine: true }) : i);
     const priced = items.filter(i => i.price > 0);
     const full = priced.reduce((a, i) => a + i.price, 0);
     const total = Math.round(priced.reduce((a, i) => a + (i.mes ? i.price / 2 : i.price), 0));
@@ -534,7 +561,7 @@
         const on = !!chk[i.id];
         h += `<div class="list-item ${on ? 'done' : ''}"><button class="check ${on ? 'on' : ''}" data-a="mk-check" data-id="${i.id}" aria-label="Comprado">${ic('check', 3)}</button>
           <button class="tap" data-a="mk-info" data-id="${i.id}"><div class="t">${esc(i.n)}</div><div class="d">${esc(i.q)}${i.mes ? ' · dura ~1 mes' : ''}</div></button>
-          ${i.price > 0 ? `<button class="price num" data-a="mk-info" data-id="${i.id}">${cop(i.price)}<small>${esc(i.store || '')}${i.date ? ' · ' + shortDate(i.date) : ''}</small></button>` : '<div class="price small muted">Sin dato</div>'}</div>`;
+          ${i.price > 0 ? `<button class="price num" ${i.mine ? 'style="color:var(--accent-text)"' : ''} data-a="mk-info" data-id="${i.id}">${cop(i.price)}<small>${esc(i.store || '')}${i.date ? ' · ' + shortDate(i.date) : ''}</small></button>` : '<div class="price small muted">Sin dato</div>'}</div>`;
       });
       h += `</div>`;
     });
@@ -801,6 +828,15 @@
     });
   }
 
+  function eatPush(k, sl, item) {
+    const day = S.eaten[k] = S.eaten[k] || {};
+    const arr = day[sl] = day[sl] || [];
+    const same = arr.find(x => x.n === item.n && x.u === item.u);
+    if (same) same.q += 1; else arr.push(item);
+    save(); refreshEat(k, sl);
+  }
+  function refreshEat(k, sl) { const el = $('#eatList'); if (el) el.innerHTML = eatListHtml(k, sl); rerender(); }
+
   const A = {
     back() { if (navCount > 0) history.back(); else location.hash = '#/hoy'; },
     'sheet-close'() { closeSheet(); },
@@ -915,12 +951,60 @@
     },
     'mk-info'(b) {
       const i = PLAN.market.items.find(x => x.id === b.dataset.id);
+      const mine = S.myPrices[i.id];
       openSheet(`<h3>${esc(i.n)}</h3><p class="small muted" style="margin:0 0 10px">Necesitas ${esc(i.q)} para ${PLAN.market.days} días</p>
         ${i.price > 0 ? `<div class="stat-grid"><div class="stat"><div class="l">Costo estimado</div><div class="v num">${cop(i.price)}</div></div><div class="stat"><div class="l">Dónde</div><div class="v" style="font-size:17px">${esc(i.store)}</div><div class="h">${i.date ? 'precio del ' + shortDate(i.date) : ''}</div></div></div>
         ${i.prod ? `<p class="small" style="margin:12px 0 0">Producto de referencia: <b>${esc(i.prod)}</b></p>` : ''}
         ${i.nota ? `<p class="small muted" style="margin:6px 0 0">${esc(i.nota)}</p>` : ''}
         ${i.src ? `<a class="btn block" style="margin-top:12px" href="${esc(i.src)}" target="_blank" rel="noopener">Ver la fuente del precio</a>` : ''}`
-        : '<div class="empty">No encontramos un precio confiable esta semana.</div>'}`);
+        : '<div class="empty">No encontramos un precio confiable esta semana.</div>'}
+        <div class="card" style="box-shadow:none;background:var(--surface-2);margin-top:14px"><h2>¿Lo conseguiste más barato?</h2>
+        <p class="small muted" style="margin:-4px 0 10px">Anota lo que pagaste por ${esc(i.q)} (plaza, mercado de barrio, tienda). El total usa tu precio.</p>
+        <div class="weigh"><input class="field num" id="myPrice" type="number" inputmode="numeric" placeholder="$" value="${mine ? mine.price : ''}"><button class="btn pri" data-a="my-price" data-id="${i.id}">Guardar</button></div>
+        ${mine ? `<button class="link-btn" style="margin-top:8px" data-a="my-price-del" data-id="${i.id}">Quitar mi precio (${cop(mine.price)} del ${shortDate(mine.date)})</button>` : ''}</div>`);
+    },
+    'my-price'(b) {
+      const v = parseInt(($('#myPrice').value || '').replace(/D/g, ''), 10);
+      if (!(v > 0)) return toast('Escribe el precio en pesos');
+      S.myPrices[b.dataset.id] = { price: v, date: dk(now()) };
+      save(); closeSheet(); toast('Precio guardado'); rerender();
+    },
+    'my-price-del'(b) {
+      delete S.myPrices[b.dataset.id];
+      save(); closeSheet(); rerender();
+    },
+    'eat-open'(b) {
+      const k = b.dataset.k, sl = b.dataset.slot;
+      const label = sl === 'extra' ? 'Extras y antojos' : PLAN.slots.find(x => x.id === sl).label;
+      const F = window.PF_FOODS;
+      openSheet(`<h3>¿Qué comiste? · ${esc(label)}</h3><p class="small muted" style="margin:0 0 10px">${sl === 'extra' ? 'Suma a las calorías del día.' : 'Si lo anotas, reemplaza la comida del plan en el conteo del día.'}</p>
+        <div id="eatList">${eatListHtml(k, sl)}</div>
+        <input class="field" id="eatSearch" placeholder="Buscar: arroz, arepa, pollo…" autocomplete="off" style="margin-top:8px">
+        <div id="eatFoods">${F.map((f, i) => `<button class="opt" style="min-height:52px;padding:10px 14px" data-a="eat-add" data-k="${k}" data-slot="${sl}" data-i="${i}" data-name="${esc(f[0].toLowerCase())}"><div class="grow"><div class="t">${esc(f[0])}</div><div class="d num">${esc(f[1])} · ${f[2]} kcal · ${f[3]} g P</div></div>${ic('plus')}</button>`).join('')}</div>
+        <details class="eq" style="margin-top:12px"><summary>Otro alimento (escribirlo)</summary>
+          <input class="field" id="cN" placeholder="Qué comiste" style="margin:6px 0">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><input class="field num" id="cK" type="number" inputmode="numeric" placeholder="kcal"><input class="field num" id="cP" type="number" inputmode="numeric" placeholder="Proteína g"><input class="field num" id="cC" type="number" inputmode="numeric" placeholder="Carbos g"><input class="field num" id="cF" type="number" inputmode="numeric" placeholder="Grasa g"></div>
+          <button class="btn block" style="margin-top:8px" data-a="eat-custom" data-k="${k}" data-slot="${sl}">Agregar</button></details>
+        <button class="btn pri block big" style="margin-top:14px" data-a="sheet-close">Listo</button>`);
+    },
+    'eat-add'(b) {
+      const f = window.PF_FOODS[+b.dataset.i];
+      eatPush(b.dataset.k, b.dataset.slot, { n: f[0], u: f[1], k: f[2], p: f[3], c: f[4], f: f[5], q: 1 });
+      toast(f[0] + ' agregado');
+    },
+    'eat-custom'(b) {
+      const n = ($('#cN').value || '').trim(), kc = +$('#cK').value;
+      if (!n || !(kc > 0)) return toast('Escribe qué fue y cuántas kcal');
+      eatPush(b.dataset.k, b.dataset.slot, { n, u: 'a mano', k: kc, p: +$('#cP').value || 0, c: +$('#cC').value || 0, f: +$('#cF').value || 0, q: 1 });
+      ['cN', 'cK', 'cP', 'cC', 'cF'].forEach(id => { $('#' + id).value = ''; });
+    },
+    'eat-q'(b) {
+      const arr = ((S.eaten[b.dataset.k] || {})[b.dataset.slot]) || [];
+      const x = arr[+b.dataset.i];
+      if (!x) return;
+      x.q = Math.round((x.q + 0.5 * +b.dataset.v) * 10) / 10;
+      if (x.q <= 0) arr.splice(+b.dataset.i, 1);
+      save(); refreshEat(b.dataset.k, b.dataset.slot);
     },
     'mk-reset'() { S.market = {}; save(); rerender(); },
 
@@ -1030,6 +1114,13 @@
     if (!b || b.disabled) return;
     const fn = A[b.dataset.a];
     if (fn) { e.preventDefault(); fn(b, e); }
+  });
+
+  const fold = t => t.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  document.addEventListener('input', e => {
+    if (e.target.id !== 'eatSearch') return;
+    const q = fold(e.target.value.trim().toLowerCase());
+    document.querySelectorAll('#eatFoods .opt').forEach(o => { o.style.display = !q || fold(o.dataset.name).includes(q) ? '' : 'none'; });
   });
 
   document.addEventListener('change', e => {
