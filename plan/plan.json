@@ -1,119 +1,1083 @@
 {
-  "version": 1,
-  "generated": "2026-09-28",
-  "week_of": "2026-09-28",
-  "note": "Plan inicial. Precios, recetas y noticias llegan con la actualización del lunes.",
-  "targets": { "k": 2850, "p": 140, "c": 385, "f": 70 },
-  "slots": [
-    { "id": "desayuno", "label": "Desayuno", "time": "06:30" },
-    { "id": "mediamanana", "label": "Media mañana", "time": "10:00" },
-    { "id": "almuerzo", "label": "Almuerzo", "time": "12:30" },
-    { "id": "onces", "label": "Onces", "time": "15:30" },
-    { "id": "pre", "label": "Pre-entreno", "time": "18:00" },
-    { "id": "cena", "label": "Cena post-entreno", "time": "21:00" }
-  ],
-  "meals": {
-    "d1": { "slot": "desayuno", "n": "Pericos con arepa y banano", "items": ["3 huevos pericos (tomate y cebolla)", "1 arepa grande de maíz (120 g)", "1 banano", "Café con 200 ml de leche semidescremada"], "m": { "k": 650, "p": 31, "c": 85, "f": 21 } },
-    "d2": { "slot": "desayuno", "n": "Avena con leche, banano y huevos duros", "items": ["80 g de avena en hojuelas cocida en 250 ml de leche", "1 banano en rodajas", "2 huevos duros"], "m": { "k": 668, "p": 31, "c": 94, "f": 19 } },
-    "d3": { "slot": "desayuno", "n": "Calentado de arroz y frijol con huevos", "items": ["1 taza de arroz cocido", "½ taza de frijol cocido", "2 huevos fritos en poco aceite", "Café con leche"], "m": { "k": 558, "p": 29, "c": 76, "f": 14 } },
-    "d4": { "slot": "desayuno", "n": "Sándwich de huevo y queso + jugo", "items": ["2 tajadas de pan integral", "2 huevos", "30 g de queso campesino", "Jugo de naranja natural (250 ml)", "1 banano"], "m": { "k": 578, "p": 27, "c": 79, "f": 18 } },
-
-    "m1": { "slot": "mediamanana", "n": "Kumis y banano", "items": ["Kumis (200 ml)", "1 banano"], "m": { "k": 255, "p": 7, "c": 47, "f": 5 }, "lleva": true },
-    "m2": { "slot": "mediamanana", "n": "Huevos duros y manzana", "items": ["2 huevos duros", "1 manzana"], "m": { "k": 238, "p": 12, "c": 26, "f": 10 }, "lleva": true },
-    "m3": { "slot": "mediamanana", "n": "Mandarinas, queso y tostada", "items": ["2 mandarinas", "40 g de queso campesino", "1 tostada integral"], "m": { "k": 237, "p": 10, "c": 31, "f": 9 }, "lleva": true },
-    "m4": { "slot": "mediamanana", "n": "Maní con uvas pasas", "items": ["30 g de maní sin sal", "30 g de uvas pasas"], "m": { "k": 260, "p": 8, "c": 29, "f": 14 }, "lleva": true },
-
-    "a1": { "slot": "almuerzo", "n": "Arroz con pollo casero y maduro", "items": ["150 g de pechuga (peso cocido)", "1½ taza de arroz cocido", "Verduras salteadas", "½ plátano maduro al horno", "1 cdta de aceite"], "m": { "k": 756, "p": 55, "c": 106, "f": 11 }, "lleva": true },
-    "a2": { "slot": "almuerzo", "n": "Carne molida con papa criolla y arroz", "items": ["150 g de carne molida magra", "200 g de papa criolla", "1 taza de arroz cocido", "Ensalada de tomate y cebolla", "1 cdta de aceite"], "m": { "k": 699, "p": 38, "c": 84, "f": 20 }, "lleva": true },
-    "a3": { "slot": "almuerzo", "n": "Lentejas con arroz y huevo", "items": ["1½ taza de lentejas cocidas con guiso", "1 taza de arroz cocido", "1 huevo cocido"], "m": { "k": 685, "p": 37, "c": 110, "f": 11 }, "lleva": true },
-    "a4": { "slot": "almuerzo", "n": "Pasta con atún y maíz", "items": ["100 g de pasta (en seco)", "1 lata de atún en agua", "Salsa de tomate casera", "½ taza de maíz tierno", "1 cdta de aceite de oliva"], "m": { "k": 655, "p": 43, "c": 97, "f": 9 }, "lleva": true },
-    "a5": { "slot": "almuerzo", "n": "Sudado de pollo con papa y yuca", "items": ["180 g de muslo sin piel", "150 g de papa", "100 g de yuca", "½ taza de arroz cocido"], "m": { "k": 678, "p": 50, "c": 86, "f": 13 }, "lleva": true },
-
-    "o1": { "slot": "onces", "n": "Pan con mantequilla de maní y banano", "items": ["2 tajadas de pan integral", "1 cda de mantequilla de maní", "1 banano"], "m": { "k": 340, "p": 11, "c": 54, "f": 10 }, "lleva": true },
-    "o2": { "slot": "onces", "n": "Arepa con queso y fruta", "items": ["1 arepa mediana", "40 g de queso campesino", "1 mandarina o manzana"], "m": { "k": 337, "p": 11, "c": 52, "f": 10 }, "lleva": true },
-    "o3": { "slot": "onces", "n": "Sándwich de pollo desmechado", "items": ["2 tajadas de pan integral", "60 g de pollo desmechado", "Tomate y lechuga", "1 fruta"], "m": { "k": 330, "p": 24, "c": 47, "f": 4 }, "lleva": true },
-    "o4": { "slot": "onces", "n": "Tostadas con atún y manzana", "items": ["3 tostadas integrales", "½ lata de atún en agua", "1 manzana"], "m": { "k": 280, "p": 17, "c": 50, "f": 2 }, "lleva": true },
-
-    "pr1": { "slot": "pre", "n": "Banano y pan con bocadillo", "items": ["1 banano", "2 tajadas de pan", "1 bocadillo"], "m": { "k": 295, "p": 6, "c": 65, "f": 2 }, "lleva": true },
-    "pr2": { "slot": "pre", "n": "Arepa con miel y mango", "items": ["1 arepa mediana", "1 cda de miel", "1 mango pequeño"], "m": { "k": 314, "p": 4, "c": 72, "f": 2 }, "lleva": true },
-    "pr3": { "slot": "pre", "n": "Tostadas con mermelada y banano", "items": ["3 tostadas", "2 cdtas de mermelada", "1 banano"], "m": { "k": 260, "p": 4, "c": 60, "f": 1 }, "lleva": true },
-    "pr4": { "slot": "pre", "n": "Jugo de guayaba y pan", "items": ["Jugo de guayaba en agua (300 ml)", "2 tajadas de pan"], "m": { "k": 270, "p": 5, "c": 58, "f": 2 }, "lleva": true },
-
-    "c1": { "slot": "cena", "n": "Pechuga a la plancha, arroz y aguacate", "items": ["150 g de pechuga (peso cocido)", "1½ taza de arroz cocido", "¼ de aguacate", "Ensalada"], "m": { "k": 682, "p": 54, "c": 78, "f": 15 } },
-    "c2": { "slot": "cena", "n": "Huevos revueltos, arepa y frijoles", "items": ["3 huevos revueltos", "1 arepa grande", "1 taza de frijoles cocidos"], "m": { "k": 670, "p": 39, "c": 86, "f": 19 } },
-    "c3": { "slot": "cena", "n": "Tilapia con papa, arroz y aguacate", "items": ["200 g de tilapia (peso crudo)", "250 g de papa cocida", "½ taza de arroz", "¼ de aguacate"], "m": { "k": 622, "p": 48, "c": 71, "f": 18 } },
-    "c4": { "slot": "cena", "n": "Bistec con patacón al horno y arroz", "items": ["150 g de bistec de res (crudo)", "150 g de plátano verde al horno", "1 taza de arroz cocido", "1 cdta de aceite"], "m": { "k": 625, "p": 38, "c": 92, "f": 12 } },
-    "c5": { "slot": "cena", "n": "Wrap de pollo con aguacate", "items": ["2 tortillas de trigo", "150 g de pechuga (peso cocido)", "Lechuga, tomate y cebolla", "¼ de aguacate"], "m": { "k": 654, "p": 55, "c": 51, "f": 21 } }
+ "version": 1,
+ "generated": "2026-09-28",
+ "week_of": "2026-09-28",
+ "note": "Plan inicial. Precios, recetas y noticias llegan con la actualización del lunes.",
+ "targets": {
+  "k": 2850,
+  "p": 140,
+  "c": 415,
+  "f": 70
+ },
+ "slots": [
+  {
+   "id": "desayuno",
+   "label": "Desayuno",
+   "time": "06:30"
   },
-  "menu": [
-    { "desayuno": "d1", "mediamanana": "m1", "almuerzo": "a1", "onces": "o1", "pre": "pr1", "cena": "c1" },
-    { "desayuno": "d2", "mediamanana": "m2", "almuerzo": "a3", "onces": "o2", "pre": "pr2", "cena": "c2" },
-    { "desayuno": "d3", "mediamanana": "m3", "almuerzo": "a2", "onces": "o3", "pre": "pr3", "cena": "c3" },
-    { "desayuno": "d4", "mediamanana": "m4", "almuerzo": "a4", "onces": "o4", "pre": "pr4", "cena": "c4" },
-    { "desayuno": "d1", "mediamanana": "m1", "almuerzo": "a5", "onces": "o1", "pre": "pr1", "cena": "c5" },
-    { "desayuno": "d2", "mediamanana": "m2", "almuerzo": "a1", "onces": "o2", "pre": "pr2", "cena": "c1" },
-    { "desayuno": "d3", "mediamanana": "m3", "almuerzo": "a3", "onces": "o3", "pre": "pr3", "cena": "c2" }
-  ],
-  "equivalencias": [
-    { "grupo": "Carbohidratos", "base": "≈ 30 g de carbohidratos", "opciones": ["1 arepa mediana (80 g)", "⅔ de taza de arroz cocido (130 g)", "1 papa mediana (170 g)", "100 g de plátano maduro", "80 g de yuca", "40 g de avena", "1 banano mediano"] },
-    { "grupo": "Proteína", "base": "≈ 25 g de proteína", "opciones": ["80 g de pechuga cocida", "1 lata de atún en agua", "125 g de tilapia cruda", "110 g de carne magra de res cruda", "4 huevos (trae más grasa: quita grasa en otra parte)"] },
-    { "grupo": "Grasas", "base": "≈ 9 g de grasa", "opciones": ["¼ de aguacate (60 g)", "1 cda de mantequilla de maní", "18 g de maní", "2 cdtas de aceite"] }
-  ],
-  "recipes": [],
-  "news": [],
-  "market": {
-    "days": 15,
-    "updated": "2026-09-28",
-    "note": "Cantidades para 15 días según el menú. Los precios llegan en la próxima actualización.",
-    "items": [
-      { "id": "pechuga", "cat": "Proteínas", "n": "Pechuga de pollo", "q": "2 kg" },
-      { "id": "muslo", "cat": "Proteínas", "n": "Muslos de pollo sin piel", "q": "500 g" },
-      { "id": "molida", "cat": "Proteínas", "n": "Carne molida magra", "q": "500 g" },
-      { "id": "bistec", "cat": "Proteínas", "n": "Bistec de res", "q": "400 g" },
-      { "id": "tilapia", "cat": "Proteínas", "n": "Filete de tilapia", "q": "500 g" },
-      { "id": "atun", "cat": "Proteínas", "n": "Atún en agua", "q": "4 latas" },
-      { "id": "huevos", "cat": "Proteínas", "n": "Huevos", "q": "60 (2 panales)" },
-      { "id": "queso", "cat": "Lácteos", "n": "Queso campesino", "q": "500 g" },
-      { "id": "leche", "cat": "Lácteos", "n": "Leche semidescremada", "q": "3 bolsas de 1,1 L" },
-      { "id": "kumis", "cat": "Lácteos", "n": "Kumis", "q": "1 L" },
-      { "id": "arroz", "cat": "Granos y harinas", "n": "Arroz", "q": "2 kg" },
-      { "id": "lentejas", "cat": "Granos y harinas", "n": "Lentejas", "q": "500 g" },
-      { "id": "frijol", "cat": "Granos y harinas", "n": "Frijol", "q": "500 g" },
-      { "id": "avena", "cat": "Granos y harinas", "n": "Avena en hojuelas", "q": "500 g" },
-      { "id": "pasta", "cat": "Granos y harinas", "n": "Pasta", "q": "500 g" },
-      { "id": "arepas", "cat": "Panadería", "n": "Arepas de maíz", "q": "2 paquetes x 10" },
-      { "id": "pan_int", "cat": "Panadería", "n": "Pan integral tajado", "q": "2 bolsas" },
-      { "id": "pan", "cat": "Panadería", "n": "Pan tajado blanco", "q": "1 bolsa" },
-      { "id": "tostadas", "cat": "Panadería", "n": "Tostadas integrales", "q": "1 paquete" },
-      { "id": "tortillas", "cat": "Panadería", "n": "Tortillas de trigo", "q": "1 paquete x 8" },
-      { "id": "banano", "cat": "Frutas", "n": "Banano", "q": "25 unidades" },
-      { "id": "manzana", "cat": "Frutas", "n": "Manzana", "q": "7 unidades" },
-      { "id": "mandarina", "cat": "Frutas", "n": "Mandarina", "q": "8 unidades" },
-      { "id": "mango", "cat": "Frutas", "n": "Mango", "q": "4 unidades" },
-      { "id": "guayaba", "cat": "Frutas", "n": "Guayaba", "q": "1 kg" },
-      { "id": "naranja", "cat": "Frutas", "n": "Naranja para jugo", "q": "1 kg" },
-      { "id": "aguacate", "cat": "Frutas", "n": "Aguacate", "q": "3 medianos" },
-      { "id": "maduro", "cat": "Verduras", "n": "Plátano maduro", "q": "2 unidades" },
-      { "id": "verde", "cat": "Verduras", "n": "Plátano verde", "q": "2 unidades" },
-      { "id": "papa", "cat": "Verduras", "n": "Papa pastusa", "q": "1,5 kg" },
-      { "id": "criolla", "cat": "Verduras", "n": "Papa criolla", "q": "1 kg" },
-      { "id": "yuca", "cat": "Verduras", "n": "Yuca", "q": "500 g" },
-      { "id": "tomate", "cat": "Verduras", "n": "Tomate", "q": "1,5 kg" },
-      { "id": "cebolla", "cat": "Verduras", "n": "Cebolla cabezona", "q": "1 kg" },
-      { "id": "cebolla_larga", "cat": "Verduras", "n": "Cebolla larga", "q": "1 atado" },
-      { "id": "verduras", "cat": "Verduras", "n": "Zanahoria, habichuela y arveja", "q": "1 kg" },
-      { "id": "lechuga", "cat": "Verduras", "n": "Lechuga", "q": "2 unidades" },
-      { "id": "limon", "cat": "Verduras", "n": "Limón", "q": "6 unidades" },
-      { "id": "mantequilla_mani", "cat": "Despensa", "n": "Mantequilla de maní", "q": "1 frasco" },
-      { "id": "mani", "cat": "Despensa", "n": "Maní sin sal", "q": "250 g" },
-      { "id": "pasas", "cat": "Despensa", "n": "Uvas pasas", "q": "150 g" },
-      { "id": "bocadillo", "cat": "Despensa", "n": "Bocadillo", "q": "1 bloque" },
-      { "id": "miel", "cat": "Despensa", "n": "Miel", "q": "1 frasco" },
-      { "id": "mermelada", "cat": "Despensa", "n": "Mermelada", "q": "1 frasco" },
-      { "id": "maiz", "cat": "Despensa", "n": "Maíz tierno en lata", "q": "2 latas" },
-      { "id": "tomate_salsa", "cat": "Despensa", "n": "Pasta de tomate", "q": "1 unidad" },
-      { "id": "cafe", "cat": "Despensa", "n": "Café", "q": "250 g" },
-      { "id": "aceite", "cat": "Despensa", "n": "Aceite (si no hay en casa)", "q": "1 L" }
-    ]
+  {
+   "id": "mediamanana",
+   "label": "Media mañana",
+   "time": "10:00"
+  },
+  {
+   "id": "almuerzo",
+   "label": "Almuerzo",
+   "time": "12:30"
+  },
+  {
+   "id": "onces",
+   "label": "Onces",
+   "time": "15:30"
+  },
+  {
+   "id": "pre",
+   "label": "Pre-entreno",
+   "time": "18:00"
+  },
+  {
+   "id": "cena",
+   "label": "Cena post-entreno",
+   "time": "21:00"
   }
+ ],
+ "meals": {
+  "d1": {
+   "slot": "desayuno",
+   "n": "Pericos con arepa y banano",
+   "items": [
+    "3 huevos pericos (tomate y cebolla)",
+    "1 arepa grande de maíz (120 g)",
+    "1 banano",
+    "Café con 200 ml de leche semidescremada"
+   ],
+   "m": {
+    "k": 650,
+    "p": 31,
+    "c": 85,
+    "f": 21
+   }
+  },
+  "d2": {
+   "slot": "desayuno",
+   "n": "Avena con leche, banano y huevos duros",
+   "items": [
+    "80 g de avena en hojuelas cocida en 250 ml de leche",
+    "1 banano en rodajas",
+    "2 huevos duros"
+   ],
+   "m": {
+    "k": 668,
+    "p": 31,
+    "c": 94,
+    "f": 19
+   }
+  },
+  "d3": {
+   "slot": "desayuno",
+   "n": "Calentado de arroz y frijol con huevos",
+   "items": [
+    "1 taza de arroz cocido",
+    "½ taza de frijol cocido",
+    "2 huevos fritos en poco aceite",
+    "Café con leche"
+   ],
+   "m": {
+    "k": 558,
+    "p": 29,
+    "c": 76,
+    "f": 14
+   }
+  },
+  "d4": {
+   "slot": "desayuno",
+   "n": "Sándwich de huevo y queso + jugo",
+   "items": [
+    "2 tajadas de pan integral",
+    "2 huevos",
+    "30 g de queso campesino",
+    "Jugo de naranja natural (250 ml)",
+    "1 banano"
+   ],
+   "m": {
+    "k": 578,
+    "p": 27,
+    "c": 79,
+    "f": 18
+   }
+  },
+  "m1": {
+   "slot": "mediamanana",
+   "n": "Kumis y banano",
+   "items": [
+    "Kumis (200 ml)",
+    "1 banano"
+   ],
+   "m": {
+    "k": 255,
+    "p": 7,
+    "c": 47,
+    "f": 5
+   },
+   "lleva": true
+  },
+  "m2": {
+   "slot": "mediamanana",
+   "n": "Huevos duros y manzana",
+   "items": [
+    "2 huevos duros",
+    "1 manzana"
+   ],
+   "m": {
+    "k": 238,
+    "p": 12,
+    "c": 26,
+    "f": 10
+   },
+   "lleva": true
+  },
+  "m3": {
+   "slot": "mediamanana",
+   "n": "Mandarinas, queso y tostada",
+   "items": [
+    "2 mandarinas",
+    "40 g de queso campesino",
+    "1 tostada integral"
+   ],
+   "m": {
+    "k": 237,
+    "p": 10,
+    "c": 31,
+    "f": 9
+   },
+   "lleva": true
+  },
+  "m4": {
+   "slot": "mediamanana",
+   "n": "Maní con uvas pasas",
+   "items": [
+    "30 g de maní sin sal",
+    "30 g de uvas pasas"
+   ],
+   "m": {
+    "k": 260,
+    "p": 8,
+    "c": 29,
+    "f": 14
+   },
+   "lleva": true
+  },
+  "a1": {
+   "slot": "almuerzo",
+   "n": "Arroz con pollo casero y maduro",
+   "items": [
+    "150 g de pechuga (peso cocido)",
+    "1½ taza de arroz cocido",
+    "Verduras salteadas",
+    "½ plátano maduro al horno",
+    "1 cdta de aceite"
+   ],
+   "m": {
+    "k": 756,
+    "p": 55,
+    "c": 106,
+    "f": 11
+   },
+   "lleva": true
+  },
+  "a2": {
+   "slot": "almuerzo",
+   "n": "Carne molida con papa criolla y arroz",
+   "items": [
+    "150 g de carne molida magra",
+    "200 g de papa criolla",
+    "1 taza de arroz cocido",
+    "Ensalada de tomate y cebolla",
+    "1 cdta de aceite"
+   ],
+   "m": {
+    "k": 699,
+    "p": 38,
+    "c": 84,
+    "f": 20
+   },
+   "lleva": true
+  },
+  "a3": {
+   "slot": "almuerzo",
+   "n": "Lentejas con arroz y huevo",
+   "items": [
+    "1½ taza de lentejas cocidas con guiso",
+    "1 taza de arroz cocido",
+    "1 huevo cocido"
+   ],
+   "m": {
+    "k": 685,
+    "p": 37,
+    "c": 110,
+    "f": 11
+   },
+   "lleva": true
+  },
+  "a4": {
+   "slot": "almuerzo",
+   "n": "Pasta con atún y maíz",
+   "items": [
+    "100 g de pasta (en seco)",
+    "1 lata de atún en agua",
+    "Salsa de tomate casera",
+    "½ taza de maíz tierno",
+    "1 cdta de aceite de oliva"
+   ],
+   "m": {
+    "k": 655,
+    "p": 43,
+    "c": 97,
+    "f": 9
+   },
+   "lleva": true
+  },
+  "a5": {
+   "slot": "almuerzo",
+   "n": "Sudado de pollo con papa y yuca",
+   "items": [
+    "180 g de muslo sin piel",
+    "150 g de papa",
+    "100 g de yuca",
+    "½ taza de arroz cocido"
+   ],
+   "m": {
+    "k": 678,
+    "p": 50,
+    "c": 86,
+    "f": 13
+   },
+   "lleva": true
+  },
+  "o1": {
+   "slot": "onces",
+   "n": "Pan con mantequilla de maní y banano",
+   "items": [
+    "2 tajadas de pan integral",
+    "1 cda de mantequilla de maní",
+    "1 banano"
+   ],
+   "m": {
+    "k": 340,
+    "p": 11,
+    "c": 54,
+    "f": 10
+   },
+   "lleva": true
+  },
+  "o2": {
+   "slot": "onces",
+   "n": "Arepa con queso y fruta",
+   "items": [
+    "1 arepa mediana",
+    "40 g de queso campesino",
+    "1 mandarina o manzana"
+   ],
+   "m": {
+    "k": 337,
+    "p": 11,
+    "c": 52,
+    "f": 10
+   },
+   "lleva": true
+  },
+  "o3": {
+   "slot": "onces",
+   "n": "Sándwich de pollo desmechado",
+   "items": [
+    "2 tajadas de pan integral",
+    "60 g de pollo desmechado",
+    "Tomate y lechuga",
+    "1 fruta"
+   ],
+   "m": {
+    "k": 330,
+    "p": 24,
+    "c": 47,
+    "f": 4
+   },
+   "lleva": true
+  },
+  "o4": {
+   "slot": "onces",
+   "n": "Tostadas con atún y manzana",
+   "items": [
+    "3 tostadas integrales",
+    "½ lata de atún en agua",
+    "1 manzana"
+   ],
+   "m": {
+    "k": 280,
+    "p": 17,
+    "c": 50,
+    "f": 2
+   },
+   "lleva": true
+  },
+  "pr1": {
+   "slot": "pre",
+   "n": "Banano y pan con bocadillo",
+   "items": [
+    "1 banano",
+    "2 tajadas de pan",
+    "1 bocadillo"
+   ],
+   "m": {
+    "k": 295,
+    "p": 6,
+    "c": 65,
+    "f": 2
+   },
+   "lleva": true
+  },
+  "pr2": {
+   "slot": "pre",
+   "n": "Arepa con miel y mango",
+   "items": [
+    "1 arepa mediana",
+    "1 cda de miel",
+    "1 mango pequeño"
+   ],
+   "m": {
+    "k": 314,
+    "p": 4,
+    "c": 72,
+    "f": 2
+   },
+   "lleva": true
+  },
+  "pr3": {
+   "slot": "pre",
+   "n": "Tostadas con mermelada y banano",
+   "items": [
+    "3 tostadas",
+    "2 cdtas de mermelada",
+    "1 banano"
+   ],
+   "m": {
+    "k": 260,
+    "p": 4,
+    "c": 60,
+    "f": 1
+   },
+   "lleva": true
+  },
+  "pr4": {
+   "slot": "pre",
+   "n": "Jugo de guayaba y pan",
+   "items": [
+    "Jugo de guayaba en agua (300 ml)",
+    "2 tajadas de pan"
+   ],
+   "m": {
+    "k": 270,
+    "p": 5,
+    "c": 58,
+    "f": 2
+   },
+   "lleva": true
+  },
+  "c1": {
+   "slot": "cena",
+   "n": "Pechuga a la plancha, arroz y aguacate",
+   "items": [
+    "150 g de pechuga (peso cocido)",
+    "1½ taza de arroz cocido",
+    "¼ de aguacate",
+    "Ensalada"
+   ],
+   "m": {
+    "k": 682,
+    "p": 54,
+    "c": 78,
+    "f": 15
+   }
+  },
+  "c2": {
+   "slot": "cena",
+   "n": "Huevos revueltos, arepa y frijoles",
+   "items": [
+    "3 huevos revueltos",
+    "1 arepa grande",
+    "1 taza de frijoles cocidos"
+   ],
+   "m": {
+    "k": 670,
+    "p": 39,
+    "c": 86,
+    "f": 19
+   }
+  },
+  "c3": {
+   "slot": "cena",
+   "n": "Tilapia con papa, arroz y aguacate",
+   "items": [
+    "200 g de tilapia (peso crudo)",
+    "250 g de papa cocida",
+    "½ taza de arroz",
+    "¼ de aguacate"
+   ],
+   "m": {
+    "k": 622,
+    "p": 48,
+    "c": 71,
+    "f": 18
+   }
+  },
+  "c4": {
+   "slot": "cena",
+   "n": "Bistec con patacón al horno y arroz",
+   "items": [
+    "150 g de bistec de res (crudo)",
+    "150 g de plátano verde al horno",
+    "1 taza de arroz cocido",
+    "1 cdta de aceite"
+   ],
+   "m": {
+    "k": 625,
+    "p": 38,
+    "c": 92,
+    "f": 12
+   }
+  },
+  "c5": {
+   "slot": "cena",
+   "n": "Wrap de pollo con aguacate",
+   "items": [
+    "2 tortillas de trigo",
+    "150 g de pechuga (peso cocido)",
+    "Lechuga, tomate y cebolla",
+    "¼ de aguacate"
+   ],
+   "m": {
+    "k": 654,
+    "p": 55,
+    "c": 51,
+    "f": 21
+   }
+  }
+ },
+ "menu": [
+  {
+   "desayuno": "d1",
+   "mediamanana": "m1",
+   "almuerzo": "a1",
+   "onces": "o1",
+   "pre": "pr1",
+   "cena": "c1"
+  },
+  {
+   "desayuno": "d2",
+   "mediamanana": "m2",
+   "almuerzo": "a3",
+   "onces": "o2",
+   "pre": "pr2",
+   "cena": "c2"
+  },
+  {
+   "desayuno": "d3",
+   "mediamanana": "m3",
+   "almuerzo": "a2",
+   "onces": "o3",
+   "pre": "pr3",
+   "cena": "c3"
+  },
+  {
+   "desayuno": "d4",
+   "mediamanana": "m4",
+   "almuerzo": "a4",
+   "onces": "o4",
+   "pre": "pr4",
+   "cena": "c4"
+  },
+  {
+   "desayuno": "d1",
+   "mediamanana": "m1",
+   "almuerzo": "a5",
+   "onces": "o1",
+   "pre": "pr1",
+   "cena": "c5"
+  },
+  {
+   "desayuno": "d2",
+   "mediamanana": "m2",
+   "almuerzo": "a1",
+   "onces": "o2",
+   "pre": "pr2",
+   "cena": "c1"
+  },
+  {
+   "desayuno": "d3",
+   "mediamanana": "m3",
+   "almuerzo": "a3",
+   "onces": "o3",
+   "pre": "pr3",
+   "cena": "c2"
+  }
+ ],
+ "equivalencias": [
+  {
+   "grupo": "Carbohidratos",
+   "base": "≈ 30 g de carbohidratos",
+   "opciones": [
+    "1 arepa mediana (80 g)",
+    "⅔ de taza de arroz cocido (130 g)",
+    "1 papa mediana (170 g)",
+    "100 g de plátano maduro",
+    "80 g de yuca",
+    "40 g de avena",
+    "1 banano mediano"
+   ]
+  },
+  {
+   "grupo": "Proteína",
+   "base": "≈ 25 g de proteína",
+   "opciones": [
+    "80 g de pechuga cocida",
+    "1 lata de atún en agua",
+    "125 g de tilapia cruda",
+    "110 g de carne magra de res cruda",
+    "4 huevos (trae más grasa: quita grasa en otra parte)"
+   ]
+  },
+  {
+   "grupo": "Grasas",
+   "base": "≈ 9 g de grasa",
+   "opciones": [
+    "¼ de aguacate (60 g)",
+    "1 cda de mantequilla de maní",
+    "18 g de maní",
+    "2 cdtas de aceite"
+   ]
+  }
+ ],
+ "recipes": [
+  {
+   "id": "prep",
+   "meal": null,
+   "n": "Preparación del domingo (deja la semana lista)",
+   "min": 90,
+   "rinde": "base para 3-4 días",
+   "lleva": false,
+   "ing": [
+    "2 tazas de arroz crudo",
+    "600 g de pechuga",
+    "250 g de lentejas",
+    "250 g de frijol (remojado desde el sábado)",
+    "2 zanahorias, 2 tomates, 1 cebolla cabezona, 1 tallo de cebolla larga",
+    "Ajo, comino, color, sal"
+   ],
+   "pasos": [
+    "Arranca con los frijoles en olla a presión con agua, sal y 1 zanahoria: 35-40 min después de que pite.",
+    "Mientras tanto, cocina el arroz: 2 tazas de arroz, 4 de agua, sal y 1 cdta de aceite, 20 min tapado a fuego bajo.",
+    "Cocina la pechuga entera en agua con sal, ajo y cebolla larga 20 min. Deja 300 g en trozos para el almuerzo y desmecha el resto para las onces y los wraps.",
+    "Haz un hogao grande: cebolla y tomate picados con 1 cdta de aceite, ajo y comino, 10 min. Divídelo para frijoles y lentejas.",
+    "Lentejas: 250 g con 3 tazas de agua, 1 zanahoria en cubos y la mitad del hogao, 25 min.",
+    "Deja enfriar todo y guárdalo en recipientes con tapa: nevera hasta 3-4 días; frijoles y lentejas también se congelan."
+   ],
+   "tip": "Con esto armas en 5 minutos los almuerzos del lunes a miércoles y los calentados del desayuno."
+  },
+  {
+   "id": "r_a1",
+   "meal": "a1",
+   "n": "Arroz con pollo casero y maduro al horno",
+   "min": 35,
+   "rinde": "2 porciones",
+   "lleva": true,
+   "ing": [
+    "300 g de pechuga en cubos",
+    "1 taza de arroz crudo",
+    "1 zanahoria rallada",
+    "½ taza de arveja y habichuela picada",
+    "½ cebolla y 1 tomate picados",
+    "Ajo, comino, color, sal",
+    "1 cdta de aceite",
+    "1 plátano maduro"
+   ],
+   "pasos": [
+    "Sazona el pollo con sal, ajo y comino.",
+    "Sofríe cebolla y tomate con el aceite 3 min, agrega el pollo y dóralo 5 min.",
+    "Echa las verduras, el arroz, una pizca de color y 2 tazas de agua caliente. Sal al gusto.",
+    "Tapa y deja a fuego bajo 18-20 min, sin destapar.",
+    "El maduro: en rodajas al horno o freidora de aire a 200 °C por 15 min."
+   ],
+   "tip": "Al recalentar en la oficina, échale una cucharada de agua por encima para que el arroz no quede seco."
+  },
+  {
+   "id": "r_a2",
+   "meal": "a2",
+   "n": "Carne molida guisada con papa criolla",
+   "min": 30,
+   "rinde": "1 porción",
+   "lleva": true,
+   "ing": [
+    "150 g de carne molida magra",
+    "200 g de papa criolla",
+    "½ cebolla y 1 tomate picados",
+    "Ajo, comino, sal",
+    "1 cdta de aceite",
+    "1 taza de arroz cocido"
+   ],
+   "pasos": [
+    "Cocina la papa criolla entera en agua con sal 15 min (o pártela y hornéala 20 min).",
+    "En una sartén, sofríe cebolla, tomate y ajo con el aceite 4 min.",
+    "Agrega la carne, desmenúzala con la cuchara y cocina 8 min hasta que no quede rosada.",
+    "Sal y comino al gusto. Sirve con la papa y el arroz."
+   ],
+   "tip": "La papa criolla aguanta muy bien recalentada; no la peles."
+  },
+  {
+   "id": "r_a3",
+   "meal": "a3",
+   "n": "Lentejas guisadas con arroz y huevo",
+   "min": 10,
+   "rinde": "1 porción (usa las del domingo)",
+   "lleva": true,
+   "ing": [
+    "1½ taza de lentejas del domingo",
+    "1 taza de arroz cocido",
+    "1 huevo",
+    "Cilantro picado"
+   ],
+   "pasos": [
+    "Cocina el huevo 10 min en agua hirviendo y pélalo.",
+    "Sirve las lentejas y el arroz en el recipiente.",
+    "Pon el huevo partido encima y cilantro al gusto."
+   ],
+   "tip": "Si no hiciste lentejas el domingo: 100 g de lentejas crudas + 2 tazas de agua + hogao, 25 min."
+  },
+  {
+   "id": "r_a4",
+   "meal": "a4",
+   "n": "Pasta con atún, maíz y salsa casera",
+   "min": 20,
+   "rinde": "1 porción",
+   "lleva": true,
+   "ing": [
+    "100 g de pasta",
+    "1 lata de atún en agua escurrido",
+    "½ taza de maíz tierno",
+    "2 tomates rallados + 1 cda de pasta de tomate",
+    "Ajo, orégano, sal",
+    "1 cdta de aceite de oliva"
+   ],
+   "pasos": [
+    "Cocina la pasta en agua con sal según el paquete (8-10 min).",
+    "Mientras tanto, sofríe el ajo con el aceite, agrega el tomate rallado y la pasta de tomate, 6 min.",
+    "Echa el atún y el maíz a la salsa, 2 min más.",
+    "Mezcla con la pasta escurrida. Orégano y sal al gusto."
+   ],
+   "tip": "Sirve caliente o fría. Aguanta 2 días en la nevera."
+  },
+  {
+   "id": "r_a5",
+   "meal": "a5",
+   "n": "Sudado de pollo con papa y yuca",
+   "min": 40,
+   "rinde": "2 porciones",
+   "lleva": true,
+   "ing": [
+    "360 g de muslo de pollo sin piel",
+    "300 g de papa en trozos",
+    "200 g de yuca en trozos",
+    "1 cebolla y 2 tomates picados",
+    "Ajo, comino, color, sal",
+    "Cilantro",
+    "1 taza de arroz cocido"
+   ],
+   "pasos": [
+    "Sofríe cebolla, tomate y ajo 5 min en una olla (sin aceite o con 1 cdta).",
+    "Agrega el pollo con sal, comino y color. Dóralo 5 min.",
+    "Echa la papa, la yuca y 1 taza de agua. Tapa y cocina a fuego medio 25 min.",
+    "Destapa, deja espesar 5 min y termina con cilantro."
+   ],
+   "tip": "Congela la segunda porción: dura un mes y se descongela en la nevera de un día para otro."
+  },
+  {
+   "id": "r_c1",
+   "meal": "c1",
+   "n": "Pechuga a la plancha con arroz y aguacate",
+   "min": 15,
+   "rinde": "1 porción",
+   "lleva": false,
+   "ing": [
+    "150 g de pechuga en filete delgado",
+    "Limón, ajo, sal y pimienta",
+    "1½ taza de arroz cocido",
+    "¼ de aguacate",
+    "Tomate y lechuga"
+   ],
+   "pasos": [
+    "Adoba la pechuga con limón, ajo, sal y pimienta (desde la mañana si puedes).",
+    "Sartén bien caliente con unas gotas de aceite: 4 min por lado sin moverla.",
+    "Calienta el arroz y sirve con aguacate y ensalada."
+   ],
+   "tip": "Si la pechuga es gruesa, ábrela en mariposa: se hace en la mitad del tiempo y no queda seca."
+  },
+  {
+   "id": "r_c3",
+   "meal": "c3",
+   "n": "Tilapia al limón con papa y arroz",
+   "min": 20,
+   "rinde": "1 porción",
+   "lleva": false,
+   "ing": [
+    "200 g de tilapia",
+    "1 limón, ajo, sal",
+    "250 g de papa",
+    "½ taza de arroz cocido",
+    "¼ de aguacate"
+   ],
+   "pasos": [
+    "Cocina la papa en trozos en agua con sal 15 min.",
+    "Seca la tilapia con papel, sazónala con sal, ajo y limón.",
+    "Sartén caliente con unas gotas de aceite: 3-4 min por lado.",
+    "Sirve con la papa, el arroz y el aguacate."
+   ],
+   "tip": "La tilapia se desmorona si la mueves mucho: voltéala una sola vez."
+  },
+  {
+   "id": "r_c4",
+   "meal": "c4",
+   "n": "Bistec a la criolla con patacón al horno",
+   "min": 25,
+   "rinde": "1 porción",
+   "lleva": false,
+   "ing": [
+    "150 g de bistec",
+    "1 plátano verde",
+    "½ cebolla y 1 tomate en rodajas",
+    "Ajo, comino, sal",
+    "1 cdta de aceite",
+    "1 taza de arroz cocido"
+   ],
+   "pasos": [
+    "Pela el plátano, córtalo en trozos de 3 cm, hornéalo 10 min a 200 °C, aplánalo con un vaso y hornéalo 10 min más.",
+    "Sazona el bistec con sal, ajo y comino. Sartén caliente con el aceite: 3 min por lado.",
+    "En la misma sartén, cocina la cebolla y el tomate 4 min y ponlos encima de la carne."
+   ],
+   "tip": "En freidora de aire el patacón queda crocante con 1 cdta de aceite en total."
+  },
+  {
+   "id": "r_c5",
+   "meal": "c5",
+   "n": "Wrap de pollo desmechado con aguacate",
+   "min": 10,
+   "rinde": "1 porción",
+   "lleva": true,
+   "ing": [
+    "2 tortillas de trigo",
+    "150 g de pollo desmechado del domingo",
+    "¼ de aguacate machacado con limón y sal",
+    "Lechuga, tomate y cebolla"
+   ],
+   "pasos": [
+    "Calienta el pollo en la sartén 2 min con sal y comino.",
+    "Unta el aguacate en las tortillas.",
+    "Rellena con pollo y verduras, enrolla y dóralas 1 min por lado."
+   ],
+   "tip": "Para llevar, envuélvelo en papel aluminio: no se abre y aguanta hasta la noche."
+  }
+ ],
+ "news": [],
+ "market": {
+  "days": 15,
+  "updated": "2026-09-28",
+  "note": "Cantidades para 15 días según el menú. Los precios llegan en la próxima actualización.",
+  "items": [
+   {
+    "id": "pechuga",
+    "cat": "Proteínas",
+    "n": "Pechuga de pollo",
+    "q": "2 kg"
+   },
+   {
+    "id": "muslo",
+    "cat": "Proteínas",
+    "n": "Muslos de pollo sin piel",
+    "q": "500 g"
+   },
+   {
+    "id": "molida",
+    "cat": "Proteínas",
+    "n": "Carne molida magra",
+    "q": "500 g"
+   },
+   {
+    "id": "bistec",
+    "cat": "Proteínas",
+    "n": "Bistec de res",
+    "q": "400 g"
+   },
+   {
+    "id": "tilapia",
+    "cat": "Proteínas",
+    "n": "Filete de tilapia",
+    "q": "500 g"
+   },
+   {
+    "id": "atun",
+    "cat": "Proteínas",
+    "n": "Atún en agua",
+    "q": "4 latas"
+   },
+   {
+    "id": "huevos",
+    "cat": "Proteínas",
+    "n": "Huevos",
+    "q": "60 (2 panales)"
+   },
+   {
+    "id": "queso",
+    "cat": "Lácteos",
+    "n": "Queso campesino",
+    "q": "500 g"
+   },
+   {
+    "id": "leche",
+    "cat": "Lácteos",
+    "n": "Leche semidescremada",
+    "q": "3 bolsas de 1,1 L"
+   },
+   {
+    "id": "kumis",
+    "cat": "Lácteos",
+    "n": "Kumis",
+    "q": "1 L"
+   },
+   {
+    "id": "arroz",
+    "cat": "Granos y harinas",
+    "n": "Arroz",
+    "q": "2 kg"
+   },
+   {
+    "id": "lentejas",
+    "cat": "Granos y harinas",
+    "n": "Lentejas",
+    "q": "500 g"
+   },
+   {
+    "id": "frijol",
+    "cat": "Granos y harinas",
+    "n": "Frijol",
+    "q": "500 g"
+   },
+   {
+    "id": "avena",
+    "cat": "Granos y harinas",
+    "n": "Avena en hojuelas",
+    "q": "500 g"
+   },
+   {
+    "id": "pasta",
+    "cat": "Granos y harinas",
+    "n": "Pasta",
+    "q": "500 g"
+   },
+   {
+    "id": "arepas",
+    "cat": "Panadería",
+    "n": "Arepas de maíz",
+    "q": "2 paquetes x 10"
+   },
+   {
+    "id": "pan_int",
+    "cat": "Panadería",
+    "n": "Pan integral tajado",
+    "q": "2 bolsas"
+   },
+   {
+    "id": "pan",
+    "cat": "Panadería",
+    "n": "Pan tajado blanco",
+    "q": "1 bolsa"
+   },
+   {
+    "id": "tostadas",
+    "cat": "Panadería",
+    "n": "Tostadas integrales",
+    "q": "1 paquete"
+   },
+   {
+    "id": "tortillas",
+    "cat": "Panadería",
+    "n": "Tortillas de trigo",
+    "q": "1 paquete x 8"
+   },
+   {
+    "id": "banano",
+    "cat": "Frutas",
+    "n": "Banano",
+    "q": "25 unidades"
+   },
+   {
+    "id": "manzana",
+    "cat": "Frutas",
+    "n": "Manzana",
+    "q": "7 unidades"
+   },
+   {
+    "id": "mandarina",
+    "cat": "Frutas",
+    "n": "Mandarina",
+    "q": "8 unidades"
+   },
+   {
+    "id": "mango",
+    "cat": "Frutas",
+    "n": "Mango",
+    "q": "4 unidades"
+   },
+   {
+    "id": "guayaba",
+    "cat": "Frutas",
+    "n": "Guayaba",
+    "q": "1 kg"
+   },
+   {
+    "id": "naranja",
+    "cat": "Frutas",
+    "n": "Naranja para jugo",
+    "q": "1 kg"
+   },
+   {
+    "id": "aguacate",
+    "cat": "Frutas",
+    "n": "Aguacate",
+    "q": "3 medianos"
+   },
+   {
+    "id": "maduro",
+    "cat": "Verduras",
+    "n": "Plátano maduro",
+    "q": "2 unidades"
+   },
+   {
+    "id": "verde",
+    "cat": "Verduras",
+    "n": "Plátano verde",
+    "q": "2 unidades"
+   },
+   {
+    "id": "papa",
+    "cat": "Verduras",
+    "n": "Papa pastusa",
+    "q": "1,5 kg"
+   },
+   {
+    "id": "criolla",
+    "cat": "Verduras",
+    "n": "Papa criolla",
+    "q": "1 kg"
+   },
+   {
+    "id": "yuca",
+    "cat": "Verduras",
+    "n": "Yuca",
+    "q": "500 g"
+   },
+   {
+    "id": "tomate",
+    "cat": "Verduras",
+    "n": "Tomate",
+    "q": "1,5 kg"
+   },
+   {
+    "id": "cebolla",
+    "cat": "Verduras",
+    "n": "Cebolla cabezona",
+    "q": "1 kg"
+   },
+   {
+    "id": "cebolla_larga",
+    "cat": "Verduras",
+    "n": "Cebolla larga",
+    "q": "1 atado"
+   },
+   {
+    "id": "verduras",
+    "cat": "Verduras",
+    "n": "Zanahoria, habichuela y arveja",
+    "q": "1 kg"
+   },
+   {
+    "id": "lechuga",
+    "cat": "Verduras",
+    "n": "Lechuga",
+    "q": "2 unidades"
+   },
+   {
+    "id": "limon",
+    "cat": "Verduras",
+    "n": "Limón",
+    "q": "6 unidades"
+   },
+   {
+    "id": "mantequilla_mani",
+    "cat": "Despensa",
+    "n": "Mantequilla de maní",
+    "q": "1 frasco"
+   },
+   {
+    "id": "mani",
+    "cat": "Despensa",
+    "n": "Maní sin sal",
+    "q": "250 g"
+   },
+   {
+    "id": "pasas",
+    "cat": "Despensa",
+    "n": "Uvas pasas",
+    "q": "150 g"
+   },
+   {
+    "id": "bocadillo",
+    "cat": "Despensa",
+    "n": "Bocadillo",
+    "q": "1 bloque"
+   },
+   {
+    "id": "miel",
+    "cat": "Despensa",
+    "n": "Miel",
+    "q": "1 frasco"
+   },
+   {
+    "id": "mermelada",
+    "cat": "Despensa",
+    "n": "Mermelada",
+    "q": "1 frasco"
+   },
+   {
+    "id": "maiz",
+    "cat": "Despensa",
+    "n": "Maíz tierno en lata",
+    "q": "2 latas"
+   },
+   {
+    "id": "tomate_salsa",
+    "cat": "Despensa",
+    "n": "Pasta de tomate",
+    "q": "1 unidad"
+   },
+   {
+    "id": "cafe",
+    "cat": "Despensa",
+    "n": "Café",
+    "q": "250 g"
+   },
+   {
+    "id": "aceite",
+    "cat": "Despensa",
+    "n": "Aceite (si no hay en casa)",
+    "q": "1 L"
+   }
+  ]
+ }
 }

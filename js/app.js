@@ -55,7 +55,7 @@
     start: dk(monday(now())),
     schedule: ['empuje', 'tiron', 'piernas', null, 'torso', 'pierna_core', null],
     weekMoves: {}, swaps: {}, logs: {}, body: [], meals: {}, mealSwaps: {}, water: {}, market: {},
-    settings: { theme: 'auto', name: '', budget: 0, waterGoal: 10, rotWeeks: 5, weighDay: 0 }
+    settings: { theme: 'auto', name: '', budget: 250000, waterGoal: 10, rotWeeks: 5, weighDay: 0 }
   });
   function load() {
     let s = null;
@@ -64,6 +64,7 @@
     if (!s || typeof s !== 'object') return d;
     const out = Object.assign(d, s);
     out.settings = Object.assign(defaults().settings, s.settings || {});
+    if (!out.settings.budget) out.settings.budget = 250000;
     return out;
   }
   let S = load();
@@ -296,6 +297,8 @@
     return `<div class="macro-bars">${row('Calorías', 'k', 'kcal')}${row('Proteína', 'p', 'g')}${row('Carbos', 'c', 'g')}${row('Grasas', 'f', 'g')}</div>`;
   }
 
+  const recipeFor = mealId => PLAN && (PLAN.recipes || []).find(r => r.meal === mealId);
+
   /* =========================================================
      VISTAS
      ========================================================= */
@@ -481,7 +484,7 @@
         <div class="name">${esc(m.n)}</div>
         <ul>${m.items.map(i => `<li>${esc(i)}</li>`).join('')}</ul>
         <div class="mac num">${m.m.k} kcal · ${m.m.p} g P · ${m.m.c} g C · ${m.m.f} g G</div>
-        <div class="acts">${m.lleva ? '<span class="chip line">Para llevar</span>' : ''}<button class="link-btn" data-a="meal-swap" data-k="${k}" data-slot="${x.slot.id}">${'Cambiar por otra'}</button></div>
+        <div class="acts">${m.lleva ? '<span class="chip line">Para llevar</span>' : ''}<button class="link-btn" data-a="meal-swap" data-k="${k}" data-slot="${x.slot.id}">Cambiar por otra</button>${recipeFor(x.id) ? `<button class="link-btn" data-a="recipe" data-id="${recipeFor(x.id).id}">Ver receta</button>` : ''}</div>
         </div><button class="check ${on ? 'on' : ''}" data-a="meal-check" data-k="${k}" data-slot="${x.slot.id}" aria-label="Marcar comida">${ic('check', 3)}</button></div></div>`;
     });
     h += `<div class="sec-title">Equivalencias</div><div class="card">
@@ -489,7 +492,7 @@
       ${PLAN.equivalencias.map(g => `<details class="eq"><summary>${esc(g.grupo)} <span class="small muted" style="margin-left:auto;margin-right:10px">${esc(g.base)}</span></summary><ul>${g.opciones.map(o => `<li>${esc(o)}</li>`).join('')}</ul></details>`).join('')}</div>`;
     h += `<div class="sec-title">Recetas de la semana</div>`;
     h += PLAN.recipes && PLAN.recipes.length
-      ? PLAN.recipes.map(r => `<div class="card"><h2>${esc(r.n)}</h2><div class="chips" style="margin-bottom:8px">${r.min ? `<span class="chip">${r.min} min</span>` : ''}${r.lleva ? '<span class="chip">Para llevar</span>' : ''}</div><ol class="small" style="padding-left:18px;margin:0">${(r.pasos || []).map(p => `<li>${esc(p)}</li>`).join('')}</ol></div>`).join('')
+      ? `<div class="card" style="padding-top:6px;padding-bottom:6px">${PLAN.recipes.map(r => `<div class="list-item"><button class="tap" data-a="recipe" data-id="${r.id}"><div class="t">${esc(r.n)}</div><div class="d">${r.min} min · ${esc(r.rinde || '')}${r.lleva ? ' · para llevar' : ''}</div></button>${ic('right')}</div>`).join('')}</div>`
       : `<div class="card empty small">Las recetas nuevas llegan con la actualización del lunes.</div>`;
     app.innerHTML = h;
   }
@@ -502,13 +505,23 @@
     const items = M.items;
     const priced = items.filter(i => i.price > 0);
     const total = priced.reduce((a, i) => a + i.price, 0);
-    const bud = (+S.settings.budget || 0) * M.days / 7;
+    const bud = Math.round((+S.settings.budget || 0) * M.days / 15);
     const doneN = items.filter(i => chk[i.id]).length;
     h += `<div class="card"><div class="budget"><div><div class="small muted">Total estimado</div><div class="v num">${priced.length ? cop(total) : 'Sin precios aún'}</div></div>
       <div style="text-align:right"><div class="small muted">Presupuesto ${M.days} días</div><div style="font-weight:800" class="num">${bud ? cop(bud) : '<a href="#/ajustes">Ponlo en ajustes</a>'}</div></div></div>
       ${priced.length && bud ? `<div class="progress-line"><div style="width:${Math.min(100, total / bud * 100)}%;${total > bud ? 'background:var(--danger)' : ''}"></div></div>` : ''}
       <p class="small muted" style="margin:10px 0 0">${esc(M.note || '')}</p>
       <div class="row" style="margin-top:10px"><div class="grow small"><b>${doneN}</b> de ${items.length} comprados</div><button class="link-btn" data-a="mk-reset">Desmarcar todo</button></div></div>`;
+    if (priced.length && bud) {
+      const diff = bud - total;
+      const subs = M.subs || [];
+      const save = subs.reduce((a, x) => a + x.ahorro, 0);
+      h += `<div class="card"><h2>${diff >= 0 ? 'Vas bien' : 'Te pasas por ' + cop(-diff)}</h2>
+        <p class="small muted" style="margin:-4px 0 8px">${diff >= 0 ? 'Te sobran ' + cop(diff) + '. Si el presupuesto baja, estos cambios ayudan:' : 'Estos cambios mantienen macros parecidas y cuestan menos:'}</p>
+        ${subs.map(x => `<div class="list-item"><div class="grow"><div class="t">${esc(x.de)} → ${esc(x.por)}</div><div class="d">${esc(x.nota || '')}</div></div><div class="price num" style="color:var(--accent-text)">−${cop(x.ahorro)}</div></div>`).join('')}
+        ${subs.length ? `<p class="small" style="margin:10px 0 0">Con todos los cambios: <b class="num">${cop(total - save)}</b></p>` : ''}</div>`;
+    }
+    if (M.sources) h += `<p class="small muted" style="margin:4px 4px 0">Fuentes: ${esc(M.sources)}</p>`;
     const cats = [];
     items.forEach(i => { if (!cats.includes(i.cat)) cats.push(i.cat); });
     cats.forEach(c => {
@@ -516,8 +529,8 @@
       items.filter(i => i.cat === c).forEach(i => {
         const on = !!chk[i.id];
         h += `<div class="list-item ${on ? 'done' : ''}"><button class="check ${on ? 'on' : ''}" data-a="mk-check" data-id="${i.id}" aria-label="Comprado">${ic('check', 3)}</button>
-          <div class="grow"><div class="t">${esc(i.n)}</div><div class="d">${esc(i.q)}${i.alt ? ' · más barato: ' + esc(i.alt) : ''}</div></div>
-          ${i.price > 0 ? `<div class="price num">${cop(i.price)}<small>${esc(i.store || '')}${i.date ? ' · ' + shortDate(i.date) : ''}</small></div>` : ''}</div>`;
+          <button class="tap" data-a="mk-info" data-id="${i.id}"><div class="t">${esc(i.n)}</div><div class="d">${esc(i.q)}</div></button>
+          ${i.price > 0 ? `<button class="price num" data-a="mk-info" data-id="${i.id}">${cop(i.price)}<small>${esc(i.store || '')}${i.date ? ' · ' + shortDate(i.date) : ''}</small></button>` : '<div class="price small muted">Sin dato</div>'}</div>`;
       });
       h += `</div>`;
     });
@@ -531,15 +544,11 @@
     const slot = slotId ? findSlot(slotId) : null;
     const isBasic = slot ? !!slot.b : BASICS.has(id);
     const alts = G[ex.g].filter(x => x !== id);
-    const qEs = encodeURIComponent(ex.n + ' técnica correcta');
-    const qEn = encodeURIComponent(ex.en + ' proper form');
     let h = `<div class="page-head">${backBtn}<div class="ttl">Ficha del ejercicio</div></div>
       <h1 class="ex-title">${ex.n}</h1>
       <div class="chips"><span class="chip acc">${isBasic ? 'Básico · progresa carga' : 'Accesorio · rota por bloques'}</span><span class="chip">${PROP[ex.prop]}</span></div>
       ${animFig(id, 'figure-main')}
       <div class="figs"><div class="f">${fig(id, 0)}Inicio</div><div class="f">${fig(id, 1)}Final</div></div>
-      <div class="yt"><a class="btn block" href="https://www.youtube.com/results?search_query=${qEs}" target="_blank" rel="noopener">${ic('yt')} Ver técnica en YouTube</a>
-      <a class="btn block alt" href="https://www.youtube.com/results?search_query=${qEn}+jeff+nippard" target="_blank" rel="noopener">Versión en inglés (Jeff Nippard y otros)</a></div>
       <div class="card muscles"><h2>Músculos</h2><div class="small muted" style="margin-bottom:6px">Principal</div><div class="chips">${ex.m.map(m => `<span class="chip acc">${m}</span>`).join('')}</div>
       ${ex.s.length ? `<div class="small muted" style="margin:10px 0 6px">Secundarios</div><div class="chips">${ex.s.map(m => `<span class="chip line">${m}</span>`).join('')}</div>` : ''}</div>
       <div class="card"><h2>Técnica</h2><ol class="cues">${ex.c.map(c => `<li>${esc(c)}</li>`).join('')}</ol></div>
@@ -683,7 +692,7 @@
       <div class="card"><h2>Apariencia</h2><div class="seg">${[['auto', 'Auto'], ['light', 'Claro'], ['dark', 'Oscuro']].map(([v, l]) => `<button class="${st.theme === v ? 'on' : ''}" data-a="theme" data-v="${v}">${l}</button>`).join('')}</div></div>
       <div class="card"><h2>Tus datos</h2>
         <label class="lbl" for="sName">Nombre (para el saludo)</label><input class="field" id="sName" data-set="name" value="${esc(st.name)}" autocomplete="off">
-        <label class="lbl" for="sBud">Presupuesto semanal de mercado (COP)</label><input class="field num" id="sBud" data-set="budget" type="number" inputmode="numeric" value="${st.budget || ''}" placeholder="Ej: 180000">
+        <label class="lbl" for="sBud">Presupuesto de mercado para 15 días (COP)</label><input class="field num" id="sBud" data-set="budget" type="number" inputmode="numeric" value="${st.budget || ''}" placeholder="Ej: 250000">
         <label class="lbl" for="sWat">Meta de agua (vasos de 250 ml)</label><input class="field num" id="sWat" data-set="waterGoal" type="number" inputmode="numeric" value="${st.waterGoal}">
         <label class="lbl" for="sWd">Día de pesaje</label><select class="field" id="sWd" data-set="weighDay">${DAYS_L.map((d, i) => `<option value="${i}" ${+st.weighDay === i ? 'selected' : ''}>${d}</option>`).join('')}</select></div>
       <div class="card"><h2>Entreno</h2>
@@ -890,6 +899,24 @@
       m[b.dataset.id] = !m[b.dataset.id];
       S.market = { [u]: m };
       save(); rerender();
+    },
+    recipe(b) {
+      const r = PLAN.recipes.find(x => x.id === b.dataset.id);
+      const m = r.meal && PLAN.meals[r.meal];
+      openSheet(`<h3>${esc(r.n)}</h3><div class="chips" style="margin:6px 0 10px"><span class="chip acc">${r.min} min</span>${r.rinde ? `<span class="chip">${esc(r.rinde)}</span>` : ''}${r.lleva ? '<span class="chip">Para llevar</span>' : ''}</div>
+        ${m ? `<div class="small num muted" style="margin-bottom:10px">Por porción: ${m.m.k} kcal · ${m.m.p} g P · ${m.m.c} g C · ${m.m.f} g G</div>` : ''}
+        <div class="card" style="box-shadow:none;background:var(--surface-2)"><h2>Ingredientes</h2><ul style="margin:0;padding-left:18px">${r.ing.map(i => `<li>${esc(i)}</li>`).join('')}</ul></div>
+        <h2 style="font-size:18px;margin:4px 0 8px">Preparación</h2><ol class="cues">${r.pasos.map(p => `<li>${esc(p)}</li>`).join('')}</ol>
+        ${r.tip ? `<div class="tip">${esc(r.tip)}</div>` : ''}`);
+    },
+    'mk-info'(b) {
+      const i = PLAN.market.items.find(x => x.id === b.dataset.id);
+      openSheet(`<h3>${esc(i.n)}</h3><p class="small muted" style="margin:0 0 10px">Necesitas ${esc(i.q)} para ${PLAN.market.days} días</p>
+        ${i.price > 0 ? `<div class="stat-grid"><div class="stat"><div class="l">Costo estimado</div><div class="v num">${cop(i.price)}</div></div><div class="stat"><div class="l">Dónde</div><div class="v" style="font-size:17px">${esc(i.store)}</div><div class="h">${i.date ? 'precio del ' + shortDate(i.date) : ''}</div></div></div>
+        ${i.prod ? `<p class="small" style="margin:12px 0 0">Producto de referencia: <b>${esc(i.prod)}</b></p>` : ''}
+        ${i.nota ? `<p class="small muted" style="margin:6px 0 0">${esc(i.nota)}</p>` : ''}
+        ${i.src ? `<a class="btn block" style="margin-top:12px" href="${esc(i.src)}" target="_blank" rel="noopener">Ver la fuente del precio</a>` : ''}`
+        : '<div class="empty">No encontramos un precio confiable esta semana.</div>'}`);
     },
     'mk-reset'() { S.market = {}; save(); rerender(); },
 
