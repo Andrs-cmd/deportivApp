@@ -54,7 +54,7 @@
     v: 1,
     start: dk(monday(now())),
     schedule: ['empuje', 'tiron', 'piernas', null, 'torso', 'pierna_core', null],
-    weekMoves: {}, swaps: {}, logs: {}, body: [], meals: {}, mealSwaps: {}, water: {}, market: {}, myPrices: {}, eaten: {}, adjLog: [], adjSkip: null, locs: {}, photoWeeks: {}, measures: [], profile: { sex: 'h', age: 26, height: 171, act: 1.55 },
+    weekMoves: {}, swaps: {}, logs: {}, body: [], meals: {}, mealSwaps: {}, water: {}, market: {}, myPrices: {}, eaten: {}, adjLog: [], adjSkip: null, locs: {}, deloadForce: {}, photoWeeks: {}, measures: [], profile: { sex: 'h', age: 26, height: 171, act: 1.55 },
     settings: { theme: 'auto', name: '', budget: 250000, waterGoal: 10, rotWeeks: 5, weighDay: 0 }
   });
   function load() {
@@ -68,6 +68,7 @@
     out.adjLog = out.adjLog || [];
     out.measures = out.measures || [];
     out.locs = out.locs || {};
+    out.deloadForce = out.deloadForce || {};
     out.photoWeeks = out.photoWeeks || {};
     out.profile = Object.assign({ sex: 'h', age: 26, height: 171, act: 1.55 }, out.profile || {});
     out.settings = Object.assign(defaults().settings, s.settings || {});
@@ -118,11 +119,28 @@
     return ((LOC[loc] || {})[g] || []).filter(x => x !== exId);
   }
 
+  // Descarga: última semana de cada bloque (o forzada/saltada a mano)
+  function isDeload(d) {
+    d = d || now();
+    const f = S.deloadForce[dk(monday(d))];
+    if (f != null) return f;
+    if (S.settings.autoDeload === false) return false;
+    const bi = blockInfo(d);
+    return bi.week === bi.len;
+  }
+  function nextDeload() {
+    const bi = blockInfo();
+    const nd = addDays(monday(parse(S.start)), (bi.block * bi.len + bi.len - 1) * 7);
+    return nd <= monday(now()) ? addDays(nd, bi.len * 7) : nd;
+  }
+  const deloadSets = n => Math.max(1, Math.ceil(n / 2));
+
   function slotsFor(rid, d) {
     const r = R[rid];
     if (!r) return [];
     const { block } = blockInfo(d);
     const loc = locOn(d);
+    const dl = isDeload(d);
     if (loc !== 'gym') {
       const used = new Set();
       return r.slots.map(s => {
@@ -132,7 +150,7 @@
         if (sw && sw.block === block && E[sw.ex]) ex = sw.ex;
         else for (let k = 0; k < list.length; k++) { const c = list[(block + k) % list.length]; if (!used.has(c)) { ex = c; break; } }
         used.add(ex);
-        return Object.assign({}, s, { ex, reps: E[ex].reps || s.reps });
+        return Object.assign({}, s, { ex, reps: E[ex].reps || s.reps, sets: dl ? deloadSets(s.sets) : s.sets, deload: dl });
       });
     }
     const used = new Set(r.slots.filter(s => s.b).map(s => s.ex));
@@ -149,7 +167,7 @@
         }
       }
       if (!s.b) used.add(ex);
-      return Object.assign({}, s, { ex, reps: E[ex].reps || s.reps });
+      return Object.assign({}, s, { ex, reps: E[ex].reps || s.reps, sets: dl ? deloadSets(s.sets) : s.sets, deload: dl });
     });
   }
 
@@ -166,6 +184,7 @@
   function ensureLog(key, rid) {
     let L = S.logs[key];
     if (!L || (L.routine !== rid && !hasDone(L))) L = S.logs[key] = { routine: rid, ex: {}, started: null, done: false };
+    if (!hasDone(L)) L.deload = isDeload(parse(key));
     slotsFor(L.routine, parse(key)).forEach(s => { if (!L.ex[s.id]) L.ex[s.id] = { ex: s.ex, sets: [], done: false }; });
     return L;
   }
@@ -175,10 +194,11 @@
     return slots.map(s => { const x = L.ex[s.id]; return x && x.ex !== s.ex ? Object.assign({}, s, { ex: x.ex, reps: E[x.ex].reps || R[L.routine].slots.find(o => o.id === s.id).reps }) : s; });
   }
 
-  function history(exId, beforeKey) {
+  function history(exId, beforeKey, skipDeload) {
     const out = [];
     Object.keys(S.logs).sort().forEach(k => {
       if (beforeKey && k >= beforeKey) return;
+      if (skipDeload && S.logs[k].deload) return;
       Object.values(S.logs[k].ex || {}).forEach(x => {
         if (x.ex !== exId) return;
         const sets = (x.sets || []).filter(s => s.done && +s.reps > 0);
@@ -190,9 +210,17 @@
   const e1rm = s => (+s.kg || 0) * (1 + Math.min(+s.reps, 12) / 30);
 
   function suggest(exId, slot, beforeKey) {
+    const r = suggestBase(exId, slot, beforeKey);
+    if (!slot.deload) return r;
+    if (E[exId].unit === 'seg') return { kg: null, text: 'Semana de descarga: aguanta unos segundos menos que tu mejor marca, sin llegar al límite.' };
+    if (r.kg == null || r.kg <= 0) return { kg: r.kg, text: 'Semana de descarga: hazlo cómodo, dejando 3-4 reps en reserva en cada serie.' };
+    const kg = roundTo(r.kg * 0.9, E[exId].inc);
+    return { kg, text: `Semana de descarga: ${fmt(kg)} kg (≈90 %), ${slot.sets} series y deja 3-4 reps en reserva. Hoy no se buscan récords.` };
+  }
+  function suggestBase(exId, slot, beforeKey) {
     const ex = E[exId];
     const [lo, hi] = slot.reps;
-    const h = history(exId, beforeKey);
+    const h = history(exId, beforeKey, true);
     if (ex.unit === 'seg') {
       if (!h.length) return { kg: null, text: `Arranca aguantando ${lo}-${hi} s con buena técnica.` };
       const l = h[h.length - 1];
@@ -681,7 +709,7 @@
       const finished = L && L.done;
       h += `<section class="hero fade-in">
         <div class="hero-art">${fig(slots[0].ex, 1)}</div>
-        <div class="k">Hoy toca</div><h2>${R[rid].n}</h2><p>${R[rid].d}</p>
+        <div class="k">Hoy toca</div><h2>${R[rid].n}</h2><p>${R[rid].d}</p>${isDeload(d) ? '<p style="margin:-8px 0 14px;font-weight:700">Semana de descarga: mitad de series, 90 % del peso y 3-4 reps en reserva.</p>' : ''}
         <div class="seg loc-seg" role="group" aria-label="Dónde entrenas hoy">${Object.entries(PLACES).map(([v, l]) => `<button class="${locOn(d) === v ? 'on' : ''}" data-a="loc-set" data-v="${v}">${l}</button>`).join('')}</div>
         <div class="meta"><span>${slots.length} ejercicios</span><span>≈ ${mins} min</span><span>${doneN}/${slots.length} hechos</span></div>
         ${finished
@@ -761,7 +789,12 @@
     let h = head('Semana', `Del ${d0.getDate()} ${MONTHS[d0.getMonth()]} al ${addDays(d0, 6).getDate()} ${MONTHS[addDays(d0, 6).getMonth()]}`, gearBtn);
     h += `<div class="card block-info"><div class="row"><div class="grow"><b>Bloque ${bi.block + 1} de accesorios</b> · semana ${bi.week} de ${bi.len}
       <div class="small muted">Los básicos se quedan y suben de carga. Los accesorios cambian el ${bi.next.getDate()} de ${MONTHS_L[bi.next.getMonth()]}.</div></div></div>
-      <div class="progress-line"><div style="width:${bi.week / bi.len * 100}%"></div></div></div>`;
+      <div class="progress-line"><div style="width:${bi.week / bi.len * 100}%"></div></div>
+      ${isDeload() ? `<div class="tip"><b>Esta semana es de descarga.</b> Mitad de series, 90 % del peso y 3-4 reps en reserva. Te recuperas de la fatiga acumulada y vuelves más fuerte al siguiente bloque.</div>`
+        : `<p class="small" style="margin:10px 0 0">Próxima descarga: semana del <b>${nextDeload().getDate()} de ${MONTHS_L[nextDeload().getMonth()]}</b>${S.settings.autoDeload === false ? ' (automática apagada en Ajustes)' : ''}.</p>`}
+      <div class="row" style="margin-top:8px;gap:8px;flex-wrap:wrap">${isDeload()
+        ? '<button class="link-btn" data-a="deload-force" data-v="0">Saltar la descarga esta semana</button>'
+        : '<button class="link-btn" data-a="deload-force" data-v="1">Estoy muy cansado: descarga esta semana</button>'}${S.deloadForce[dk(d0)] != null ? '<button class="link-btn" style="color:var(--muted)" data-a="deload-force" data-v="">Volver a lo automático</button>' : ''}</div></div>`;
     for (let i = 0; i < 7; i++) {
       const d = addDays(d0, i);
       const k = dk(d);
@@ -973,7 +1006,7 @@
     const x = L.ex[s.id];
     if (x.sets.length) return;
     const sg = suggest(x.ex, s, k);
-    const prev = history(x.ex, k).pop();
+    const prev = history(x.ex, k, true).pop();
     for (let i = 0; i < s.sets; i++) {
       const pr = prev && prev.sets[i];
       const reps = E[x.ex].unit === 'seg' ? s.reps[0] : sg.up ? s.reps[0] : (pr ? +pr.reps : s.reps[1]);
@@ -1136,7 +1169,8 @@
       <div class="card"><h2>Entreno</h2>
         <label class="lbl">Dónde entrenas normalmente</label><div class="seg">${Object.entries(PLACES).map(([v, l]) => `<button class="${(st.defLoc || 'gym') === v ? 'on' : ''}" data-a="loc-def" data-v="${v}">${l}</button>`).join('')}</div>
         <p class="small muted" style="margin:6px 0 0">Cada día lo puedes cambiar en Hoy o en Semana.</p>
-        <label class="lbl">Rotar accesorios cada</label><div class="seg">${[4, 5, 6].map(n => `<button class="${+st.rotWeeks === n ? 'on' : ''}" data-a="rot" data-v="${n}">${n} semanas</button>`).join('')}</div>
+        <label class="lbl">Semana de descarga automática</label><div class="seg" style="grid-template-columns:1fr 1fr">${[[true, 'Sí, al final de cada bloque'], [false, 'No']].map(([v, l]) => `<button class="${(st.autoDeload !== false) === v ? 'on' : ''}" data-a="deload-auto" data-v="${v ? 1 : 0}" style="font-size:13px">${l}</button>`).join('')}</div>
+        <label class="lbl">Duración del bloque (accesorios + descarga al final)</label><div class="seg">${[4, 5, 6].map(n => `<button class="${+st.rotWeeks === n ? 'on' : ''}" data-a="rot" data-v="${n}">${n} semanas</button>`).join('')}</div>
         <label class="lbl" for="sStart">Inicio del programa</label><input class="field" id="sStart" type="date" data-set="start" value="${S.start}">
         <label class="lbl">Semana tipo</label>${DAYS.map((d, i) => `<div class="sched-row"><b>${d}</b><select class="field" data-sched="${i}">${opts(S.schedule[i])}</select></div>`).join('')}</div>
       <div class="card"><h2>Recordatorios</h2>
@@ -1365,6 +1399,14 @@
       setLoc(k, next); rerender();
     },
     'loc-def'(b) { S.settings.defLoc = b.dataset.v; save(); rerender(); toast('Guardado'); },
+    'deload-force'(b) {
+      const mk = dk(monday(now()));
+      if (b.dataset.v === '') delete S.deloadForce[mk]; else S.deloadForce[mk] = b.dataset.v === '1';
+      const L = S.logs[dk(now())];
+      if (L && !hasDone(L)) { L.ex = {}; ensureLog(dk(now()), L.routine); }
+      save(); toast(isDeload() ? 'Semana de descarga activada' : 'Semana normal'); rerender();
+    },
+    'deload-auto'(b) { S.settings.autoDeload = b.dataset.v === '1'; save(); rerender(); toast('Guardado'); },
     'week-reset'() { delete S.weekMoves[dk(monday(now()))]; save(); rerender(); },
     'open-ex'(b) { location.hash = `#/ej/${b.dataset.id}${b.dataset.slot ? '/' + b.dataset.slot : ''}`; },
     'use-alt'(b) {

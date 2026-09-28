@@ -1,5 +1,5 @@
 /* Cache offline: la app funciona sin internet; el plan se busca primero en la red. */
-const V = 'pf-v1112';
+const V = 'pf-v1113';
 const SHELL = ['./', 'index.html', 'css/app.css', 'js/data.js', 'js/poses.js', 'js/foods.js', 'js/app.js', 'manifest.webmanifest', 'icons/icon.svg', 'icons/icon-192.png', 'plan/plan.json'];
 
 self.addEventListener('install', e => {
