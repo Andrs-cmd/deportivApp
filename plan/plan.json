@@ -788,295 +788,629 @@
  "market": {
   "days": 15,
   "updated": "2026-09-28",
-  "note": "Cantidades para 15 días según el menú. Los precios llegan en la próxima actualización.",
+  "note": "Precios buscados el 28 de septiembre de 2026. Toca cualquier producto para ver la tienda, la fecha y el link.",
   "items": [
    {
     "id": "pechuga",
     "cat": "Proteínas",
     "n": "Pechuga de pollo",
-    "q": "2 kg"
+    "q": "2 kg",
+    "price": 29000,
+    "store": "D1",
+    "date": "2026-09-28",
+    "src": "https://www.d1.com.co/pechugas-pollo-brasset-1100g-12001287/p",
+    "prod": "Pechugas Brasset 1.100 g (congelada, marinada) a $15.950; 2 bolsas salen $31.900"
    },
    {
     "id": "muslo",
     "cat": "Proteínas",
     "n": "Muslos de pollo sin piel",
-    "q": "500 g"
+    "q": "500 g",
+    "price": 11600,
+    "store": "Carulla",
+    "date": "2026-09-28",
+    "src": "https://www.carulla.com/contramuslo-de-pollo-sin-piel-3143060/p",
+    "prod": "Contramuslo sin piel $23.200/kg"
    },
    {
     "id": "molida",
     "cat": "Proteínas",
     "n": "Carne molida magra",
-    "q": "500 g"
+    "q": "500 g",
+    "price": 17900,
+    "store": "D1",
+    "date": "2026-09-28",
+    "src": "https://www.d1.com.co/molida-res-95-5-red-cut-500g-12006574/p",
+    "prod": "Molida de res 95/5 Red Cut 500 g"
    },
    {
     "id": "bistec",
     "cat": "Proteínas",
     "n": "Bistec de res",
-    "q": "400 g"
+    "q": "400 g",
+    "price": 10794,
+    "store": "Éxito (promo)",
+    "date": "2026-09-28",
+    "src": "https://www.exito.com/carnes-asar-freir-si-498107/p",
+    "prod": "Carne de res para asar $26.984/kg en promo (normal $35.980)"
    },
    {
     "id": "tilapia",
     "cat": "Proteínas",
     "n": "Filete de tilapia",
-    "q": "500 g"
+    "q": "500 g",
+    "price": 9650,
+    "store": "Éxito (promo)",
+    "date": "2026-09-28",
+    "src": "https://www.exito.com/filete-tilapia-491909/p",
+    "prod": "Filete de tilapia $19.300/kg"
    },
    {
     "id": "atun",
     "cat": "Proteínas",
     "n": "Atún en agua",
-    "q": "4 latas"
+    "q": "4 latas",
+    "price": 11980,
+    "store": "D1",
+    "date": "2026-09-28",
+    "src": "https://www.d1.com.co/duopack-atun-agua-carlo-forte-12005690/p",
+    "prod": "2 duopacks de atún en agua Carlo Forte 160 g"
    },
    {
     "id": "huevos",
     "cat": "Proteínas",
     "n": "Huevos",
-    "q": "60 (2 panales)"
+    "q": "60 (2 panales)",
+    "price": 23980,
+    "store": "D1",
+    "date": "2026-09-28",
+    "src": "https://www.d1.com.co/huevo-tipo-a-sol-naciente-30-und-12000344/p",
+    "prod": "2 cubetas x30 huevo tipo A Sol Naciente"
    },
    {
     "id": "queso",
     "cat": "Lácteos",
     "n": "Queso campesino",
-    "q": "500 g"
+    "q": "500 g",
+    "price": 13557,
+    "store": "D1",
+    "date": "2026-09-28",
+    "src": "https://www.d1.com.co/queso-campesino-bloque-latti-x350g-12006219/p",
+    "prod": "Queso campesino Latti 350 g a $9.490 (2 bloques = $18.980)"
    },
    {
     "id": "leche",
     "cat": "Lácteos",
     "n": "Leche semidescremada",
-    "q": "3 bolsas de 1,1 L"
+    "q": "3 bolsas de 1,1 L",
+    "price": 14310,
+    "store": "Éxito",
+    "date": "2026-09-28",
+    "src": "https://www.exito.com/leche-semidescremada-granjera-1100-ml-3103163/p",
+    "prod": "Leche semidescremada Granjera bolsa 1,1 L a $4.770"
    },
    {
     "id": "kumis",
     "cat": "Lácteos",
     "n": "Kumis",
-    "q": "1 L"
+    "q": "1 L",
+    "price": 6850,
+    "store": "D1",
+    "date": "2026-09-28",
+    "src": "https://www.d1.com.co/kumis-bolsa-latti-1000ml-12006697/p",
+    "prod": "Kumis bolsa Latti 1 L"
    },
    {
     "id": "arroz",
     "cat": "Granos y harinas",
     "n": "Arroz",
-    "q": "2 kg"
+    "q": "2 kg",
+    "price": 5550,
+    "store": "Éxito",
+    "date": "2026-09-28",
+    "src": "https://www.exito.com/arroz-blanco-ekono-2000-gr-3161048/p",
+    "prod": "Arroz Ekono 2 kg"
    },
    {
     "id": "lentejas",
     "cat": "Granos y harinas",
     "n": "Lentejas",
-    "q": "500 g"
+    "q": "500 g",
+    "price": 1590,
+    "store": "Éxito",
+    "date": "2026-09-28",
+    "src": "https://www.exito.com/lenteja-837337/p",
+    "prod": "Lenteja Frescampo 500 g"
    },
    {
     "id": "frijol",
     "cat": "Granos y harinas",
     "n": "Frijol",
-    "q": "500 g"
+    "q": "500 g",
+    "price": 2700,
+    "store": "Olímpica",
+    "date": "2026-09-28",
+    "src": "https://www.olimpica.com/frijol-olimpica-cabeza-negra-500-g-7701008001183-2000160/p",
+    "prod": "Frijol cabeza negra 500 g (en Éxito, Frescampo a $2.800)"
    },
    {
     "id": "avena",
     "cat": "Granos y harinas",
     "n": "Avena en hojuelas",
-    "q": "500 g"
+    "q": "500 g",
+    "price": 2300,
+    "store": "Éxito",
+    "date": "2026-09-28",
+    "src": "https://www.exito.com/avena-en-hojuelas-ekono-500-gr-3061024/p",
+    "prod": "Avena Ekono 500 g"
    },
    {
     "id": "pasta",
     "cat": "Granos y harinas",
     "n": "Pasta",
-    "q": "500 g"
+    "q": "500 g",
+    "price": 2310,
+    "store": "Jumbo",
+    "date": "2026-09-28",
+    "src": "https://tiendasjumbo.co/pasta-pan-spaguetti-x500g-369928/p",
+    "prod": "Spaguetti 500 g"
    },
    {
     "id": "arepas",
     "cat": "Panadería",
     "n": "Arepas de maíz",
-    "q": "2 paquetes x 10"
+    "q": "2 paquetes x 10",
+    "price": 3580,
+    "store": "Éxito",
+    "date": "2026-09-28",
+    "src": "https://www.exito.com/arepa-mini-tela-frescampo-500-gr-3136444/p",
+    "prod": "2 paquetes Frescampo x10 (arepas mini: cuenta 2 mini por 1 mediana)"
    },
    {
     "id": "pan_int",
     "cat": "Panadería",
     "n": "Pan integral tajado",
-    "q": "2 bolsas"
+    "q": "2 bolsas",
+    "price": 5800,
+    "store": "Éxito",
+    "date": "2026-09-28",
+    "src": "https://www.exito.com/pan-integral-mediano-frescampo-320-gr-652316/p",
+    "prod": "2 bolsas de pan integral Frescampo 320 g"
    },
    {
     "id": "pan",
     "cat": "Panadería",
     "n": "Pan tajado blanco",
-    "q": "1 bolsa"
+    "q": "1 bolsa",
+    "price": 2980,
+    "store": "Éxito",
+    "date": "2026-09-28",
+    "src": "https://www.exito.com/pan-frescampo-450-gr-3252766/p",
+    "prod": "Pan tajado Frescampo 450 g"
    },
    {
     "id": "tostadas",
     "cat": "Panadería",
     "n": "Tostadas integrales",
-    "q": "1 paquete"
+    "q": "1 paquete",
+    "price": 3663,
+    "store": "Éxito",
+    "date": "2026-09-28",
+    "src": "https://www.exito.com/tostada-perman-integral-150-gr-3201239/p",
+    "prod": "Tostadas Perman integrales 150 g"
    },
    {
     "id": "tortillas",
     "cat": "Panadería",
     "n": "Tortillas de trigo",
-    "q": "1 paquete x 8"
+    "q": "1 paquete x 8",
+    "price": 5890,
+    "store": "Jumbo",
+    "date": "2026-09-28",
+    "src": "https://tiendasjumbo.co/tortillas-trigo-tia-rosa-250g-50793/p",
+    "prod": "Tortillas Tía Rosa x10"
    },
    {
     "id": "banano",
     "cat": "Frutas",
     "n": "Banano",
-    "q": "25 unidades"
+    "q": "25 unidades",
+    "price": 10966,
+    "store": "Corabastos (SIPSA +30 %)",
+    "date": "2026-09-25",
+    "src": "https://www.dane.gov.co/files/operaciones/SIPSA/anex-SIPSASemanal-19sep25sep-2026.xlsx",
+    "prod": "Banano criollo",
+    "nota": "Precio mayorista de Corabastos (boletín SIPSA del DANE) más 30 % para estimar lo que pagas en plaza."
    },
    {
     "id": "manzana",
     "cat": "Frutas",
     "n": "Manzana",
-    "q": "7 unidades"
+    "q": "7 unidades",
+    "price": 5950,
+    "store": "Éxito (promo)",
+    "date": "2026-09-28",
+    "src": "https://www.exito.com/manzana-gala-unidad-200178/p",
+    "prod": "Manzana Gala, $850/und en promo (normal $1.920)"
    },
    {
     "id": "mandarina",
     "cat": "Frutas",
     "n": "Mandarina",
-    "q": "8 unidades"
+    "q": "8 unidades",
+    "price": 6315,
+    "store": "Corabastos (SIPSA +30 %)",
+    "date": "2026-09-25",
+    "src": "https://www.dane.gov.co/files/operaciones/SIPSA/anex-SIPSASemanal-19sep25sep-2026.xlsx",
+    "prod": "Mandarina arrayana",
+    "nota": "Precio mayorista de Corabastos (boletín SIPSA del DANE) más 30 % para estimar lo que pagas en plaza."
    },
    {
     "id": "mango",
     "cat": "Frutas",
     "n": "Mango",
-    "q": "4 unidades"
+    "q": "4 unidades",
+    "price": 15200,
+    "store": "Jumbo",
+    "date": "2026-09-28",
+    "src": "https://www.jumbocolombia.com/mango-tommy-x-500-g/p",
+    "prod": "Mango Tommy $9.500/kg"
    },
    {
     "id": "guayaba",
     "cat": "Frutas",
     "n": "Guayaba",
-    "q": "1 kg"
+    "q": "1 kg",
+    "price": 5200,
+    "store": "Corabastos (SIPSA +30 %)",
+    "date": "2026-09-25",
+    "src": "https://www.dane.gov.co/files/operaciones/SIPSA/anex-SIPSASemanal-19sep25sep-2026.xlsx",
+    "prod": "Guayaba pera",
+    "nota": "Precio mayorista de Corabastos (boletín SIPSA del DANE) más 30 % para estimar lo que pagas en plaza."
    },
    {
     "id": "naranja",
     "cat": "Frutas",
     "n": "Naranja para jugo",
-    "q": "1 kg"
+    "q": "1 kg",
+    "price": 3693,
+    "store": "Corabastos (SIPSA +30 %)",
+    "date": "2026-09-25",
+    "src": "https://www.dane.gov.co/files/operaciones/SIPSA/anex-SIPSASemanal-19sep25sep-2026.xlsx",
+    "prod": "Naranja Valencia",
+    "nota": "Precio mayorista de Corabastos (boletín SIPSA del DANE) más 30 % para estimar lo que pagas en plaza."
    },
    {
     "id": "aguacate",
     "cat": "Frutas",
     "n": "Aguacate",
-    "q": "3 medianos"
+    "q": "3 medianos",
+    "price": 6540,
+    "store": "Jumbo",
+    "date": "2026-09-28",
+    "src": "https://www.jumbocolombia.com/aguacate-injerto-unidad/p",
+    "prod": "Aguacate injerto $2.180/und"
    },
    {
     "id": "maduro",
     "cat": "Verduras",
     "n": "Plátano maduro",
-    "q": "2 unidades"
+    "q": "2 unidades",
+    "price": 1760,
+    "store": "Éxito (promo)",
+    "date": "2026-09-28",
+    "src": "https://www.exito.com/platano-maduro-unidad-170467/p",
+    "prod": "Plátano maduro $880/und"
    },
    {
     "id": "verde",
     "cat": "Verduras",
     "n": "Plátano verde",
-    "q": "2 unidades"
+    "q": "2 unidades",
+    "price": 1920,
+    "store": "Éxito (promo)",
+    "date": "2026-09-28",
+    "src": "https://www.exito.com/platano-unidad-937108/p",
+    "prod": "Plátano verde $960/und"
    },
    {
     "id": "papa",
     "cat": "Verduras",
     "n": "Papa pastusa",
-    "q": "1,5 kg"
+    "q": "1,5 kg",
+    "price": 4879,
+    "store": "Corabastos (SIPSA +30 %)",
+    "date": "2026-09-25",
+    "src": "https://www.dane.gov.co/files/operaciones/SIPSA/anex-SIPSASemanal-19sep25sep-2026.xlsx",
+    "prod": "Papa parda pastusa",
+    "nota": "Precio mayorista de Corabastos (boletín SIPSA del DANE) más 30 % para estimar lo que pagas en plaza."
    },
    {
     "id": "criolla",
     "cat": "Verduras",
     "n": "Papa criolla",
-    "q": "1 kg"
+    "q": "1 kg",
+    "price": 8853,
+    "store": "Corabastos (SIPSA +30 %)",
+    "date": "2026-09-25",
+    "src": "https://www.dane.gov.co/files/operaciones/SIPSA/anex-SIPSASemanal-19sep25sep-2026.xlsx",
+    "prod": "Papa criolla limpia",
+    "nota": "Precio mayorista de Corabastos (boletín SIPSA del DANE) más 30 % para estimar lo que pagas en plaza."
    },
    {
     "id": "yuca",
     "cat": "Verduras",
     "n": "Yuca",
-    "q": "500 g"
+    "q": "500 g",
+    "price": 1598,
+    "store": "Corabastos (SIPSA +30 %)",
+    "date": "2026-09-25",
+    "src": "https://www.dane.gov.co/files/operaciones/SIPSA/anex-SIPSASemanal-19sep25sep-2026.xlsx",
+    "prod": "Yuca llanera",
+    "nota": "Precio mayorista de Corabastos (boletín SIPSA del DANE) más 30 % para estimar lo que pagas en plaza."
    },
    {
     "id": "tomate",
     "cat": "Verduras",
     "n": "Tomate",
-    "q": "1,5 kg"
+    "q": "1,5 kg",
+    "price": 8346,
+    "store": "Corabastos (SIPSA +30 %)",
+    "date": "2026-09-25",
+    "src": "https://www.dane.gov.co/files/operaciones/SIPSA/anex-SIPSASemanal-19sep25sep-2026.xlsx",
+    "prod": "Tomate chonto",
+    "nota": "Precio mayorista de Corabastos (boletín SIPSA del DANE) más 30 % para estimar lo que pagas en plaza."
    },
    {
     "id": "cebolla",
     "cat": "Verduras",
     "n": "Cebolla cabezona",
-    "q": "1 kg"
+    "q": "1 kg",
+    "price": 2487,
+    "store": "Corabastos (SIPSA +30 %)",
+    "date": "2026-09-25",
+    "src": "https://www.dane.gov.co/files/operaciones/SIPSA/anex-SIPSASemanal-19sep25sep-2026.xlsx",
+    "prod": "Cebolla cabezona blanca",
+    "nota": "Precio mayorista de Corabastos (boletín SIPSA del DANE) más 30 % para estimar lo que pagas en plaza."
    },
    {
     "id": "cebolla_larga",
     "cat": "Verduras",
     "n": "Cebolla larga",
-    "q": "1 atado"
+    "q": "1 atado",
+    "price": 1537,
+    "store": "Corabastos (SIPSA +30 %)",
+    "date": "2026-09-25",
+    "src": "https://www.dane.gov.co/files/operaciones/SIPSA/anex-SIPSASemanal-19sep25sep-2026.xlsx",
+    "prod": "Cebolla junca, atado ~500 g",
+    "nota": "Precio mayorista de Corabastos (boletín SIPSA del DANE) más 30 % para estimar lo que pagas en plaza."
    },
    {
     "id": "verduras",
     "cat": "Verduras",
     "n": "Zanahoria, habichuela y arveja",
-    "q": "1 kg"
+    "q": "1 kg",
+    "price": 6892,
+    "store": "Corabastos (SIPSA +30 %)",
+    "date": "2026-09-25",
+    "src": "https://www.dane.gov.co/files/operaciones/SIPSA/anex-SIPSASemanal-19sep25sep-2026.xlsx",
+    "prod": "1/3 kg de cada una",
+    "nota": "Precio mayorista de Corabastos (boletín SIPSA del DANE) más 30 % para estimar lo que pagas en plaza."
    },
    {
     "id": "lechuga",
     "cat": "Verduras",
     "n": "Lechuga",
-    "q": "2 unidades"
+    "q": "2 unidades",
+    "price": 3051,
+    "store": "Corabastos (SIPSA +30 %)",
+    "date": "2026-09-25",
+    "src": "https://www.dane.gov.co/files/operaciones/SIPSA/anex-SIPSASemanal-19sep25sep-2026.xlsx",
+    "prod": "Lechuga Batavia (~500 g c/u, estimado)",
+    "nota": "Precio mayorista de Corabastos (boletín SIPSA del DANE) más 30 % para estimar lo que pagas en plaza."
    },
    {
     "id": "limon",
     "cat": "Verduras",
     "n": "Limón",
-    "q": "6 unidades"
+    "q": "6 unidades",
+    "price": 1442,
+    "store": "Corabastos (SIPSA +30 %)",
+    "date": "2026-09-25",
+    "src": "https://www.dane.gov.co/files/operaciones/SIPSA/anex-SIPSASemanal-19sep25sep-2026.xlsx",
+    "prod": "Limón común",
+    "nota": "Precio mayorista de Corabastos (boletín SIPSA del DANE) más 30 % para estimar lo que pagas en plaza."
    },
    {
     "id": "mantequilla_mani",
     "cat": "Despensa",
     "n": "Mantequilla de maní",
-    "q": "1 frasco"
+    "q": "1 frasco",
+    "price": 13100,
+    "store": "Éxito",
+    "date": "2026-09-28",
+    "src": "https://www.exito.com/crema-de-mani-taeq-721456/p",
+    "prod": "Crema de maní Taeq 300 g",
+    "mes": true,
+    "nota": "Dura aproximadamente un mes: en el promedio quincenal cuenta la mitad."
    },
    {
     "id": "mani",
     "cat": "Despensa",
     "n": "Maní sin sal",
-    "q": "250 g"
+    "q": "250 g",
+    "price": 10580,
+    "store": "Jumbo",
+    "date": "2026-09-28",
+    "src": "https://tiendasjumbo.co/mani-natural-cuisine---co-x-250g/p",
+    "prod": "Maní natural 250 g"
    },
    {
     "id": "pasas",
     "cat": "Despensa",
     "n": "Uvas pasas",
-    "q": "150 g"
+    "q": "150 g",
+    "price": 5700,
+    "store": "Éxito",
+    "date": "2026-09-28",
+    "src": "https://www.exito.com/pasas-bolsa-el-cocinerito-100-gr-374955/p",
+    "prod": "2 bolsas de uvas pasas de 100 g"
    },
    {
     "id": "bocadillo",
     "cat": "Despensa",
     "n": "Bocadillo",
-    "q": "1 bloque"
+    "q": "1 bloque",
+    "price": 6360,
+    "store": "Éxito",
+    "date": "2026-09-28",
+    "src": "https://www.exito.com/bocadillo-dulce-en-hoja-de-bij-frescampo-414-gr-3102769/p",
+    "prod": "Bocadillo Frescampo 414 g",
+    "mes": true,
+    "nota": "Dura aproximadamente un mes: en el promedio quincenal cuenta la mitad."
    },
    {
     "id": "miel",
     "cat": "Despensa",
     "n": "Miel",
-    "q": "1 frasco"
+    "q": "1 frasco",
+    "price": 8980,
+    "store": "Éxito",
+    "date": "2026-09-28",
+    "src": "https://www.exito.com/miel-chupo-plas-hapicampo-500-gr-499019/p",
+    "prod": "Miel Hapicampo 500 g",
+    "mes": true,
+    "nota": "Dura aproximadamente un mes: en el promedio quincenal cuenta la mitad."
    },
    {
     "id": "mermelada",
     "cat": "Despensa",
     "n": "Mermelada",
-    "q": "1 frasco"
+    "q": "1 frasco",
+    "price": 3590,
+    "store": "Éxito",
+    "date": "2026-09-28",
+    "src": "https://www.exito.com/mermelada-mora-frugal-mermelada-mora-200-gr-3198218/p",
+    "prod": "Mermelada Frugal 200 g",
+    "mes": true,
+    "nota": "Dura aproximadamente un mes: en el promedio quincenal cuenta la mitad."
    },
    {
     "id": "maiz",
     "cat": "Despensa",
     "n": "Maíz tierno en lata",
-    "q": "2 latas"
+    "q": "2 latas",
+    "price": 7980,
+    "store": "Olímpica",
+    "date": "2026-09-28",
+    "src": "https://www.olimpica.com/maiz-tierno-gracol-185-g/p",
+    "prod": "2 latas de maíz tierno Gracol 185 g"
    },
    {
     "id": "tomate_salsa",
     "cat": "Despensa",
     "n": "Pasta de tomate",
-    "q": "1 unidad"
+    "q": "1 unidad",
+    "price": 2800,
+    "store": "Olímpica",
+    "date": "2026-09-28",
+    "src": "https://www.olimpica.com/pasta-de-tomate-olimpica-doy-pack-200-g-7701008143081--1245558/p",
+    "prod": "Pasta de tomate 200 g"
    },
    {
     "id": "cafe",
     "cat": "Despensa",
     "n": "Café",
-    "q": "250 g"
+    "q": "250 g",
+    "price": 11490,
+    "store": "Jumbo",
+    "date": "2026-09-28",
+    "src": "https://tiendasjumbo.co/cafe-maxima-tostado-molido-x250g-3532805/p",
+    "prod": "Café Máxima 250 g",
+    "mes": true,
+    "nota": "Dura aproximadamente un mes: en el promedio quincenal cuenta la mitad."
    },
    {
     "id": "aceite",
     "cat": "Despensa",
     "n": "Aceite (si no hay en casa)",
-    "q": "1 L"
+    "q": "1 L",
+    "price": 6490,
+    "store": "Olímpica",
+    "date": "2026-09-28",
+    "src": "https://www.olimpica.com/aceite-medalla-oro-mezc-veget-900-ml/p",
+    "prod": "Aceite Medalla de Oro 900 ml",
+    "mes": true,
+    "nota": "Dura aproximadamente un mes: en el promedio quincenal cuenta la mitad."
+   }
+  ],
+  "sources": "Boletín SIPSA del DANE (Corabastos, semana 19-25 sep), d1.com.co, exito.com, carulla.com, jumbocolombia.com, olimpica.com. Los precios web de supermercado son los que muestra cada sitio por defecto y pueden variar un poco en Bogotá.",
+  "subs": [
+   {
+    "de": "Pechuga (2 kg)",
+    "por": "Pernil de pollo (2 kg) en Éxito",
+    "ahorro": 9200,
+    "nota": "Quita piel y hueso: rinde algo menos de proteína; compensa con 1 huevo más al día."
+   },
+   {
+    "de": "Carne molida de res",
+    "por": "Carne molida de pollo en D1",
+    "ahorro": 12610,
+    "nota": "Proteína parecida. Revisa que no venga condimentada."
+   },
+   {
+    "de": "Mango Tommy",
+    "por": "4 bananos extra",
+    "ahorro": 13400,
+    "nota": "Mismos carbos en el pre-entreno."
+   },
+   {
+    "de": "Maní + uvas pasas",
+    "por": "Banano + 1 cda de la crema de maní que ya compras",
+    "ahorro": 16280,
+    "nota": "Para la media mañana del jueves."
+   },
+   {
+    "de": "Café Máxima 250 g",
+    "por": "Café Lukafe 195 g en Éxito",
+    "ahorro": 5890
+   },
+   {
+    "de": "Bistec",
+    "por": "3 huevos extra en esa cena",
+    "ahorro": 4400,
+    "nota": "Proteína parecida por mucho menos."
+   },
+   {
+    "de": "Papa criolla",
+    "por": "Más papa pastusa",
+    "ahorro": 5600
+   },
+   {
+    "de": "Tortillas de trigo",
+    "por": "Arepas rellenas",
+    "ahorro": 4100,
+    "nota": "El wrap se vuelve arepa rellena de pollo."
+   },
+   {
+    "de": "Contramuslo en Carulla",
+    "por": "Entremuslo en D1 (quítale la piel)",
+    "ahorro": 3610
+   },
+   {
+    "de": "Maíz tierno (2 latas)",
+    "por": "1 lata",
+    "ahorro": 3990
+   },
+   {
+    "de": "Leche en bolsa Éxito",
+    "por": "Leche Latti UHT en D1",
+    "ahorro": 2030
+   },
+   {
+    "de": "Tilapia en Éxito",
+    "por": "Lomitos de tilapia en D1",
+    "ahorro": 1170
    }
   ]
  }

@@ -188,6 +188,14 @@ label.lbl { display: block; font-size: 13px; font-weight: 600; color: var(--mute
 .fg-plate { fill: none; stroke: var(--accent-text); stroke-width: 2.6; }
 .fg-cable { stroke: var(--accent-text); stroke-width: 1.1; stroke-dasharray: 2 1.6; }
 .hero-art .fg-head { fill: var(--accent); }
+.ph { position: relative; aspect-ratio: 3 / 2; border-radius: 16px; overflow: hidden; background: #fff; }
+.ph img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.ph img.b { animation: pfAlt 2.6s ease-in-out infinite; }
+@keyframes pfAlt { 0%, 38% { opacity: 0; } 50%, 88% { opacity: 1; } 100% { opacity: 0; } }
+.figure-main.ph { padding: 0; aspect-ratio: 3 / 2; }
+.mini .ph { aspect-ratio: auto; width: 100%; height: 100%; border-radius: 16px; }
+img.still { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 10px; aspect-ratio: 3 / 2; }
+.figs img.still { margin-bottom: 6px; }
 .muscles .chip.acc { font-size: 13px; }
 ol.cues, ul.errs { margin: 0; padding: 0; list-style: none; counter-reset: c; }
 ol.cues li, ul.errs li { position: relative; padding: 8px 0 8px 38px; border-bottom: 1px solid var(--line); }

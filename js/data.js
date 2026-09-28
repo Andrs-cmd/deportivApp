@@ -676,6 +676,9 @@
     ['Cadera caída', 'Rotar el torso hacia el piso', 'Aguantar la respiración'],
     'Isométrico', 45, { bw: true, unit: 'seg', reps: [20, 45] });
 
+  // Fotos inicio/final (free-exercise-db, dominio público): img/ex/<id>_0.jpg y _1.jpg
+  ["aperturas_manc","aperturas_polea","buenos_dias","crunch_declinado","crunch_polea","curl_barra","curl_femoral_pie","curl_femoral_sentado","curl_femoral_tumbado","curl_inclinado_manc","curl_invertido","curl_martillo","curl_martillo_cuerda","curl_nordico","curl_polea","curl_predicador","dominadas","dominadas_asistidas","elev_laterales_manc","elev_laterales_polea","elev_piernas_colgado","elev_piernas_suelo","elev_rodillas_paralelas","elev_talones_pie","elev_talones_prensa","elev_talones_sentado","extension_cuadriceps","extension_unilateral","ext_sobre_cabeza_manc","ext_triceps_polea","ext_triceps_sobre_cabeza","ext_triceps_una_mano","face_pull","flexiones_lastre","fondos","hiperextension_45","hip_thrust","jalon_neutro","jalon_pecho","pajaros_manc","pallof_press","pec_deck","peso_muerto","peso_muerto_rumano","peso_muerto_rumano_manc","peso_muerto_sumo","peso_muerto_trap","plancha","plancha_lateral","prensa","press_banca","press_banca_manc","press_cerrado","press_frances","press_hombro_manc","press_hombro_maquina","press_inclinado_barra","press_inclinado_manc","press_inclinado_maquina","press_inclinado_smith","press_maquina_pecho","press_militar","remo_barra","remo_mancuerna","remo_pecho_apoyado","remo_polea_sentado","reverse_pec_deck","rueda_abdominal","sentadilla","sentadilla_bulgara","sentadilla_frontal","sentadilla_goblet","sentadilla_hack","sentadilla_sissy","sentadilla_smith","step_up","zancadas_caminando"].forEach(id => { if (E[id]) E[id].img = 1; });
+
   // Grupos: el orden define alternativas y rotación
   const G = {};
   Object.values(E).forEach(x => { (G[x.g] = G[x.g] || []).push(x.id); });

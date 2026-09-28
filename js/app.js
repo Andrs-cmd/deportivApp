@@ -240,6 +240,9 @@
     });
   }
   const fig = (exId, t, cls) => FIG.svg(E[exId].pose, t, E[exId].prop, cls);
+  const photo = (id, n) => `img/ex/${id}_${n}.jpg`;
+  const media = (id, cls) => E[id].img ? `<div class="ph ${cls || ''}"><img src="${photo(id, 0)}" alt="${esc(E[id].n)}: inicio"><img class="b" src="${photo(id, 1)}" alt="${esc(E[id].n)}: final"></div>` : animFig(id, cls);
+  const still = (id, n) => E[id].img ? `<img class="still" src="${photo(id, n)}" alt="" loading="lazy">` : fig(id, n);
   const animFig = (exId, cls) => `<div class="${cls || ''}" data-anim="${E[exId].pose}" data-prop="${E[exId].prop}">${fig(exId, 0)}</div>`;
 
   function head(title, sub, right) {
@@ -504,10 +507,11 @@
     const chk = S.market[M.updated] || {};
     const items = M.items;
     const priced = items.filter(i => i.price > 0);
-    const total = priced.reduce((a, i) => a + i.price, 0);
+    const full = priced.reduce((a, i) => a + i.price, 0);
+    const total = Math.round(priced.reduce((a, i) => a + (i.mes ? i.price / 2 : i.price), 0));
     const bud = Math.round((+S.settings.budget || 0) * M.days / 15);
     const doneN = items.filter(i => chk[i.id]).length;
-    h += `<div class="card"><div class="budget"><div><div class="small muted">Total estimado</div><div class="v num">${priced.length ? cop(total) : 'Sin precios aún'}</div></div>
+    h += `<div class="card"><div class="budget"><div><div class="small muted">Promedio por quincena</div><div class="v num">${priced.length ? cop(total) : 'Sin precios aún'}</div>${full !== total ? `<div class="small muted num">Esta compra: ${cop(full)}</div>` : ''}</div>
       <div style="text-align:right"><div class="small muted">Presupuesto ${M.days} días</div><div style="font-weight:800" class="num">${bud ? cop(bud) : '<a href="#/ajustes">Ponlo en ajustes</a>'}</div></div></div>
       ${priced.length && bud ? `<div class="progress-line"><div style="width:${Math.min(100, total / bud * 100)}%;${total > bud ? 'background:var(--danger)' : ''}"></div></div>` : ''}
       <p class="small muted" style="margin:10px 0 0">${esc(M.note || '')}</p>
@@ -529,7 +533,7 @@
       items.filter(i => i.cat === c).forEach(i => {
         const on = !!chk[i.id];
         h += `<div class="list-item ${on ? 'done' : ''}"><button class="check ${on ? 'on' : ''}" data-a="mk-check" data-id="${i.id}" aria-label="Comprado">${ic('check', 3)}</button>
-          <button class="tap" data-a="mk-info" data-id="${i.id}"><div class="t">${esc(i.n)}</div><div class="d">${esc(i.q)}</div></button>
+          <button class="tap" data-a="mk-info" data-id="${i.id}"><div class="t">${esc(i.n)}</div><div class="d">${esc(i.q)}${i.mes ? ' · dura ~1 mes' : ''}</div></button>
           ${i.price > 0 ? `<button class="price num" data-a="mk-info" data-id="${i.id}">${cop(i.price)}<small>${esc(i.store || '')}${i.date ? ' · ' + shortDate(i.date) : ''}</small></button>` : '<div class="price small muted">Sin dato</div>'}</div>`;
       });
       h += `</div>`;
@@ -547,8 +551,8 @@
     let h = `<div class="page-head">${backBtn}<div class="ttl">Ficha del ejercicio</div></div>
       <h1 class="ex-title">${ex.n}</h1>
       <div class="chips"><span class="chip acc">${isBasic ? 'Básico · progresa carga' : 'Accesorio · rota por bloques'}</span><span class="chip">${PROP[ex.prop]}</span></div>
-      ${animFig(id, 'figure-main')}
-      <div class="figs"><div class="f">${fig(id, 0)}Inicio</div><div class="f">${fig(id, 1)}Final</div></div>
+      ${media(id, 'figure-main')}
+      <div class="figs"><div class="f">${still(id, 0)}Inicio</div><div class="f">${still(id, 1)}Final</div></div>
       <div class="card muscles"><h2>Músculos</h2><div class="small muted" style="margin-bottom:6px">Principal</div><div class="chips">${ex.m.map(m => `<span class="chip acc">${m}</span>`).join('')}</div>
       ${ex.s.length ? `<div class="small muted" style="margin:10px 0 6px">Secundarios</div><div class="chips">${ex.s.map(m => `<span class="chip line">${m}</span>`).join('')}</div>` : ''}</div>
       <div class="card"><h2>Técnica</h2><ol class="cues">${ex.c.map(c => `<li>${esc(c)}</li>`).join('')}</ol></div>
@@ -561,7 +565,7 @@
       <div class="sec-title">Variaciones</div>
       <p class="small muted" style="margin:-4px 2px 10px">Equivalentes para cuando no hay equipo, algo molesta o te aburriste.</p><div class="card">`;
     alts.forEach(a => {
-      h += `<div class="list-item"><div style="width:52px;height:52px;flex:none;background:var(--surface-2);border-radius:12px">${fig(a, 1)}</div>
+      h += `<div class="list-item"><div style="width:52px;height:52px;flex:none;background:var(--surface-2);border-radius:12px;overflow:hidden">${still(a, 0)}</div>
         <button class="tap" data-a="open-ex" data-id="${a}"${slotId ? ` data-slot="${slotId}"` : ''}><div class="t">${E[a].n}</div><div class="d">${E[a].m.join(', ')} · ${PROP[E[a].prop]}</div></button>
         ${slotId ? `<button class="btn" style="min-height:44px;padding:0 14px" data-a="use-alt" data-slot="${slotId}" data-id="${a}">Usar</button>` : ''}</div>`;
     });
@@ -628,7 +632,7 @@
       <button class="btn pri" style="min-height:44px;padding:0 16px" data-a="finish">Terminar</button></div>
       <div class="dots">${slots.map((o, i) => `<button class="${L.ex[o.id] && L.ex[o.id].done ? 'done' : ''} ${i === LV.idx ? 'cur' : ''}" data-a="go-ex" data-i="${i}" aria-label="Ejercicio ${i + 1}"></button>`).join('')}</div>
       <div class="ex-card fade-in">
-        <div class="top"><div class="mini" data-anim="${ex.pose}" data-prop="${ex.prop}">${fig(x.ex, 0)}</div>
+        <div class="top">${ex.img ? `<div class="mini">${media(x.ex)}</div>` : `<div class="mini" data-anim="${ex.pose}" data-prop="${ex.prop}">${fig(x.ex, 0)}</div>`}
         <div class="grow"><div class="small muted">Ejercicio ${LV.idx + 1} de ${slots.length}${s.b ? ' · básico' : ''}</div>
         <h2>${ex.n}</h2>
         <div class="chips"><span class="chip">${s.sets} × ${s.reps[0]}-${s.reps[1]} ${seg ? 's' : 'reps'}</span><span class="chip">Descanso ${mmss(ex.r)}</span><span class="chip">Tempo ${ex.t}</span></div></div></div>
@@ -979,7 +983,7 @@
       const { x } = liveCtx(b.dataset.slot);
       const alts = G[E[x.ex].g].filter(id => id !== x.ex);
       openSheet(`<h3>Cambiar ${esc(E[x.ex].n)}</h3><p class="small muted" style="margin:0 0 6px">Por equipo ocupado, molestia o aburrimiento. Se mantiene hasta el próximo bloque.</p>
-        ${alts.map(id => `<button class="opt" data-a="swap-to" data-slot="${b.dataset.slot}" data-id="${id}"><div style="width:48px;height:48px;flex:none">${fig(id, 1)}</div><div class="grow"><div class="t">${E[id].n}</div><div class="d">${E[id].m.join(', ')} · ${PROP[E[id].prop]}</div></div></button>`).join('')}`);
+        ${alts.map(id => `<button class="opt" data-a="swap-to" data-slot="${b.dataset.slot}" data-id="${id}"><div style="width:48px;height:48px;flex:none;border-radius:10px;overflow:hidden">${still(id, 0)}</div><div class="grow"><div class="t">${E[id].n}</div><div class="d">${E[id].m.join(', ')} · ${PROP[E[id].prop]}</div></div></button>`).join('')}`);
     },
     'swap-to'(b) {
       const slotId = b.dataset.slot, id = b.dataset.id;
