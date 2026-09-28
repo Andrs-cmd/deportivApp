@@ -867,7 +867,7 @@
       { id: 'e1', ex: 'press_banca', sets: 4, reps: [6, 8], b: 1 },
       { id: 'e2', ex: 'press_inclinado_manc', sets: 3, reps: [8, 12] },
       { id: 'e3', ex: 'press_militar', sets: 3, reps: [6, 8], b: 1 },
-      { id: 'e4', ex: 'elev_laterales_manc', sets: 4, reps: [12, 15] },
+      { id: 'e4', ex: 'elev_laterales_manc', sets: 5, reps: [12, 15] },
       { id: 'e5', ex: 'aperturas_polea', sets: 3, reps: [12, 15] },
       { id: 'e6', ex: 'ext_triceps_polea', sets: 3, reps: [10, 15] }] },
     tiron: { n: 'Tirón', d: 'Espalda y bíceps', slots: [
@@ -888,7 +888,8 @@
       { id: 'o2', ex: 'remo_pecho_apoyado', sets: 3, reps: [8, 12] },
       { id: 'o3', ex: 'press_banca_manc', sets: 3, reps: [8, 12] },
       { id: 'o4', ex: 'jalon_pecho', sets: 3, reps: [8, 12] },
-      { id: 'o5', ex: 'elev_laterales_polea', sets: 3, reps: [12, 15] },
+      { id: 'o5', ex: 'elev_laterales_polea', sets: 4, reps: [12, 15] },
+      { id: 'o8', ex: 'pajaros_manc', sets: 3, reps: [12, 15] },
       { id: 'o6', ex: 'curl_inclinado_manc', sets: 3, reps: [10, 12] },
       { id: 'o7', ex: 'ext_triceps_sobre_cabeza', sets: 3, reps: [10, 15] }] },
     pierna_core: { n: 'Piernas + core', d: 'Cadena posterior, cuádriceps y abdomen', slots: [
@@ -898,7 +899,8 @@
       { id: 'c4', ex: 'curl_femoral_sentado', sets: 3, reps: [10, 15] },
       { id: 'c5', ex: 'elev_piernas_colgado', sets: 3, reps: [10, 15] },
       { id: 'c6', ex: 'crunch_polea', sets: 3, reps: [12, 15] },
-      { id: 'c7', ex: 'plancha', sets: 3, reps: [30, 60] }] }
+      { id: 'c7', ex: 'plancha', sets: 3, reps: [30, 60] },
+      { id: 'c8', ex: 'elev_talones_sentado', sets: 3, reps: [12, 15] }] }
   };
 
   const MUSCLE_ICON = { empuje: 'push', tiron: 'pull', piernas: 'legs', torso: 'upper', pierna_core: 'core' };
