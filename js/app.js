@@ -54,7 +54,7 @@
     v: 1,
     start: dk(monday(now())),
     schedule: ['empuje', 'tiron', 'piernas', null, 'torso', 'pierna_core', null],
-    weekMoves: {}, swaps: {}, logs: {}, body: [], meals: {}, mealSwaps: {}, water: {}, market: {}, myPrices: {}, eaten: {}, adjLog: [], adjSkip: null,
+    weekMoves: {}, swaps: {}, logs: {}, body: [], meals: {}, mealSwaps: {}, water: {}, market: {}, myPrices: {}, eaten: {}, adjLog: [], adjSkip: null, measures: [], profile: { sex: 'h', age: 26, height: 171, act: 1.55 },
     settings: { theme: 'auto', name: '', budget: 250000, waterGoal: 10, rotWeeks: 5, weighDay: 0 }
   });
   function load() {
@@ -66,6 +66,8 @@
     out.myPrices = out.myPrices || {};
     out.eaten = out.eaten || {};
     out.adjLog = out.adjLog || [];
+    out.measures = out.measures || [];
+    out.profile = Object.assign({ sex: 'h', age: 26, height: 171, act: 1.55 }, out.profile || {});
     out.settings = Object.assign(defaults().settings, s.settings || {});
     if (!out.settings.budget) out.settings.budget = 250000;
     return out;
@@ -281,6 +283,120 @@
       <text x="${(L[0] + 8).toFixed(1)}" y="${(L[1] + 4).toFixed(1)}" class="lastv">${fmt(ys[ys.length - 1])}${unit || ''}</text>
       <text x="${pl}" y="${H - 6}" class="ax">${shortDate(pts[0].x)}</text>
       <text x="${W - pr}" y="${H - 6}" text-anchor="end" class="ax">${shortDate(pts[pts.length - 1].x)}</text></svg>`;
+  }
+
+  /* ---------- composición corporal ---------- */
+  const log10 = Math.log10;
+  const lastBody = () => S.body.slice().sort((a, b) => a.d < b.d ? -1 : 1).pop();
+  const lastMeasure = () => S.measures.slice().sort((a, b) => a.d < b.d ? -1 : 1).pop();
+  function bodyCalc() {
+    const P = S.profile, man = P.sex !== 'm';
+    const w = (lastBody() || {}).kg || 65, h = +P.height || 171, age = +P.age || 26, hm = h / 100;
+    const M = lastMeasure() || {};
+    const r = { w, h, age, man, M };
+    r.bmi = w / (hm * hm);
+    // % grasa: pliegues (Jackson-Pollock 3) > Marina EE. UU. > Deurenberg (IMC)
+    const sf = M.sf || {};
+    const S3 = man ? (+sf.a || 0) + (+sf.b || 0) + (+sf.c || 0) : (+sf.a || 0) + (+sf.b || 0) + (+sf.c || 0);
+    if (sf.a && sf.b && sf.c) {
+      const bd = man ? 1.10938 - 0.0008267 * S3 + 0.0000016 * S3 * S3 - 0.0002574 * age
+        : 1.0994921 - 0.0009929 * S3 + 0.0000023 * S3 * S3 - 0.0001392 * age;
+      r.bfJP = 495 / bd - 450;
+    }
+    if (M.waist && M.neck && (man || M.hip)) {
+      r.bfNavy = man ? 495 / (1.0324 - 0.19077 * log10(M.waist - M.neck) + 0.15456 * log10(h)) - 450
+        : 495 / (1.29579 - 0.35004 * log10(+M.waist + +M.hip - M.neck) + 0.221 * log10(h)) - 450;
+    }
+    r.bfBMI = 1.2 * r.bmi + 0.23 * age - (man ? 16.2 : 5.4);
+    r.bf = r.bfJP != null ? r.bfJP : r.bfNavy != null ? r.bfNavy : r.bfBMI;
+    r.bfMethod = r.bfJP != null ? 'pliegues (Jackson-Pollock 3)' : r.bfNavy != null ? 'medidas (método de la Marina de EE. UU.)' : 'IMC y edad (Deurenberg, muy aproximado)';
+    r.fat = w * r.bf / 100; r.lbm = w - r.fat;
+    r.ffmi = r.lbm / (hm * hm); r.nffmi = r.ffmi + 6.1 * (1.8 - hm);
+    r.bmrM = 10 * w + 6.25 * h - 5 * age + (man ? 5 : -161);
+    r.bmrK = 370 + 21.6 * r.lbm;
+    r.bmr = r.bfBMI === r.bf ? r.bmrM : (r.bmrM + r.bmrK) / 2;
+    r.tdee = r.bmr * (+S.profile.act || 1.55);
+    r.whtr = M.waist ? M.waist / h : null;
+    r.hrMax = 208 - 0.7 * age;
+    r.water = w * 0.035 + 0.75;
+    r.protKg = PLAN ? targets().p / w : null;
+    r.bmiLo = 18.5 * hm * hm; r.bmiHi = 24.9 * hm * hm;
+    return r;
+  }
+  const band = (v, list) => { for (const [max, label, tone] of list) if (v < max) return { label, tone }; return list[list.length - 1]; };
+  const BMI_B = [[18.5, 'Bajo peso', 'warn'], [25, 'Normal', 'ok'], [30, 'Sobrepeso', 'warn'], [Infinity, 'Obesidad', 'bad']];
+  const BF_H = [[6, 'Esencial', 'warn'], [14, 'Atlético', 'ok'], [18, 'Fitness', 'ok'], [25, 'Promedio', 'mid'], [Infinity, 'Alto', 'bad']];
+  const BF_M = [[14, 'Esencial', 'warn'], [21, 'Atlético', 'ok'], [25, 'Fitness', 'ok'], [32, 'Promedio', 'mid'], [Infinity, 'Alto', 'bad']];
+  const FFMI_B = [[18, 'Bajo', 'mid'], [20, 'Promedio', 'mid'], [22, 'Bueno', 'ok'], [23, 'Muy bueno', 'ok'], [25, 'Excelente', 'ok'], [Infinity, 'Muy raro sin fármacos', 'warn']];
+  const toneColor = t => t === 'ok' ? 'var(--accent-text)' : t === 'bad' ? 'var(--danger)' : t === 'warn' ? 'var(--warn)' : 'var(--muted)';
+  const statB = (l, v, b, hint) => `<div class="stat"><div class="l">${l}</div><div class="v num">${v}</div>${b ? `<div class="h" style="color:${toneColor(b.tone)};font-weight:700">${b.label}</div>` : ''}${hint ? `<div class="h">${hint}</div>` : ''}</div>`;
+
+  function bodySummary() {
+    const r = bodyCalc();
+    return `<a class="card" style="display:block;text-decoration:none;color:inherit" href="#/cuerpo"><div class="row"><h2 class="grow" style="margin:0">Composición corporal</h2>${ic('right')}</div>
+      <div class="stat-grid" style="margin-top:10px">
+        ${statB('IMC', fmt(Math.round(r.bmi * 10) / 10), band(r.bmi, BMI_B))}
+        ${statB('% grasa', fmt(Math.round(r.bf * 10) / 10) + ' %', band(r.bf, r.man ? BF_H : BF_M), r.bfNavy == null && r.bfJP == null ? 'estimado por IMC' : '')}
+        ${statB('Masa magra', fmt(Math.round(r.lbm * 10) / 10) + ' kg')}
+        ${statB('FFMI', fmt(Math.round(r.nffmi * 10) / 10), band(r.nffmi, FFMI_B))}
+      </div><p class="small muted" style="margin:10px 0 0">Toca para anotar medidas y ver todos los cálculos.</p></a>`;
+  }
+
+  function viewCuerpo() {
+    const r = bodyCalc(), M = r.M, P = S.profile;
+    const r1 = v => fmt(Math.round(v * 10) / 10);
+    const T = PLAN ? targets() : null;
+    let h = `<div class="page-head">${backBtn}<div class="ttl">Composición corporal</div></div>
+      <p class="small muted" style="margin:4px 2px 12px">Con ${r1(r.w)} kg (último pesaje), ${r.h} cm y ${r.age} años. Cambia tus datos en Ajustes.</p>
+      <div class="sec-title" style="margin-top:6px">Peso y estatura</div>
+      <div class="stat-grid">
+        ${statB('IMC', r1(r.bmi), band(r.bmi, BMI_B), 'peso ÷ estatura²')}
+        ${statB('Peso "normal" por IMC', r1(r.bmiLo) + '-' + r1(r.bmiHi) + ' kg')}
+        ${statB('Cintura / estatura', r.whtr ? fmt(Math.round(r.whtr * 100) / 100) : '—', r.whtr ? (r.whtr < 0.5 ? { label: 'Saludable', tone: 'ok' } : { label: 'Riesgo aumentado', tone: 'warn' }) : null, r.whtr ? 'ideal < 0,5' : 'anota tu cintura')}
+        ${statB('Proteína actual', r.protKg ? fmt(Math.round(r.protKg * 10) / 10) + ' g/kg' : '—', r.protKg ? (r.protKg >= 1.6 ? { label: 'Suficiente', tone: 'ok' } : { label: 'Baja', tone: 'warn' }) : null, 'meta 1,6-2,2')}
+      </div>
+      <p class="small muted" style="margin:8px 2px 0">El IMC no distingue músculo de grasa: en gente que entrena puede marcar "sobrepeso" sin serlo. Úsalo junto al % de grasa.</p>
+
+      <div class="sec-title">Grasa y músculo</div>
+      <div class="stat-grid">
+        ${statB('% grasa', r1(r.bf) + ' %', band(r.bf, r.man ? BF_H : BF_M), r.bfMethod)}
+        ${statB('Masa grasa', r1(r.fat) + ' kg')}
+        ${statB('Masa magra', r1(r.lbm) + ' kg', null, 'todo menos grasa')}
+        ${statB('FFMI', r1(r.nffmi), band(r.nffmi, FFMI_B), 'índice de masa libre de grasa (ajustado a 1,80 m)')}
+      </div>
+      ${r.bfNavy != null && r.bfJP != null ? `<p class="small muted" style="margin:8px 2px 0">Por medidas (Marina): ${r1(r.bfNavy)} %. Por pliegues: ${r1(r.bfJP)} %. Se usa el de pliegues, que es más preciso.</p>` : ''}
+      <p class="small muted" style="margin:8px 2px 0">Todos los métodos caseros tienen un error de ±3-4 %. Lo útil es la tendencia: mídete igual, mismo día y hora, cada 2-4 semanas.</p>
+
+      <div class="sec-title">Energía</div>
+      <div class="stat-grid">
+        ${statB('Metabolismo basal', Math.round(r.bmr).toLocaleString('es-CO') + ' kcal', null, r.bf === r.bfBMI ? 'Mifflin-St Jeor' : 'promedio Mifflin y Katch-McArdle')}
+        ${statB('Gasto diario (TDEE)', Math.round(r.tdee).toLocaleString('es-CO') + ' kcal', null, 'basal × actividad ' + fmt(+P.act))}
+        ${T ? statB('Tu meta', T.k.toLocaleString('es-CO') + ' kcal', null, (T.k - r.tdee >= 0 ? '+' : '') + Math.round(T.k - r.tdee) + ' kcal (' + (T.k - r.tdee >= 0 ? '+' : '') + Math.round((T.k / r.tdee - 1) * 100) + ' %) sobre el gasto') : ''}
+        ${statB('Agua sugerida', fmt(Math.round(r.water * 10) / 10) + ' L', null, '35 ml/kg + entreno')}
+      </div>
+      <p class="small muted" style="margin:8px 2px 0">El gasto calculado es un punto de partida. El ajuste por pesaje en Progreso corrige con tu peso real, que manda sobre cualquier fórmula.</p>
+
+      <div class="sec-title">Frecuencia cardíaca</div>
+      <div class="card"><div class="small muted" style="margin-bottom:6px">Máxima estimada: <b class="num">${Math.round(r.hrMax)} ppm</b> (fórmula de Tanaka)</div>
+        ${[['Zona 1 · recuperación', .5, .6], ['Zona 2 · cardio suave', .6, .7], ['Zona 3 · aeróbico', .7, .8], ['Zona 4 · umbral', .8, .9], ['Zona 5 · máximo', .9, 1]].map(([n, a, b]) => `<div class="list-item"><div class="grow t">${n}</div><div class="num" style="font-weight:700">${Math.round(r.hrMax * a)}-${Math.round(r.hrMax * b)}</div></div>`).join('')}</div>
+
+      <div class="sec-title">Anotar medidas <span class="small muted">en cm, con cinta métrica</span></div>
+      <div class="card">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          ${[['waist', 'Cintura (al ombligo)'], ['neck', 'Cuello (bajo la manzana)'], ['hip', 'Cadera'], ['chest', 'Pecho'], ['arm', 'Brazo (flexionado)'], ['thigh', 'Muslo']].map(([k, l]) => `<label><span class="small muted" style="font-weight:600">${l}</span><input class="field num" id="m_${k}" type="number" inputmode="decimal" step="0.1" value="${M[k] || ''}"></label>`).join('')}
+        </div>
+        <details class="eq" style="margin-top:10px"><summary>Pliegues con plicómetro (opcional, mm)</summary>
+          <p class="small muted" style="margin:4px 0 8px">${r.man ? 'Hombre: pecho, abdomen y muslo.' : 'Mujer: tríceps, suprailíaco y muslo.'} Lado derecho, 2 tomas y promedias.</p>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">${(r.man ? ['Pecho', 'Abdomen', 'Muslo'] : ['Tríceps', 'Suprailíaco', 'Muslo']).map((l, i) => `<label><span class="small muted" style="font-weight:600">${l}</span><input class="field num" id="sf_${'abc'[i]}" type="number" inputmode="decimal" step="0.5" value="${(M.sf || {})['abc'[i]] || ''}"></label>`).join('')}</div></details>
+        <button class="btn pri block" style="margin-top:12px" data-a="measure-save">Guardar medidas de hoy</button>
+      </div>`;
+    const ms = S.measures.slice().sort((a, b) => a.d < b.d ? -1 : 1);
+    if (ms.length) {
+      h += `<div class="sec-title">Evolución de la cintura</div><div class="card">${lineChart(ms.filter(m => m.waist).map(m => ({ x: m.d, y: +m.waist })), ' cm')}
+        <table class="hist" style="margin-top:10px">${ms.slice(-6).reverse().map(m => `<tr><td class="muted">${shortDate(m.d)}</td><td class="num">${['waist', 'chest', 'arm', 'thigh'].filter(k => m[k]).map(k => ({ waist: 'cin', chest: 'pec', arm: 'bra', thigh: 'mus' }[k]) + ' ' + fmt(m[k])).join(' · ')}</td></tr>`).join('')}</table></div>`;
+    }
+    h += `<p class="small muted" style="margin:14px 2px 0">Fórmulas: IMC (OMS); % grasa: Hodgdon y Beckett (Marina de EE. UU.), Jackson y Pollock (3 pliegues, ecuación de Siri) y Deurenberg; FFMI: Kouri et al.; basal: Mifflin-St Jeor y Katch-McArdle; frecuencia máxima: Tanaka et al. Son estimaciones, no diagnóstico médico.</p>`;
+    app.innerHTML = h;
   }
 
   /* ---------- ajuste de calorías por pesaje ---------- */
@@ -521,6 +637,7 @@
       </div>
       <p class="small muted" style="margin:12px 0 0">Meta para ganar músculo sin mucha grasa: subir <b>${fmt(Math.round(ref * 0.0025 * 100) / 100)}-${fmt(Math.round(ref * 0.005 * 100) / 100)} kg por semana</b> (0,25-0,5 % del peso). Si subes más rápido, baja un poco los carbos; si no subes en 2 semanas, súbelos. <a href="https://doi.org/10.3390/sports7070154" target="_blank" rel="noopener">Iraki et al., 2019</a></p></div>`;
     h += adjCard();
+    h += bodySummary();
 
     const ids = [];
     Object.keys(S.logs).sort().reverse().forEach(k => Object.values(S.logs[k].ex || {}).forEach(x => {
@@ -842,6 +959,9 @@
         <label class="lbl" for="sName">Nombre (para el saludo)</label><input class="field" id="sName" data-set="name" value="${esc(st.name)}" autocomplete="off">
         <label class="lbl" for="sBud">Presupuesto de mercado para 15 días (COP)</label><input class="field num" id="sBud" data-set="budget" type="number" inputmode="numeric" value="${st.budget || ''}" placeholder="Ej: 250000">
         <label class="lbl" for="sWat">Meta de agua (vasos de 250 ml)</label><input class="field num" id="sWat" data-set="waterGoal" type="number" inputmode="numeric" value="${st.waterGoal}">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><label><span class="lbl" style="margin-top:14px">Edad</span><input class="field num" data-prof="age" type="number" inputmode="numeric" value="${S.profile.age}"></label><label><span class="lbl" style="margin-top:14px">Estatura (cm)</span><input class="field num" data-prof="height" type="number" inputmode="numeric" value="${S.profile.height}"></label></div>
+        <label class="lbl">Sexo (para las fórmulas)</label><div class="seg" style="grid-template-columns:1fr 1fr">${[['h', 'Hombre'], ['m', 'Mujer']].map(([v, l]) => `<button class="${S.profile.sex === v ? 'on' : ''}" data-a="prof-sex" data-v="${v}">${l}</button>`).join('')}</div>
+        <label class="lbl" for="sAct">Nivel de actividad</label><select class="field" id="sAct" data-prof="act">${[[1.375, 'Ligero: entreno 1-3 días'], [1.55, 'Moderado: entreno 4-5 días, trabajo sentado'], [1.725, 'Alto: entreno diario o trabajo de pie'], [1.9, 'Muy alto: trabajo físico + entreno']].map(([v, l]) => `<option value="${v}" ${+S.profile.act === v ? 'selected' : ''}>${l}</option>`).join('')}</select>
         <label class="lbl" for="sWd">Día de pesaje</label><select class="field" id="sWd" data-set="weighDay">${DAYS_L.map((d, i) => `<option value="${i}" ${+st.weighDay === i ? 'selected' : ''}>${d}</option>`).join('')}</select></div>
       <div class="card"><h2>Entreno</h2>
         <label class="lbl">Rotar accesorios cada</label><div class="seg">${[4, 5, 6].map(n => `<button class="${+st.rotWeeks === n ? 'on' : ''}" data-a="rot" data-v="${n}">${n} semanas</button>`).join('')}</div>
@@ -883,11 +1003,11 @@
   function render(keepScroll) {
     const raw = location.hash.replace(/^#\/?/, '') || 'hoy';
     const [name, ...args] = raw.split('/').map(decodeURIComponent);
-    const full = ['entreno', 'ej', 'ajustes', 'resumen', 'noticias'].includes(name);
+    const full = ['entreno', 'ej', 'ajustes', 'resumen', 'noticias', 'cuerpo'].includes(name);
     app.className = 'app' + (full ? ' full' : '');
     nav.classList.toggle('hidden', full);
     if (name !== 'entreno') keepAwake(false);
-    const views = { hoy: viewHoy, semana: viewSemana, progreso: viewProgreso, comida: viewComida, mercado: viewMercado, entreno: viewEntreno, ej: viewEj, ajustes: viewAjustes, resumen: viewResumen, noticias: viewNoticias };
+    const views = { hoy: viewHoy, semana: viewSemana, progreso: viewProgreso, comida: viewComida, mercado: viewMercado, entreno: viewEntreno, ej: viewEj, ajustes: viewAjustes, resumen: viewResumen, noticias: viewNoticias, cuerpo: viewCuerpo };
     (views[name] || viewHoy)(...args);
     nav.querySelectorAll('a').forEach(a => a.classList.toggle('on', a.dataset.r === name));
     if (raw !== lastRoute && !keepScroll) window.scrollTo(0, 0);
@@ -1005,6 +1125,18 @@
       S.body = S.body.filter(x => x.d !== k).concat({ d: k, kg: Math.round(v * 10) / 10 });
       save(); toast('Peso guardado'); rerender();
     },
+    'measure-save'() {
+      const m = { d: dk(now()) };
+      ['waist', 'neck', 'hip', 'chest', 'arm', 'thigh'].forEach(k => { const v = parseFloat(($('#m_' + k).value || '').replace(',', '.')); if (v > 0) m[k] = v; });
+      const sf = {};
+      'abc'.split('').forEach(k => { const el = $('#sf_' + k); const v = el && parseFloat((el.value || '').replace(',', '.')); if (v > 0) sf[k] = v; });
+      if (Object.keys(sf).length) m.sf = sf;
+      if (Object.keys(m).length < 2) return toast('Anota al menos una medida');
+      if (m.waist && m.neck && m.waist <= m.neck) return toast('La cintura debe ser mayor que el cuello');
+      S.measures = S.measures.filter(x => x.d !== m.d).concat(m);
+      save(); toast('Medidas guardadas'); rerender();
+    },
+    'prof-sex'(b) { S.profile.sex = b.dataset.v; save(); rerender(); },
     'adj-apply'(b) {
       const t = weightTrend();
       S.adjLog.push({ d: dk(now()), delta: +b.dataset.v, rate: t.rate || 0 });
@@ -1284,6 +1416,7 @@
       r.readAsText(t.files[0]);
       return;
     }
+    if (t.dataset.prof) { const v = parseFloat(t.value); if (v > 0) { S.profile[t.dataset.prof] = v; save(); toast('Guardado'); } return; }
     if (t.dataset.set) {
       const f = t.dataset.set;
       if (f === 'start') { if (t.value) S.start = t.value; }
