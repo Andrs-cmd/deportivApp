@@ -334,11 +334,17 @@
     });
   }
   const fig = (exId, t, cls) => FIG.svg(E[exId].pose, t, E[exId].prop, cls);
-  // Fotos: las de img/ex son de hombres; para mujeres se usan img/ex-m (si existen) o la figura animada con cabello largo
+  // Fotos: las de img/ex son de hombres (inicio y final); a las mujeres nunca se les muestran.
+  // Para ellas: una foto de una mujer en img/ex-m/<id>.jpg (Pexels) o, si no hay, la figura animada con cabello largo
   const hasPhoto = id => FEM() ? !!E[id].imgF : !!E[id].img;
-  const photo = (id, n) => `img/${FEM() ? 'ex-m' : 'ex'}/${id}_${n}.jpg`;
-  const media = (id, cls) => hasPhoto(id) ? `<div class="ph ${cls || ''}"><img src="${photo(id, 0)}" alt="${esc(E[id].n)}: inicio"><img class="b" src="${photo(id, 1)}" alt="${esc(E[id].n)}: final"></div>` : animFig(id, cls);
-  const still = (id, n) => hasPhoto(id) ? `<img class="still" src="${photo(id, n)}" alt="" loading="lazy">` : fig(id, n);
+  const photo = (id, n) => `img/ex/${id}_${n}.jpg`;
+  const photoF = id => `img/ex-m/${id}.jpg`;
+  const media = (id, cls) => !hasPhoto(id) ? animFig(id, cls)
+    : FEM() ? `<div class="ph f ${cls || ''}"><img src="${photoF(id)}" alt="${esc(E[id].n)}"></div>`
+    : `<div class="ph ${cls || ''}"><img src="${photo(id, 0)}" alt="${esc(E[id].n)}: inicio"><img class="b" src="${photo(id, 1)}" alt="${esc(E[id].n)}: final"></div>`;
+  const still = (id, n) => !hasPhoto(id) ? fig(id, n)
+    : FEM() ? `<img class="still" src="${photoF(id)}" alt="" loading="lazy">`
+    : `<img class="still" src="${photo(id, n)}" alt="" loading="lazy">`;
   const animFig = (exId, cls) => `<div class="${cls || ''}" data-anim="${E[exId].pose}" data-prop="${E[exId].prop}">${fig(exId, 0)}</div>`;
 
   function head(title, sub, right) {
@@ -1017,7 +1023,7 @@
       <h1 class="ex-title">${ex.n}</h1>
       <div class="chips"><span class="chip acc">${isBasic ? 'Básico · progresa carga' : 'Accesorio · rota por bloques'}</span><span class="chip">${PROP[ex.prop]}</span></div>
       ${media(id, 'figure-main')}
-      <div class="figs"><div class="f">${still(id, 0)}Inicio</div><div class="f">${still(id, 1)}Final</div></div>
+      <div class="figs"><div class="f">${FEM() ? fig(id, 0) : still(id, 0)}Inicio</div><div class="f">${FEM() ? fig(id, 1) : still(id, 1)}Final</div></div>
       <div class="card muscles"><h2>Músculos</h2><div class="small muted" style="margin-bottom:6px">Principal</div><div class="chips">${ex.m.map(m => `<span class="chip acc">${m}</span>`).join('')}</div>
       ${ex.s.length ? `<div class="small muted" style="margin:10px 0 6px">Secundarios</div><div class="chips">${ex.s.map(m => `<span class="chip line">${m}</span>`).join('')}</div>` : ''}</div>
       <div class="card"><h2>Técnica</h2><ol class="cues">${ex.c.map(c => `<li>${esc(c)}</li>`).join('')}</ol></div>

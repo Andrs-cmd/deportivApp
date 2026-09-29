@@ -199,6 +199,9 @@ label.lbl { display: block; font-size: 13px; font-weight: 600; color: var(--mute
 @keyframes pfAlt { 0%, 38% { opacity: 0; } 50%, 88% { opacity: 1; } 100% { opacity: 0; } }
 .figure-main.ph { padding: 0; aspect-ratio: 3 / 2; }
 .mini .ph { aspect-ratio: auto; width: 100%; height: 100%; border-radius: 16px; }
+.ph.f, .figure-main.ph.f { aspect-ratio: 4 / 5; }
+.ph.f img { object-position: center 30%; }
+.mini .ph.f { aspect-ratio: auto; }
 img.still { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 10px; aspect-ratio: 3 / 2; }
 .figs img.still { margin-bottom: 6px; }
 .muscles .chip.acc { font-size: 13px; }

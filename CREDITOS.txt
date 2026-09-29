@@ -1,2 +1,3 @@
 
 Fotos de ejercicios: free-exercise-db (https://github.com/yuhonas/free-exercise-db), dominio público (Unlicense).
+Fotos de ejercicios con mujeres (img/ex-m): Pexels (https://www.pexels.com), licencia Pexels de uso libre. Ids de cada foto en img/ex-m/pexels.json.
