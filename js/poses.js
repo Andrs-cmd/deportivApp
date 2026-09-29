@@ -87,8 +87,31 @@
       b: { p: [48, 56], k: [68, 50], f: [70, 68] } },
     legraisefloor: { a: { h: [16, 84], s: [26, 86], e: [30, 88], w: [40, 88], p: [52, 86], k: [70, 86], f: [88, 86] },
       b: { k: [60, 69], f: [66, 51] } },
-    pallof: { anchor: [4, 38], a: st({ e: [56, 40], w: [58, 34] }), b: { e: [62, 36], w: [74, 36] } }
+    pallof: { anchor: [4, 38], a: st({ e: [56, 40], w: [58, 34] }), b: { e: [62, 36], w: [74, 36] } },
+    // Glúteo: patada en polea (de pie), patada en cuadrupedia y abducción sentada (de frente)
+    kickback: { props: [['thick', 74, 26, 74, 92]],
+      a: { h: [60, 22], s: [57, 31], e: [65, 38], w: [73, 40], p: [50, 56], k: [51, 74], f: [50, 92], k2: [49, 74], f2: [48, 91] },
+      b: { k2: [36, 68], f2: [22, 76] } },
+    kickbackfloor: { a: { h: [76, 56], s: [67, 61], e: [67, 75], w: [67, 90], p: [40, 63], k: [38, 90], f: [18, 91], k2: [37, 88], f2: [20, 89] },
+      b: { k2: [26, 58], f2: [12, 46] } },
+    abduction: { front: 1, props: [['rect', 32, 61, 36, 4], ['line', 36, 65, 36, 92], ['line', 64, 65, 64, 92]],
+      a: { h: [50, 24], n: [50, 34], sl: [42, 35], sr: [58, 35], el: [38, 47], wl: [40, 58], er: [62, 47], wr: [60, 58], p: [50, 60], pl: [45, 60], pr: [55, 60], kl: [45, 69], kr: [55, 69], fl: [45, 90], fr: [55, 90] },
+      b: { kl: [31, 67], kr: [69, 67], fl: [35, 90], fr: [65, 90] } },
+    adduction: { front: 1, props: [['rect', 32, 61, 36, 4], ['line', 36, 65, 36, 92], ['line', 64, 65, 64, 92]],
+      a: { h: [50, 24], n: [50, 34], sl: [42, 35], sr: [58, 35], el: [38, 47], wl: [40, 58], er: [62, 47], wr: [60, 58], p: [50, 60], pl: [45, 60], pr: [55, 60], kl: [31, 67], kr: [69, 67], fl: [35, 90], fr: [65, 90] },
+      b: { kl: [45, 69], kr: [55, 69], fl: [45, 90], fr: [55, 90] } },
+    // De pie, de frente: la pierna de la polea se abre hacia el lado
+    cableabd: { front: 1, props: [['thick', 94, 20, 94, 92]],
+      a: fr({ el: [40, 43], wl: [40, 55], er: [70, 36], wr: [92, 38] }),
+      b: { kr: [62, 73], fr: [72, 90] } },
+    straightarm: { anchor: [78, 0], a: st({ h: [52, 21], s: [50, 30], e: [60, 20], w: [70, 12], p: [46, 56], k: [48, 74], f: [48, 92] }),
+      b: { e: [58, 42], w: [58, 55] } },
+    atw: { props: [['rect', 14, 59, 52, 4], ['line', 18, 63, 18, 92], ['line', 62, 63, 62, 92]],
+      a: { h: [21, 53], s: [31, 55], e: [40, 53], w: [50, 52], p: [58, 55], k: [72, 58], f: [76, 92] },
+      b: { e: [22, 50], w: [10, 50] } }
   };
+  // Figura femenina (cabello largo) para usuarias
+  let FEM = false;
 
   const lerp = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
   function poseAt(key, t) {
@@ -121,7 +144,8 @@
     const d = P[key] || P.curl;
     const hands = d.front ? [q.wl, q.wr] : [q.w];
     let out = '';
-    if (prop === 'cable') {
+    if (prop === 'cable' && key === 'cableabd') out += `<line x1="94" y1="88" x2="${q.fr[0].toFixed(1)}" y2="${q.fr[1].toFixed(1)}" class="fg-cable"/>`;
+    else if (prop === 'cable') {
       const anchors = d.anchors || [d.anchor || [q.w[0], 0]];
       hands.forEach((h, i) => { const a = anchors[i] || anchors[0]; out += `<line x1="${a[0]}" y1="${a[1]}" x2="${h[0]}" y2="${h[1]}" class="fg-cable"/>`; });
     }
@@ -133,13 +157,28 @@
     if (key === 'wheel') out += `<circle cx="${q.w[0]}" cy="${q.w[1]}" r="4.5" class="fg-plate"/>`;
     if (key === 'legpress') out += `<line x1="${q.f[0] - 7}" y1="${q.f[1] - 7}" x2="${q.f[0] + 7}" y2="${q.f[1] + 7}" class="fg-tool" stroke-width="3"/>`;
     if (key === 'legext' || key === 'legcurl') out += `<circle cx="${q.f[0]}" cy="${q.f[1]}" r="3" class="fg-tool-fill"/>`;
+    if (key === 'kickback') out += `<line x1="74" y1="88" x2="${q.f2[0].toFixed(1)}" y2="${q.f2[1].toFixed(1)}" class="fg-cable"/>`;
     return out;
+  }
+
+  // Cabello: cola de caballo de lado, melena de frente (cuelga hacia abajo)
+  function hair(key, q) {
+    const [x, y] = q.h, d = P[key] || P.curl;
+    const f = n => n.toFixed(1);
+    if (d.front) return `<path d="M${f(x - 5)} ${f(y - 2)} Q${f(x - 7.5)} ${f(y + 4)} ${f(x - 6)} ${f(y + 9)} M${f(x + 5)} ${f(y - 2)} Q${f(x + 7.5)} ${f(y + 4)} ${f(x + 6)} ${f(y + 9)}" class="fg-hair"/>`;
+    // Cuerpo horizontal (banco, plancha): el pelo cuelga hacia abajo por fuera de la cabeza
+    if (Math.abs(y - q.s[1]) < 7) {
+      const dx = x >= q.s[0] ? 1 : -1;
+      return `<path d="M${f(x + dx * 2)} ${f(y + 3)} Q${f(x + dx * 7)} ${f(y + 5)} ${f(x + dx * 6)} ${f(y + 12)}" class="fg-hair"/>`;
+    }
+    const dir = q.s[0] >= q.p[0] - 2 ? -1 : 1; // la cola va hacia la espalda
+    return `<path d="M${f(x + dir * 3)} ${f(y - 4)} Q${f(x + dir * 10)} ${f(y - 3)} ${f(x + dir * 9)} ${f(y + 7)}" class="fg-hair"/>`;
   }
 
   function inner(key, t, prop) {
     const q = poseAt(key, t);
     const lines = segments(key, q).map(s => `<polyline points="${s.map(pt).join(' ')}" class="fg-body"/>`).join('');
-    return toolMarkup(key, q, prop) + lines + `<circle cx="${q.h[0].toFixed(1)}" cy="${q.h[1].toFixed(1)}" r="5.5" class="fg-head"/>`;
+    return toolMarkup(key, q, prop) + lines + (FEM ? hair(key, q) : '') + `<circle cx="${q.h[0].toFixed(1)}" cy="${q.h[1].toFixed(1)}" r="5.5" class="fg-head"/>`;
   }
 
   function svg(key, t, prop, cls) {
@@ -168,5 +207,5 @@
     requestAnimationFrame(frame);
   }
 
-  window.PF_POSES = { svg, animate };
+  window.PF_POSES = { svg, animate, setFem: v => { FEM = !!v; } };
 })();

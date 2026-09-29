@@ -183,6 +183,8 @@ label.lbl { display: block; font-size: 13px; font-weight: 600; color: var(--mute
 .figs svg { width: 100%; height: auto; display: block; }
 .fg-body { fill: none; stroke: var(--text); stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round; }
 .fg-head { fill: var(--surface); stroke: var(--text); stroke-width: 3; }
+.fg-hair { fill: none; stroke: var(--text); stroke-width: 3.2; stroke-linecap: round; }
+.hero-art .fg-hair { stroke: var(--accent-ink); }
 .fg-ground { stroke: var(--line); stroke-width: 1.2; }
 .fg-prop { stroke: var(--muted); stroke-linecap: round; opacity: .55; }
 .fg-prop-fill { fill: var(--muted); opacity: .35; }

@@ -676,9 +676,75 @@
     ['Cadera caída', 'Rotar el torso hacia el piso', 'Aguantar la respiración'],
     'Isométrico', 45, { bw: true, unit: 'seg', reps: [20, 45] });
 
+  /* ---------- GLÚTEO (aislamiento) ---------- */
+  X('abduccion_maquina', 'Abducción de cadera en máquina', 'hip abduction machine', 'gluteo_med', 'abduction', 'machine',
+    [['Glúteo medio'], ['Glúteo mayor', 'Tensor de la fascia lata']],
+    ['Espalda apoyada o inclinada un poco hacia adelante para más glúteo',
+     'Abre las piernas empujando con la parte de afuera de las rodillas',
+     'Aguanta 1 segundo abierta',
+     'Cierra lento, sin dejar que las placas choquen'],
+    ['Mover el torso para ayudarse', 'Cerrar de golpe', 'Recorrido corto por usar demasiado peso'],
+    '2-1-1', 60, { inc: 5 });
+  X('patada_gluteo_polea', 'Patada de glúteo en polea', 'cable glute kickback', 'gluteo_ais', 'kickback', 'cable',
+    [['Glúteo mayor'], ['Isquiotibiales']],
+    ['Tobillera en la polea baja y agárrate de la máquina',
+     'Torso un poco inclinado, abdomen firme',
+     'Lleva la pierna hacia atrás apretando el glúteo, sin arquear la lumbar',
+     'Vuelve controlado hasta que el pie casi toque el piso'],
+    ['Arquear la espalda baja para subir más', 'Girar la cadera hacia afuera', 'Balancear la pierna'],
+    '2-1-1', 60, { inc: 2.5 });
+  X('patada_lateral_polea', 'Patada lateral en polea', 'cable standing hip abduction', 'gluteo_med', 'cableabd', 'cable',
+    [['Glúteo medio'], ['Glúteo menor', 'Tensor de la fascia lata']],
+    ['Tobillera en la polea baja, de lado a la máquina: trabaja la pierna de afuera',
+     'Agárrate de la máquina y quédate derecha, abdomen firme',
+     'Abre la pierna hacia el lado sin girar el pie hacia arriba',
+     'Vuelve lento cruzando un poco por delante de la otra pierna'],
+    ['Inclinar el torso para subir más', 'Girar la punta del pie hacia el techo', 'Soltar el peso de golpe'],
+    '2-1-2', 60, { inc: 2.5 });
+  X('aduccion_maquina', 'Aducción de cadera en máquina', 'hip adduction machine', 'aductores', 'adduction', 'machine',
+    [['Aductores'], ['Glúteo mayor (fibras inferiores)']],
+    ['Espalda apoyada y rodillas contra los cojines',
+     'Cierra las piernas apretando la parte interna del muslo',
+     'Aguanta 1 segundo cerrada',
+     'Abre lento hasta sentir el estiramiento, sin rebotar'],
+    ['Abrir demasiado con mucho peso', 'Cerrar de golpe', 'Despegar la cadera del asiento'],
+    '2-1-2', 60, { inc: 5 });
+  X('prensa_unilateral', 'Prensa a una pierna', 'single leg press', 'prensa', 'legpress', 'machine',
+    [['Cuádriceps'], ['Glúteo mayor', 'Aductores']],
+    ['Un pie en el centro de la plataforma, el otro apoyado en el piso o en el marco',
+     'Baja hasta que la rodilla llegue cerca del pecho sin despegar la cadera',
+     'Empuja con todo el pie, sin trabar la rodilla',
+     'Haz todas las reps de un lado y luego el otro (c/l = cada lado)'],
+    ['Que la rodilla se vaya hacia adentro', 'Despegar la cola del respaldo', 'Bajar poco'],
+    '3-0-1', 90, { inc: 5 });
+  X('pullover_polea', 'Pullover en polea', 'cable straight arm pulldown', 'espalda_v', 'straightarm', 'cable',
+    [['Dorsal ancho'], ['Redondo mayor', 'Tríceps (cabeza larga)']],
+    ['Polea alta con barra o cuerda, un paso atrás y el torso un poco inclinado',
+     'Brazos casi rectos, codos apenas doblados',
+     'Lleva la barra hasta los muslos en arco, apretando la espalda',
+     'Sube lento hasta sentir el estiramiento del dorsal'],
+    ['Doblar los codos (se vuelve tríceps)', 'Balancear el cuerpo', 'Subir rápido'],
+    '2-1-2', 75);
+  X('around_the_world', 'Around the world con mancuernas', 'dumbbell around the world', 'pecho_ais', 'atw', 'db',
+    [['Pectoral mayor'], ['Deltoides anterior', 'Serrato anterior']],
+    ['Acostada en el banco, una mancuerna liviana en cada mano a la altura de la cadera',
+     'Con los brazos casi rectos, llévalas en un arco amplio por los lados hasta encima de la cabeza',
+     'Vuelve por el mismo camino hasta la cadera',
+     'Peso liviano: es un ejercicio de recorrido, no de fuerza'],
+    ['Usar mucho peso', 'Doblar los codos', 'Arquear la espalda baja al llevar los brazos atrás'],
+    '2-0-2', 60, { inc: 1 });
+
 
   /* ---------- CALISTENIA (casa y parque) ---------- */
   const C = (id, n, en, g, pose, mus, c, e, t, r, o) => X(id, n, en, g, pose, 'bw', mus, c, e, t, r, Object.assign({ bw: true, cal: 1, inc: 2 }, o || {}));
+  C('abduccion_banda', 'Abducción sentada con banda', 'banded seated hip abduction', 'gluteo_med', 'abduction',
+    [['Glúteo medio'], ['Glúteo mayor']],
+    ['Banda elástica justo arriba de las rodillas, sentada en el borde de una silla', 'Abre las rodillas lo más que puedas', 'Aguanta 1 segundo afuera', 'Sin banda: acostada de lado, sube la pierna de arriba'],
+    ['Juntar los pies al abrir', 'Ir rápido', 'Banda muy suave: si llegas a 30 fácil, usa una más dura'], '2-1-1', 45, { reps: [15, 25] });
+  C('patada_gluteo_cuadrupedia', 'Patada de glúteo en cuadrupedia', 'quadruped glute kickback', 'gluteo_ais', 'kickbackfloor',
+    [['Glúteo mayor'], ['Isquiotibiales', 'Core']],
+    ['En cuatro apoyos: manos bajo los hombros, rodillas bajo la cadera', 'Sube una pierna con la rodilla doblada, planta del pie hacia el techo', 'Aprieta el glúteo arriba 1 segundo', 'Tobillera o mancuerna detrás de la rodilla para más carga'],
+    ['Arquear la lumbar', 'Girar la cadera', 'Balancear la pierna'], '2-1-1', 45, { reps: [12, 20] });
   C('flexiones', 'Flexiones', 'push up', 'pecho_h', 'pushup',
     [['Pectoral mayor'], ['Tríceps', 'Deltoides anterior', 'Core']],
     ['Manos un poco más anchas que los hombros', 'Cuerpo recto de cabeza a talones, glúteo apretado', 'Baja hasta que el pecho casi toque el piso', 'Cuando hagas 20 limpias, pasa a declinadas o ponte una mochila con peso'],
@@ -836,7 +902,8 @@
       unilateral: ['sentadilla_bulgara', 'zancadas_caminando'], cuadriceps_ais: ['sentadilla_pared', 'sentadilla_sissy'],
       bisagra: ['pmr_una_pierna', 'puente_gluteo'], peso_muerto: ['puente_gluteo', 'hip_thrust_una_pierna'],
       femoral: ['curl_deslizante', 'curl_nordico'], gemelos: ['elev_talones_una_pierna'],
-      core_flex: ['crunch_suelo', 'escaladores'], core_cadera: ['elev_piernas_suelo'], core_est: ['plancha', 'plancha_lateral']
+      core_flex: ['crunch_suelo', 'escaladores'], core_cadera: ['elev_piernas_suelo'], core_est: ['plancha', 'plancha_lateral'],
+      gluteo_med: ['abduccion_banda'], gluteo_ais: ['patada_gluteo_cuadrupedia', 'hip_thrust_una_pierna']
     },
     parque: {
       pecho_h: ['fondos_pecho', 'flexiones'], pecho_inc: ['flexiones_profundas_paralelas', 'flexiones_declinadas'], pecho_ais: ['flexiones', 'flexiones_arquero'],
@@ -848,7 +915,8 @@
       unilateral: ['step_up', 'sentadilla_bulgara'], cuadriceps_ais: ['sentadilla_sissy', 'sentadilla_salto'],
       bisagra: ['hip_thrust_una_pierna', 'pmr_una_pierna'], peso_muerto: ['pmr_una_pierna', 'hip_thrust_una_pierna'],
       femoral: ['curl_nordico', 'curl_deslizante'], gemelos: ['elev_talones_una_pierna'],
-      core_flex: ['elev_rodillas_paralelas', 'escaladores'], core_cadera: ['elev_piernas_colgado', 'elev_rodillas_paralelas'], core_est: ['l_sit_paralelas', 'plancha_lateral']
+      core_flex: ['elev_rodillas_paralelas', 'escaladores'], core_cadera: ['elev_piernas_colgado', 'elev_rodillas_paralelas'], core_est: ['l_sit_paralelas', 'plancha_lateral'],
+      gluteo_med: ['abduccion_banda'], gluteo_ais: ['patada_gluteo_cuadrupedia', 'hip_thrust_una_pierna']
     }
   };
   // Ejercicios con peso corporal que sirven fuera del gimnasio (aparte de los nuevos)
@@ -856,6 +924,9 @@
 
   // Fotos inicio/final (free-exercise-db, dominio público): img/ex/<id>_0.jpg y _1.jpg
   ["aperturas_manc","aperturas_polea","buenos_dias","chin_ups","crunch_declinado","crunch_polea","crunch_suelo","curl_barra","curl_deslizante","curl_femoral_pie","curl_femoral_sentado","curl_femoral_tumbado","curl_inclinado_manc","curl_invertido","curl_martillo","curl_martillo_cuerda","curl_mochila","curl_mochila_martillo","curl_nordico","curl_polea","curl_predicador","dominadas","dominadas_asistidas","dominadas_negativas","elev_laterales_casa","elev_laterales_manc","elev_laterales_polea","elev_piernas_colgado","elev_piernas_suelo","elev_rodillas_paralelas","elev_talones_pie","elev_talones_prensa","elev_talones_sentado","elev_talones_una_pierna","escaladores","extension_cuadriceps","extension_unilateral","ext_sobre_cabeza_manc","ext_triceps_corporal","ext_triceps_polea","ext_triceps_sobre_cabeza","ext_triceps_una_mano","face_pull","face_pull_australiano","flexiones","flexiones_anchas","flexiones_declinadas","flexiones_diamante","flexiones_lastre","fondos","fondos_banco","fondos_pecho","hiperextension_45","hip_thrust","hip_thrust_una_pierna","jalon_neutro","jalon_pecho","pajaros_manc","pallof_press","pec_deck","peso_muerto","peso_muerto_rumano","peso_muerto_rumano_manc","peso_muerto_sumo","peso_muerto_trap","plancha","plancha_lateral","pmr_una_pierna","prensa","press_banca","press_banca_manc","press_cerrado","press_frances","press_hombro_manc","press_hombro_maquina","press_inclinado_barra","press_inclinado_manc","press_inclinado_maquina","press_inclinado_smith","press_maquina_pecho","press_militar","puente_gluteo","pullover_mochila","remo_australiano","remo_barra","remo_mancuerna","remo_mesa","remo_mochila","remo_pecho_apoyado","remo_polea_sentado","reverse_pec_deck","rueda_abdominal","sentadilla","sentadilla_bulgara","sentadilla_frontal","sentadilla_goblet","sentadilla_hack","sentadilla_mochila","sentadilla_pistol_asistida","sentadilla_salto","sentadilla_sissy","sentadilla_smith","step_up","ytw_piso","zancadas_caminando"].forEach(id => { if (E[id]) E[id].img = 1; });
+
+  // Fotos con mujeres: img/ex-m/<id>_0.jpg y _1.jpg. Agrega aquí el id cuando estén las dos fotos; mientras, se ve la figura animada femenina
+  [].forEach(id => { if (E[id]) E[id].imgF = 1; });
 
   // Grupos: el orden define alternativas y rotación
   const G = {};
@@ -900,10 +971,109 @@
       { id: 'c5', ex: 'elev_piernas_colgado', sets: 3, reps: [10, 15] },
       { id: 'c6', ex: 'crunch_polea', sets: 3, reps: [12, 15] },
       { id: 'c7', ex: 'plancha', sets: 3, reps: [30, 60] },
-      { id: 'c8', ex: 'elev_talones_sentado', sets: 3, reps: [12, 15] }] }
+      { id: 'c8', ex: 'elev_talones_sentado', sets: 3, reps: [12, 15] }] },
+
+    // Glúteo y pierna: 2-3 días de tren inferior con énfasis en glúteo + 2 de torso
+    gl_a: { n: 'Glúteo + femoral', d: 'Cadera, glúteo e isquiotibiales', slots: [
+      { id: 'ga1', ex: 'hip_thrust', sets: 4, reps: [8, 12], b: 1 },
+      { id: 'ga2', ex: 'peso_muerto_rumano', sets: 3, reps: [8, 10], b: 1 },
+      { id: 'ga3', ex: 'sentadilla_bulgara', sets: 3, reps: [10, 12] },
+      { id: 'ga4', ex: 'curl_femoral_tumbado', sets: 3, reps: [10, 15] },
+      { id: 'ga5', ex: 'abduccion_maquina', sets: 3, reps: [15, 20] },
+      { id: 'ga6', ex: 'plancha', sets: 2, reps: [30, 45] }] },
+    gl_b: { n: 'Torso A', d: 'Espalda, hombro y brazos', slots: [
+      { id: 'gb1', ex: 'jalon_pecho', sets: 3, reps: [8, 12], b: 1 },
+      { id: 'gb2', ex: 'press_hombro_manc', sets: 3, reps: [8, 12], b: 1 },
+      { id: 'gb3', ex: 'remo_mancuerna', sets: 3, reps: [10, 12] },
+      { id: 'gb4', ex: 'press_inclinado_manc', sets: 3, reps: [8, 12] },
+      { id: 'gb5', ex: 'elev_laterales_manc', sets: 3, reps: [12, 15] },
+      { id: 'gb6', ex: 'ext_triceps_polea', sets: 2, reps: [12, 15] }] },
+    gl_c: { n: 'Glúteo + cuádriceps', d: 'Sentadilla, prensa y zancadas', slots: [
+      { id: 'gc1', ex: 'sentadilla', sets: 4, reps: [6, 10], b: 1 },
+      { id: 'gc2', ex: 'prensa', sets: 3, reps: [10, 12] },
+      { id: 'gc3', ex: 'zancadas_caminando', sets: 3, reps: [10, 12] },
+      { id: 'gc4', ex: 'patada_gluteo_polea', sets: 3, reps: [12, 15] },
+      { id: 'gc5', ex: 'extension_cuadriceps', sets: 2, reps: [12, 15] },
+      { id: 'gc6', ex: 'elev_talones_pie', sets: 3, reps: [12, 15] }] },
+    gl_d: { n: 'Torso B + core', d: 'Espalda, pecho, hombro posterior y abdomen', slots: [
+      { id: 'gd1', ex: 'remo_polea_sentado', sets: 3, reps: [10, 12], b: 1 },
+      { id: 'gd2', ex: 'press_banca_manc', sets: 3, reps: [8, 12] },
+      { id: 'gd3', ex: 'face_pull', sets: 3, reps: [12, 15] },
+      { id: 'gd4', ex: 'elev_laterales_polea', sets: 3, reps: [12, 15] },
+      { id: 'gd5', ex: 'curl_martillo', sets: 2, reps: [10, 12] },
+      { id: 'gd6', ex: 'crunch_polea', sets: 3, reps: [12, 15] }] },
+    gl_e: { n: 'Glúteo bombeo', d: 'Glúteo medio y mayor con más repeticiones', slots: [
+      { id: 'ge1', ex: 'hiperextension_45', sets: 3, reps: [12, 15] },
+      { id: 'ge2', ex: 'sentadilla_goblet', sets: 3, reps: [12, 15] },
+      { id: 'ge3', ex: 'abduccion_maquina', sets: 3, reps: [20, 25] },
+      { id: 'ge4', ex: 'patada_gluteo_polea', sets: 3, reps: [15, 20] },
+      { id: 'ge5', ex: 'curl_femoral_sentado', sets: 3, reps: [12, 15] }] },
+
+    // Cuerpo completo: 2-3 días
+    fb_a: { n: 'Cuerpo completo A', d: 'Sentadilla, press y remo', slots: [
+      { id: 'fa1', ex: 'sentadilla', sets: 3, reps: [6, 10], b: 1 },
+      { id: 'fa2', ex: 'press_banca', sets: 3, reps: [6, 10], b: 1 },
+      { id: 'fa3', ex: 'remo_pecho_apoyado', sets: 3, reps: [8, 12] },
+      { id: 'fa4', ex: 'peso_muerto_rumano', sets: 3, reps: [8, 10] },
+      { id: 'fa5', ex: 'elev_laterales_manc', sets: 3, reps: [12, 15] },
+      { id: 'fa6', ex: 'plancha', sets: 2, reps: [30, 45] }] },
+    fb_b: { n: 'Cuerpo completo B', d: 'Hip thrust, hombro y jalón', slots: [
+      { id: 'fb1', ex: 'hip_thrust', sets: 3, reps: [8, 12], b: 1 },
+      { id: 'fb2', ex: 'press_militar', sets: 3, reps: [6, 10], b: 1 },
+      { id: 'fb3', ex: 'jalon_pecho', sets: 3, reps: [8, 12] },
+      { id: 'fb4', ex: 'sentadilla_bulgara', sets: 3, reps: [10, 12] },
+      { id: 'fb5', ex: 'curl_martillo', sets: 2, reps: [10, 12] },
+      { id: 'fb6', ex: 'ext_triceps_polea', sets: 2, reps: [10, 15] }] },
+    fb_c: { n: 'Cuerpo completo C', d: 'Prensa, inclinado y remo', slots: [
+      { id: 'fc1', ex: 'prensa', sets: 3, reps: [10, 12], b: 1 },
+      { id: 'fc2', ex: 'press_inclinado_manc', sets: 3, reps: [8, 12] },
+      { id: 'fc3', ex: 'remo_mancuerna', sets: 3, reps: [10, 12] },
+      { id: 'fc4', ex: 'curl_femoral_tumbado', sets: 3, reps: [10, 15] },
+      { id: 'fc5', ex: 'face_pull', sets: 3, reps: [12, 15] },
+      { id: 'fc6', ex: 'crunch_polea', sets: 3, reps: [12, 15] }] },
+
+    // Tren inferior / superior 4 días (rutina fija: los ejercicios no rotan)
+    is_a: { n: 'Tren inferior 1', d: 'Glúteos y femorales', slots: [
+      { id: 'ia1', ex: 'hip_thrust', sets: 4, reps: [6, 8], b: 1 },
+      { id: 'ia2', ex: 'peso_muerto_rumano', sets: 4, reps: [6, 8], b: 1 },
+      { id: 'ia3', ex: 'curl_femoral_sentado', sets: 4, reps: [8, 10], b: 1 },
+      { id: 'ia4', ex: 'patada_gluteo_polea', sets: 4, reps: [10, 12], b: 1 },
+      { id: 'ia5', ex: 'patada_lateral_polea', sets: 4, reps: [6, 8], b: 1 }] },
+    is_b: { n: 'Tren superior 1', d: 'Pecho y espalda', slots: [
+      { id: 'ib1', ex: 'remo_polea_sentado', sets: 4, reps: [8, 10], b: 1, nota: 'agarre en V' },
+      { id: 'ib2', ex: 'jalon_pecho', sets: 4, reps: [8, 10], b: 1, nota: 'agarre ancho' },
+      { id: 'ib3', ex: 'jalon_neutro', sets: 4, reps: [8, 10], b: 1, nota: 'agarre en V' },
+      { id: 'ib4', ex: 'pullover_polea', sets: 4, reps: [6, 8], b: 1 },
+      { id: 'ib5', ex: 'press_maquina_pecho', sets: 4, reps: [6, 8], b: 1 },
+      { id: 'ib6', ex: 'pec_deck', sets: 4, reps: [6, 8], b: 1 }] },
+    is_c: { n: 'Tren inferior 2', d: 'Cuádriceps y pantorrilla', slots: [
+      { id: 'ic1', ex: 'sentadilla_smith', sets: 4, reps: [6, 8], b: 1, nota: 'la última serie a 10-12' },
+      { id: 'ic2', ex: 'extension_cuadriceps', sets: 4, reps: [8, 10], b: 1 },
+      { id: 'ic3', ex: 'prensa_unilateral', sets: 4, reps: [8, 10], b: 1, nota: 'cada lado' },
+      { id: 'ic4', ex: 'aduccion_maquina', sets: 4, reps: [6, 8], b: 1 },
+      { id: 'ic5', ex: 'abduccion_maquina', sets: 4, reps: [6, 8], b: 1 },
+      { id: 'ic6', ex: 'elev_talones_pie', sets: 4, reps: [4, 6], b: 1 }] },
+    is_d: { n: 'Tren superior 2', d: 'Brazos y hombro', slots: [
+      { id: 'id1', ex: 'ext_triceps_polea', sets: 4, reps: [6, 8], b: 1 },
+      { id: 'id2', ex: 'curl_polea', sets: 4, reps: [8, 10], b: 1, nota: 'con barra' },
+      { id: 'id3', ex: 'elev_laterales_manc', sets: 4, reps: [8, 10], b: 1 },
+      { id: 'id4', ex: 'curl_martillo', sets: 4, reps: [8, 10], b: 1 },
+      { id: 'id5', ex: 'around_the_world', sets: 4, reps: [6, 8], b: 1 }] }
+  };
+
+  // Plantillas: qué rutinas usa cada una y cómo se reparten según los días por semana (lunes a domingo)
+  const TPL = {
+    hipertrofia: { n: 'Hipertrofia general', d: 'Empuje, tirón, piernas, torso y piernas + core', ids: ['empuje', 'tiron', 'piernas', 'torso', 'pierna_core'],
+      days: { 4: ['torso', 'piernas', null, 'torso', 'pierna_core', null, null], 5: ['empuje', 'tiron', 'piernas', null, 'torso', 'pierna_core', null], 6: ['empuje', 'tiron', 'piernas', 'torso', null, 'pierna_core', 'empuje'] } },
+    gluteo: { n: 'Glúteo y pierna', d: 'Más volumen en glúteo y pierna, torso 2 veces por semana', ids: ['gl_a', 'gl_b', 'gl_c', 'gl_d', 'gl_e'],
+      days: { 2: ['gl_a', null, null, 'gl_c', null, null, null], 3: ['gl_a', null, 'gl_b', null, 'gl_c', null, null], 4: ['gl_a', 'gl_b', null, 'gl_c', 'gl_d', null, null], 5: ['gl_a', 'gl_b', 'gl_c', null, 'gl_d', 'gl_e', null], 6: ['gl_a', 'gl_b', 'gl_c', 'gl_d', 'gl_e', 'gl_a', null] } },
+    inf_sup: { n: 'Tren inferior / superior', d: '4 días: 2 de pierna y glúteo, 2 de tren superior; ejercicios fijos', ids: ['is_a', 'is_b', 'is_c', 'is_d'], fija: true,
+      days: { 4: ['is_a', 'is_b', null, 'is_c', 'is_d', null, null] } },
+    full: { n: 'Cuerpo completo', d: 'Todo el cuerpo en cada sesión, ideal para 2-3 días', ids: ['fb_a', 'fb_b', 'fb_c'],
+      days: { 2: ['fb_a', null, null, 'fb_b', null, null, null], 3: ['fb_a', null, 'fb_b', null, 'fb_c', null, null], 4: ['fb_a', 'fb_b', null, 'fb_c', 'fb_a', null, null] } }
   };
 
   const MUSCLE_ICON = { empuje: 'push', tiron: 'pull', piernas: 'legs', torso: 'upper', pierna_core: 'core' };
 
-  window.PF_DATA = { E, G, R, LOC, MUSCLE_ICON };
+  window.PF_DATA = { E, G, R, LOC, TPL, MUSCLE_ICON };
 })();

@@ -1,7 +1,11 @@
 (function () {
   'use strict';
-  const { E, G, R, LOC } = window.PF_DATA;
+  const { E, G, LOC, TPL } = window.PF_DATA;
+  const BASE_R = window.PF_DATA.R;
+  let R = BASE_R; // rutinas de la persona (plantilla ajustada); las de la plantilla base si no tiene
   const FIG = window.PF_POSES;
+  const ENG = window.PF_ENGINE;
+  const Cloud = window.PF_CLOUD;
 
   /* ---------- utilidades ---------- */
   const $ = s => document.querySelector(s);
@@ -49,7 +53,11 @@
   const ic = (n, sw) => `<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw || 2}" stroke-linecap="round" stroke-linejoin="round">${I[n]}</svg>`;
 
   /* ---------- estado ---------- */
-  const KEY = 'pf.v1';
+  const LEGACY_KEY = 'pf.v1';
+  let KEY = LEGACY_KEY; // sin cuentas: pf.v1; con cuenta: pf.u.<id>
+  let UID = 'local';
+  let GATE = null; // pantalla que tapa todo: cargando, login, migrar, bienvenida, clave
+  const readLS = k => { try { return JSON.parse(localStorage.getItem(k)); } catch (e) { return null; } };
   const defaults = () => ({
     v: 1,
     start: dk(monday(now())),
@@ -57,9 +65,7 @@
     weekMoves: {}, swaps: {}, logs: {}, body: [], meals: {}, mealSwaps: {}, water: {}, market: {}, myPrices: {}, eaten: {}, adjLog: [], adjSkip: null, locs: {}, deloadForce: {}, photoWeeks: {}, measures: [], profile: { sex: 'h', age: 26, height: 171, act: 1.55 },
     settings: { theme: 'auto', name: '', budget: 250000, waterGoal: 10, rotWeeks: 5, weighDay: 0 }
   });
-  function load() {
-    let s = null;
-    try { s = JSON.parse(localStorage.getItem(KEY)); } catch (e) { s = null; }
+  function load(s) {
     const d = defaults();
     if (!s || typeof s !== 'object') return d;
     const out = Object.assign(d, s);
@@ -75,19 +81,49 @@
     if (!out.settings.budget) out.settings.budget = 250000;
     return out;
   }
-  let S = load();
-  function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { toast('No se pudo guardar en este navegador'); } }
+  let S = Cloud.on ? defaults() : load(readLS(KEY));
+  function save() {
+    S._ts = Date.now();
+    try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { toast('No se pudo guardar en este navegador'); }
+    if (UID !== 'local') Cloud.push(S);
+  }
+  const FEM = () => S.profile.sex === 'm';
+  const ao = () => FEM() ? 'a' : 'o';
+
+  // Aplica lo que depende de la persona: rutinas, figura, tema y plan de comida
+  function applyUser() {
+    R = S.routines ? Object.assign({}, BASE_R, S.routines) : BASE_R;
+    BASICS.clear();
+    Object.values(R).forEach(r => r.slots.forEach(s => { if (s.b) BASICS.add(s.ex); }));
+    FIG.setFem(FEM());
+    applyTheme();
+    derivePlan();
+  }
+  // Recalcula calorías y macros con el perfil, el peso y el objetivo actuales
+  function recalcNutri() {
+    if (S.planMode !== 'auto' || !S.goal) return;
+    const w = (lastBody() || {}).kg || S.goal.peso || 65;
+    const T = ENG.targets(S.profile, w, S.goal);
+    S.nutri = { k: T.k, p: T.p, c: T.c, f: T.f };
+    derivePlan();
+  }
 
   /* ---------- plan semanal (JSON remoto) ---------- */
+  let PLAN_RAW = readLS('pf.plan');
   let PLAN = null;
-  try { PLAN = JSON.parse(localStorage.getItem('pf.plan')); } catch (e) { PLAN = null; }
+  // El plan base (plan.json) se adapta a las calorías de cada persona; el modo "base" lo usa tal cual
+  function derivePlan() {
+    PLAN = PLAN_RAW && S.planMode === 'auto' && S.nutri ? ENG.personalize(PLAN_RAW, S.nutri) : PLAN_RAW;
+  }
+  derivePlan();
   async function loadPlan(force) {
     try {
       const r = await fetch('plan/plan.json' + (force ? '?t=' + Date.now() : ''), { cache: 'no-cache' });
       if (!r.ok) throw new Error(r.status);
       const p = await r.json();
-      const changed = !PLAN || PLAN.generated !== p.generated;
-      PLAN = p;
+      const changed = !PLAN_RAW || PLAN_RAW.generated !== p.generated;
+      PLAN_RAW = p;
+      derivePlan();
       try { localStorage.setItem('pf.plan', JSON.stringify(p)); } catch (e) { /* sin espacio */ }
       if (force) toast(changed ? 'Plan actualizado' : 'Ya tienes el plan más reciente');
       if (changed || force) render(true);
@@ -298,9 +334,11 @@
     });
   }
   const fig = (exId, t, cls) => FIG.svg(E[exId].pose, t, E[exId].prop, cls);
-  const photo = (id, n) => `img/ex/${id}_${n}.jpg`;
-  const media = (id, cls) => E[id].img ? `<div class="ph ${cls || ''}"><img src="${photo(id, 0)}" alt="${esc(E[id].n)}: inicio"><img class="b" src="${photo(id, 1)}" alt="${esc(E[id].n)}: final"></div>` : animFig(id, cls);
-  const still = (id, n) => E[id].img ? `<img class="still" src="${photo(id, n)}" alt="" loading="lazy">` : fig(id, n);
+  // Fotos: las de img/ex son de hombres; para mujeres se usan img/ex-m (si existen) o la figura animada con cabello largo
+  const hasPhoto = id => FEM() ? !!E[id].imgF : !!E[id].img;
+  const photo = (id, n) => `img/${FEM() ? 'ex-m' : 'ex'}/${id}_${n}.jpg`;
+  const media = (id, cls) => hasPhoto(id) ? `<div class="ph ${cls || ''}"><img src="${photo(id, 0)}" alt="${esc(E[id].n)}: inicio"><img class="b" src="${photo(id, 1)}" alt="${esc(E[id].n)}: final"></div>` : animFig(id, cls);
+  const still = (id, n) => hasPhoto(id) ? `<img class="still" src="${photo(id, n)}" alt="" loading="lazy">` : fig(id, n);
   const animFig = (exId, cls) => `<div class="${cls || ''}" data-anim="${E[exId].pose}" data-prop="${E[exId].prop}">${fig(exId, 0)}</div>`;
 
   function head(title, sub, right) {
@@ -445,7 +483,8 @@
     const box = $('#fotosBody');
     if (!box) return;
     let all = [];
-    try { all = await IDB.all(); } catch (e) { box.innerHTML = '<div class="card empty">Este navegador no deja guardar fotos. Prueba en Chrome sin modo incógnito.</div>'; return; }
+    // Cada cuenta ve solo sus fotos; las viejas (sin dueño) son de quien pasó sus datos de este celular
+    try { all = (await IDB.all()).filter(p => p.u ? p.u === UID : (UID === 'local' || S.legacyPhotos)); } catch (e) { box.innerHTML = '<div class="card empty">Este navegador no deja guardar fotos. Prueba en Chrome sin modo incógnito.</div>'; return; }
     photoURLs.forEach(u => URL.revokeObjectURL(u)); photoURLs = [];
     const url = b => { const u = URL.createObjectURL(b); photoURLs.push(u); return u; };
     const byWeek = {};
@@ -614,15 +653,25 @@
     const rate = slope * 7;
     return { rate, pct: rate / my * 100, kg: my, n: pts.length, span };
   }
+  // Ritmo de peso buscado por semana (fracción del peso) según el objetivo; sin objetivo, el de siempre: subir músculo
+  const goalRate = () => (S.planMode === 'auto' && S.goal && ENG.GOALS[S.goal.tipo]) ? ENG.GOALS[S.goal.tipo].rate : [0.0025, 0.005];
+  const kgRange = w => { const [a, b] = goalRate(); return [w * a, w * b]; };
+  const signed = v => `${v > 0 ? '+' : v < 0 ? '−' : ''}${fmt(Math.abs(Math.round(v * 100) / 100))}`;
+  function rateGoalText(w) {
+    const [lo, hi] = kgRange(w);
+    if (hi <= 0) return `bajar ${fmt(Math.round(-hi * 100) / 100)}-${fmt(Math.round(-lo * 100) / 100)} kg por semana`;
+    if (lo >= 0) return `subir ${fmt(Math.round(lo * 100) / 100)}-${fmt(Math.round(hi * 100) / 100)} kg por semana`;
+    return `mantenerte entre ${signed(lo)} y ${signed(hi)} kg por semana`;
+  }
   function adjSuggestion() {
     const t = weightTrend();
     if (t.need || t.wait) return t;
-    const lo = t.kg * 0.0025, hi = t.kg * 0.005;
-    const ritmo = `${t.rate >= 0 ? '+' : ''}${fmt(Math.round(t.rate * 100) / 100)} kg por semana`;
-    const meta = `${fmt(Math.round(lo * 100) / 100)} a ${fmt(Math.round(hi * 100) / 100)} kg`;
+    const [lo, hi] = kgRange(t.kg);
+    const ritmo = `${signed(t.rate)} kg por semana`;
+    const meta = rateGoalText(t.kg);
     const cur = kcalAdj();
-    if (t.rate < lo && cur + ADJ_STEP <= ADJ_MAX) return Object.assign(t, { delta: ADJ_STEP, text: `Vas ${ritmo} y la meta es subir ${meta}. Sube ${ADJ_STEP} kcal al día (unos 38 g de carbos).` });
-    if (t.rate > hi && cur - ADJ_STEP >= ADJ_MIN) return Object.assign(t, { delta: -ADJ_STEP, text: `Vas ${ritmo}: más rápido de lo ideal (${meta}), así que parte es grasa. Baja ${ADJ_STEP} kcal al día (unos 38 g de carbos).` });
+    if (t.rate < lo && cur + ADJ_STEP <= ADJ_MAX) return Object.assign(t, { delta: ADJ_STEP, text: `Vas ${ritmo} y la meta es ${meta}. ${hi <= 0 ? 'Bajas más rápido de lo sano y puedes perder músculo.' : ''} Sube ${ADJ_STEP} kcal al día (unos 38 g de carbos).` });
+    if (t.rate > hi && cur - ADJ_STEP >= ADJ_MIN) return Object.assign(t, { delta: -ADJ_STEP, text: `Vas ${ritmo} y la meta es ${meta}. Baja ${ADJ_STEP} kcal al día (unos 38 g de carbos).` });
     return Object.assign(t, { ok: true, text: `Vas ${ritmo}, dentro de la meta (${meta}). No cambies nada.` });
   }
   const adjFoodHint = a => a > 0
@@ -742,7 +791,7 @@
         const done = L && L.ex[s.id] && L.ex[s.id].done;
         const unit = E[s.ex].unit === 'seg' ? 's' : 'reps';
         h += `<div class="list-item ${done ? 'done' : ''}">
-          <button class="tap" data-a="open-ex" data-id="${s.ex}" data-slot="${s.id}"><div class="t">${E[s.ex].n}</div><div class="d">${s.sets} × ${s.reps[0]}-${s.reps[1]} ${unit}${s.b ? ' · básico' : ''}</div></button>
+          <button class="tap" data-a="open-ex" data-id="${s.ex}" data-slot="${s.id}"><div class="t">${E[s.ex].n}</div><div class="d">${s.sets} × ${s.reps[0]}-${s.reps[1]} ${unit}${s.nota ? ' · ' + esc(s.nota) : s.b && !S.goal?.tpl?.startsWith('inf') ? ' · básico' : ''}</div></button>
           <button class="check ${done ? 'on' : ''}" data-a="ex-check" data-slot="${s.id}" aria-label="Marcar hecho">${ic('check', 3)}</button></div>`;
       });
       h += `</div>`;
@@ -787,14 +836,15 @@
     const bi = blockInfo();
     const moved = !!S.weekMoves[dk(d0)];
     let h = head('Semana', `Del ${d0.getDate()} ${MONTHS[d0.getMonth()]} al ${addDays(d0, 6).getDate()} ${MONTHS[addDays(d0, 6).getMonth()]}`, gearBtn);
-    h += `<div class="card block-info"><div class="row"><div class="grow"><b>Bloque ${bi.block + 1} de accesorios</b> · semana ${bi.week} de ${bi.len}
-      <div class="small muted">Los básicos se quedan y suben de carga. Los accesorios cambian el ${bi.next.getDate()} de ${MONTHS_L[bi.next.getMonth()]}.</div></div></div>
+    const fija = S.goal && TPL[S.goal.tpl] && TPL[S.goal.tpl].fija;
+    h += `<div class="card block-info"><div class="row"><div class="grow"><b>${fija ? 'Bloque ' + (bi.block + 1) : `Bloque ${bi.block + 1} de accesorios`}</b> · semana ${bi.week} de ${bi.len}
+      <div class="small muted">${fija ? 'Tu rutina es fija: los mismos ejercicios cada semana, subiendo de carga cuando completes las repeticiones.' : `Los básicos se quedan y suben de carga. Los accesorios cambian el ${bi.next.getDate()} de ${MONTHS_L[bi.next.getMonth()]}.`}</div></div></div>
       <div class="progress-line"><div style="width:${bi.week / bi.len * 100}%"></div></div>
       ${isDeload() ? `<div class="tip"><b>Esta semana es de descarga.</b> Mitad de series, 90 % del peso y 3-4 reps en reserva. Te recuperas de la fatiga acumulada y vuelves más fuerte al siguiente bloque.</div>`
         : `<p class="small" style="margin:10px 0 0">Próxima descarga: semana del <b>${nextDeload().getDate()} de ${MONTHS_L[nextDeload().getMonth()]}</b>${S.settings.autoDeload === false ? ' (automática apagada en Ajustes)' : ''}.</p>`}
       <div class="row" style="margin-top:8px;gap:8px;flex-wrap:wrap">${isDeload()
         ? '<button class="link-btn" data-a="deload-force" data-v="0">Saltar la descarga esta semana</button>'
-        : '<button class="link-btn" data-a="deload-force" data-v="1">Estoy muy cansado: descarga esta semana</button>'}${S.deloadForce[dk(d0)] != null ? '<button class="link-btn" style="color:var(--muted)" data-a="deload-force" data-v="">Volver a lo automático</button>' : ''}</div></div>`;
+        : `<button class="link-btn" data-a="deload-force" data-v="1">Estoy muy cansad${ao()}: descarga esta semana</button>`}${S.deloadForce[dk(d0)] != null ? '<button class="link-btn" style="color:var(--muted)" data-a="deload-force" data-v="">Volver a lo automático</button>' : ''}</div></div>`;
     for (let i = 0; i < 7; i++) {
       const d = addDays(d0, i);
       const k = dk(d);
@@ -835,7 +885,10 @@
         <div class="stat"><div class="l">Último</div><div class="v num">${last ? fmt(last.kg) + ' kg' : '—'}</div><div class="h">${last ? shortDate(last.d) : 'Sin registros'}</div></div>
         <div class="stat"><div class="l">Cambio semanal</div><div class="v num">${delta == null ? '—' : (delta > 0 ? '+' : '') + fmt(Math.round(delta * 100) / 100) + ' kg'}</div><div class="h">promedio 7 días vs anteriores</div></div>
       </div>
-      <p class="small muted" style="margin:12px 0 0">Meta para ganar músculo sin mucha grasa: subir <b>${fmt(Math.round(ref * 0.0025 * 100) / 100)}-${fmt(Math.round(ref * 0.005 * 100) / 100)} kg por semana</b> (0,25-0,5 % del peso). Si subes más rápido, baja un poco los carbos; si no subes en 2 semanas, súbelos. <a href="https://doi.org/10.3390/sports7070154" target="_blank" rel="noopener">Iraki et al., 2019</a></p></div>`;
+      ${goalRate()[0] >= 0
+        ? `<p class="small muted" style="margin:12px 0 0">Meta para ganar músculo sin mucha grasa: subir <b>${fmt(Math.round(ref * 0.0025 * 100) / 100)}-${fmt(Math.round(ref * 0.005 * 100) / 100)} kg por semana</b> (0,25-0,5 % del peso). Si subes más rápido, baja un poco los carbos; si no subes en 2 semanas, súbelos. <a href="https://doi.org/10.3390/sports7070154" target="_blank" rel="noopener">Iraki et al., 2019</a></p>`
+        : `<p class="small muted" style="margin:12px 0 0">Tu meta: <b>${rateGoalText(ref)}</b>. Más rápido que eso se pierde músculo y cuesta sostenerlo; con la proteína alta y el entreno de fuerza, lo que baja es sobre todo grasa. <a href="https://doi.org/10.1186/s12970-017-0177-8" target="_blank" rel="noopener">Jäger et al., 2017</a></p>`}
+      ${S.goal && S.goal.pesoMeta ? goalProgress(last ? last.kg : null) : ''}</div>`;
     h += adjCard();
     h += volumeCard();
     h += bodySummary();
@@ -1044,10 +1097,10 @@
       <button class="btn pri" style="min-height:44px;padding:0 16px" data-a="finish">Terminar</button></div>
       <div class="dots">${slots.map((o, i) => `<button class="${L.ex[o.id] && L.ex[o.id].done ? 'done' : ''} ${i === LV.idx ? 'cur' : ''}" data-a="go-ex" data-i="${i}" aria-label="Ejercicio ${i + 1}"></button>`).join('')}</div>
       <div class="ex-card fade-in">
-        <div class="top">${ex.img ? `<div class="mini">${media(x.ex)}</div>` : `<div class="mini" data-anim="${ex.pose}" data-prop="${ex.prop}">${fig(x.ex, 0)}</div>`}
+        <div class="top">${hasPhoto(x.ex) ? `<div class="mini">${media(x.ex)}</div>` : `<div class="mini" data-anim="${ex.pose}" data-prop="${ex.prop}">${fig(x.ex, 0)}</div>`}
         <div class="grow"><div class="small muted">Ejercicio ${LV.idx + 1} de ${slots.length}${s.b ? ' · básico' : ''}</div>
         <h2>${ex.n}</h2>
-        <div class="chips"><span class="chip">${s.sets} × ${s.reps[0]}-${s.reps[1]} ${seg ? 's' : 'reps'}</span><span class="chip">Descanso ${mmss(ex.r)}</span><span class="chip">Tempo ${ex.t}</span></div></div></div>
+        <div class="chips"><span class="chip">${s.sets} × ${s.reps[0]}-${s.reps[1]} ${seg ? 's' : 'reps'}</span>${s.nota ? `<span class="chip acc">${esc(s.nota)}</span>` : ''}<span class="chip">Descanso ${mmss(ex.r)}</span><span class="chip">Tempo ${ex.t}</span></div></div></div>
         <div class="row" style="margin-top:10px;gap:8px"><button class="btn ghost" style="min-height:44px;flex:1" data-a="open-ex" data-id="${x.ex}" data-slot="${s.id}">${ic('info')} Ficha</button>
         <button class="btn ghost" style="min-height:44px;flex:1" data-a="swap" data-slot="${s.id}">${ic('swap')} Cambiar</button></div>
         <div class="tip">${esc(sg.text)}</div>
@@ -1152,19 +1205,268 @@
     return 'https://calendar.google.com/calendar/render?' + p.toString();
   }
 
+  /* ---------- objetivo: avance hacia el peso meta ---------- */
+  function goalProgress(kg) {
+    const g = S.goal, start = g.peso || kg, meta = g.pesoMeta;
+    if (!kg || !start || start === meta) return '';
+    const pct = Math.max(0, Math.min(100, (start - kg) / (start - meta) * 100));
+    const left = Math.round(Math.abs(meta - kg) * 10) / 10;
+    const w = ENG.eta(g, kg);
+    return `<div style="margin-top:14px"><div class="row small" style="justify-content:space-between"><span>Inicio <b class="num">${fmt(start)} kg</b></span><span>Meta <b class="num">${fmt(meta)} kg</b></span></div>
+      <div class="progress-line"><div style="width:${pct}%"></div></div>
+      <div class="small muted">${left <= 0.2 ? '¡Llegaste a tu meta! Cambia tu objetivo en Ajustes.' : `Faltan ${fmt(left)} kg${w ? ` · a este ritmo, unas ${w} semanas` : ''}.`}</div></div>`;
+  }
+
+  /* =========================================================
+     CUENTAS: login, registro, recuperar clave, bienvenida
+     ========================================================= */
+  const brand = sub => `<div style="text-align:center;margin:28px 0 22px"><img src="icons/icon-192.png" alt="" width="72" height="72" style="border-radius:20px;display:block;margin:0 auto 12px">
+    <h1 style="margin:0;font-size:28px">Plan Fitness</h1>${sub ? `<p class="muted" style="margin:6px 0 0">${sub}</p>` : ''}</div>`;
+  let authTab = 'entrar';
+  let authMsg = '';
+  function viewLogin() {
+    const reg = authTab === 'registro', rec = authTab === 'recuperar';
+    let h = brand('Tu rutina, tu comida y tu mercado, a tu medida');
+    if (!rec) h += `<div class="seg" style="grid-template-columns:1fr 1fr;margin-bottom:12px">${[['entrar', 'Iniciar sesión'], ['registro', 'Crear cuenta']].map(([v, l]) => `<button class="${authTab === v ? 'on' : ''}" data-a="auth-tab" data-v="${v}">${l}</button>`).join('')}</div>`;
+    h += `<form class="card" id="authForm" novalidate>
+      ${rec ? '<h2>Recuperar contraseña</h2><p class="small muted" style="margin-top:-4px">Te enviamos un enlace a tu correo para crear una nueva.</p>' : ''}
+      ${reg ? '<label class="lbl" for="aName">Tu nombre</label><input class="field" id="aName" autocomplete="given-name" required>' : ''}
+      <label class="lbl" for="aEmail">Correo</label><input class="field" id="aEmail" type="email" inputmode="email" autocomplete="email" required>
+      ${rec ? '' : `<label class="lbl" for="aPass">Contraseña</label><input class="field" id="aPass" type="password" autocomplete="${reg ? 'new-password' : 'current-password'}" minlength="8" required>
+        ${reg ? '<p class="small muted" style="margin:6px 0 0">Mínimo 8 caracteres.</p>' : ''}`}
+      ${authMsg ? `<div class="tip" role="alert">${esc(authMsg)}</div>` : ''}
+      <button class="btn pri block big" style="margin-top:14px" type="submit">${rec ? 'Enviar enlace' : reg ? 'Crear mi cuenta' : 'Entrar'}</button>
+      ${authTab === 'entrar' ? '<button class="link-btn" type="button" data-a="auth-tab" data-v="recuperar" style="margin-top:8px">¿Olvidaste tu contraseña?</button>' : ''}
+      ${rec ? '<button class="link-btn" type="button" data-a="auth-tab" data-v="entrar" style="margin-top:8px">Volver</button>' : ''}</form>`;
+    app.innerHTML = h;
+  }
+  async function submitAuth() {
+    const email = ($('#aEmail').value || '').trim(), pass = $('#aPass') ? $('#aPass').value : '';
+    const btn = $('#authForm button[type=submit]');
+    authMsg = '';
+    if (!/^\S+@\S+\.\S+$/.test(email)) { authMsg = 'Escribe un correo válido.'; return rerender(); }
+    if (authTab !== 'recuperar' && pass.length < 8) { authMsg = 'La contraseña debe tener al menos 8 caracteres.'; return rerender(); }
+    const name = $('#aName') ? ($('#aName').value || '').trim() : '';
+    if (authTab === 'registro' && !name) { authMsg = 'Escribe tu nombre.'; return rerender(); }
+    btn.disabled = true; btn.textContent = 'Un momento…';
+    try {
+      if (authTab === 'recuperar') { await Cloud.reset(email); authMsg = 'Listo: si ese correo tiene cuenta, te llega un enlace en unos minutos (revisa spam).'; authTab = 'entrar'; return rerender(); }
+      if (authTab === 'registro') {
+        const d = await Cloud.signUp(email, pass, name);
+        if (!d.session) { authMsg = 'Te enviamos un correo para confirmar tu cuenta. Ábrelo y luego inicia sesión aquí.'; authTab = 'entrar'; return rerender(); }
+        return enter(d.user);
+      }
+      const d = await Cloud.signIn(email, pass);
+      return enter(d.user);
+    } catch (e) { authMsg = e.message; rerender(); }
+  }
+  function viewNewPass() {
+    app.innerHTML = brand('Crea tu nueva contraseña') + `<form class="card" id="passForm" novalidate>
+      <label class="lbl" for="nPass">Nueva contraseña</label><input class="field" id="nPass" type="password" autocomplete="new-password" minlength="8" required>
+      ${authMsg ? `<div class="tip" role="alert">${esc(authMsg)}</div>` : ''}
+      <button class="btn pri block big" style="margin-top:14px" type="submit">Guardar contraseña</button></form>`;
+  }
+  async function submitNewPass() {
+    const p = $('#nPass').value || '';
+    if (p.length < 8) { authMsg = 'Mínimo 8 caracteres.'; return rerender(); }
+    try { await Cloud.setPassword(p); Cloud.doneRecovery(); authMsg = ''; toast('Contraseña actualizada'); enter(Cloud.user); }
+    catch (e) { authMsg = e.message; rerender(); }
+  }
+
+  // Entra con una cuenta: trae su estado de la nube, o lo crea
+  async function enter(u) {
+    if (!u) { GATE = 'login'; return render(); }
+    GATE = 'cargando'; render();
+    UID = u.id; KEY = 'pf.u.' + UID;
+    const local = readLS(KEY);
+    let remote = null, offline = false;
+    try { remote = await Cloud.load(); } catch (e) { offline = true; }
+    const lts = (local && local._ts) || 0, rts = remote ? (remote.state._ts || remote.ts) : 0;
+    if (remote && rts >= lts) S = load(remote.state);
+    else if (local) { S = load(local); if (!offline && lts > rts) Cloud.push(S); }
+    else S = null;
+    if (!S && offline) { S = defaults(); UID = 'local'; KEY = LEGACY_KEY; authMsg = 'Sin conexión: la primera vez necesitas internet para entrar.'; GATE = 'login'; applyUser(); return render(); }
+    if (!S) {
+      S = defaults();
+      S.settings.name = (u.user_metadata && u.user_metadata.name) || '';
+      const legacy = readLS(LEGACY_KEY);
+      GATE = legacy && (Object.keys(legacy.logs || {}).length || (legacy.body || []).length) ? 'migrar' : 'bienvenida';
+    } else GATE = S.onboarded ? null : 'bienvenida';
+    OB = null;
+    applyUser();
+    render();
+    loadPlan(false);
+  }
+
+  function viewMigrar() {
+    const L = readLS(LEGACY_KEY) || {};
+    const n = Object.keys(L.logs || {}).length, b = (L.body || []).length;
+    app.innerHTML = brand('Encontramos datos en este celular') + `<div class="card"><p style="margin-top:0">Hay <b>${n} entrenos</b> y <b>${b} pesajes</b> guardados aquí desde antes de las cuentas.</p>
+      <p class="small muted">Si son tuyos, pásalos a tu cuenta: quedan en la nube y los ves desde cualquier celular. Tu plan de comida y tu rutina siguen iguales.</p>
+      <button class="btn pri block big" data-a="mig-yes">Sí, son míos: pasarlos a mi cuenta</button>
+      <button class="btn ghost block" style="margin-top:10px" data-a="mig-no">No son míos, empezar de cero</button></div>`;
+  }
+
+  /* ---------- bienvenida: cuestionario y plan a la medida ---------- */
+  let OB = null;
+  const PRESET = (() => { try { const v = new URLSearchParams(location.search).get('rutina'); if (v) sessionStorage.setItem('pf.rutina', v); return sessionStorage.getItem('pf.rutina'); } catch (e) { return null; } })();
+  function obInit() {
+    const g = S.goal || {};
+    OB = {
+      step: 0, name: S.settings.name || '', sex: S.onboarded ? S.profile.sex : null, age: S.onboarded ? S.profile.age : '', height: S.onboarded ? S.profile.height : '',
+      weight: S.onboarded ? (lastBody() || {}).kg || '' : '', act: S.profile.actBase || 1.2, dias: g.dias || 4, loc: S.settings.defLoc || 'gym', nivel: g.nivel || 'nuevo',
+      texto: g.texto || '', tipo: g.tipo || null, enfasis: (g.enfasis || []).slice(), pesoMeta: g.pesoMeta || '', semanas: g.semanas || '', notas: [], tpl: g.tpl || (TPL[PRESET] ? PRESET : null), read: !!g.tipo, edit: !!S.onboarded
+    };
+    if (!g.tpl && TPL[PRESET] && TPL[PRESET].fija) OB.dias = Object.keys(TPL[PRESET].days)[0];
+  }
+  const ACT = [[1.2, 'Casi todo el día sentad@, sin contar el entreno'], [1.375, 'Trabajo sentad@ pero camino algo'], [1.55, 'Me muevo bastante o camino mucho'], [1.725, 'Trabajo de pie o físico']];
+  const obGoal = () => ({ tipo: OB.tipo || 'mantener', enfasis: OB.enfasis.slice(), pesoMeta: +OB.pesoMeta || null, semanas: +OB.semanas || null, dias: +OB.dias, nivel: OB.nivel, texto: OB.texto, peso: +OB.weight });
+  const TRAIN_ACT = d => d <= 3 ? 0.1 : d <= 5 ? 0.175 : 0.25;
+  const obProfile = () => ({ sex: OB.sex, age: +OB.age, height: +OB.height, act: Math.round((+OB.act + TRAIN_ACT(+OB.dias)) * 1000) / 1000, actBase: +OB.act });
+  function viewBienvenida() {
+    if (!OB) obInit();
+    const st = OB.step, F = OB.sex === 'm';
+    const dots = `<div class="dots" style="justify-content:center;margin:0 0 14px">${[0, 1, 2, 3].map(i => `<button class="${i < st ? 'done' : ''} ${i === st ? 'cur' : ''}" ${i < st ? `data-a="ob-go" data-v="${i}"` : 'disabled'} aria-label="Paso ${i + 1}"></button>`).join('')}</div>`;
+    let h = OB.edit ? `<div class="page-head">${backBtn}<div class="ttl">Tu objetivo</div></div>` : brand(st === 0 ? `¡Hola${OB.name ? ', ' + esc(OB.name) : ''}! Armemos tu plan` : '');
+    h += dots;
+    if (st === 0) {
+      h += `<div class="card"><h2>Sobre ti</h2>
+        <label class="lbl" for="obName">Nombre</label><input class="field" id="obName" data-ob="name" value="${esc(OB.name)}" autocomplete="given-name">
+        <label class="lbl">Sexo (para las fórmulas y las figuras de los ejercicios)</label><div class="seg" style="grid-template-columns:1fr 1fr">${[['m', 'Mujer'], ['h', 'Hombre']].map(([v, l]) => `<button class="${OB.sex === v ? 'on' : ''}" data-a="ob-set" data-k="sex" data-v="${v}">${l}</button>`).join('')}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+          <label><span class="lbl">Edad</span><input class="field num" data-ob="age" type="number" inputmode="numeric" value="${OB.age}" placeholder="años"></label>
+          <label><span class="lbl">Estatura</span><input class="field num" data-ob="height" type="number" inputmode="numeric" value="${OB.height}" placeholder="cm"></label>
+          <label><span class="lbl">Peso</span><input class="field num" data-ob="weight" type="number" inputmode="decimal" step="0.1" value="${OB.weight}" placeholder="kg"></label></div>
+        <label class="lbl" for="obAct">Tu día a día (sin contar el entreno)</label><select class="field" id="obAct" data-ob="act">${ACT.map(([v, l]) => `<option value="${v}" ${+OB.act === v ? 'selected' : ''}>${l.replace(/@/g, F ? 'a' : 'o')}</option>`).join('')}</select></div>`;
+    } else if (st === 1) {
+      h += `<div class="card"><h2>Tu entreno</h2>
+        <label class="lbl">¿Cuántos días a la semana puedes entrenar?</label><div class="seg" style="grid-template-columns:repeat(5,1fr)">${[2, 3, 4, 5, 6].map(n => `<button class="${+OB.dias === n ? 'on' : ''}" data-a="ob-set" data-k="dias" data-v="${n}">${n}</button>`).join('')}</div>
+        <label class="lbl">¿Dónde entrenas?</label><div class="seg">${Object.entries(PLACES).map(([v, l]) => `<button class="${OB.loc === v ? 'on' : ''}" data-a="ob-set" data-k="loc" data-v="${v}">${l}</button>`).join('')}</div>
+        <p class="small muted" style="margin:6px 0 0">Cada día lo puedes cambiar; en casa y parque la app te da ejercicios sin máquinas.</p>
+        <label class="lbl">¿Cuánta experiencia tienes con pesas?</label>${Object.entries(ENG.LEVELS).map(([v, l]) => `<button class="opt ${OB.nivel === v ? 'on' : ''}" data-a="ob-set" data-k="nivel" data-v="${v}"><div class="grow"><div class="t">${l}</div></div></button>`).join('')}</div>`;
+    } else if (st === 2) {
+      const it = OB.tipo;
+      h += `<div class="card"><h2>¿Qué quieres lograr?</h2>
+        <p class="small muted" style="margin-top:-4px">Escríbelo con tus palabras. La app lo interpreta y arma tu rutina, tus comidas y tu mercado.</p>
+        <textarea class="field" id="obText" data-ob="texto" rows="4" style="min-height:110px;padding-top:12px;resize:vertical" placeholder="${F ? 'Ej: quiero bajar 5 kilos para diciembre, tonificar glúteos y piernas y tener el abdomen plano' : 'Ej: quiero ganar músculo en pecho y brazos y subir unos 4 kilos sin mucha grasa'}">${esc(OB.texto)}</textarea>
+        <button class="btn block" style="margin-top:10px" data-a="ob-read">Interpretar mi objetivo</button></div>`;
+      if (it || OB.read) {
+        h += `<div class="card"><h2>Esto entendí</h2><p class="small muted" style="margin-top:-4px">Corrige lo que no sea así.</p>
+          <label class="lbl">Objetivo principal</label>${Object.entries(ENG.GOALS).map(([v, g]) => `<button class="opt ${it === v ? 'on' : ''}" data-a="ob-set" data-k="tipo" data-v="${v}"><div class="grow"><div class="t">${g.n}</div><div class="d">${g.d}</div></div></button>`).join('')}
+          <label class="lbl">Zonas que quieres trabajar más</label><div class="chips">${Object.entries(ENG.FOCUS).map(([v, l]) => `<button class="chip ${OB.enfasis.includes(v) ? 'acc' : 'line'}" style="min-height:40px;padding:0 14px;cursor:pointer" data-a="ob-focus" data-v="${v}">${l}</button>`).join('')}</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><label><span class="lbl">Peso meta (opcional)</span><input class="field num" data-ob="pesoMeta" type="number" inputmode="decimal" step="0.1" value="${OB.pesoMeta}" placeholder="kg"></label>
+          <label><span class="lbl">En cuántas semanas</span><input class="field num" data-ob="semanas" type="number" inputmode="numeric" value="${OB.semanas}" placeholder="opcional"></label></div>
+          ${OB.notas.map(n => `<div class="tip">${esc(n)}</div>`).join('')}</div>`;
+      }
+    } else {
+      const P = obProfile(), g = obGoal(), w = +OB.weight;
+      const T = ENG.targets(P, w, g);
+      const rt = ENG.buildRoutines(window.PF_DATA, g, P, OB.tpl);
+      const r = ENG.weeklyRate(g, w), eta = ENG.eta(g, w);
+      const PP = PLAN_RAW ? ENG.personalize(PLAN_RAW, T) : null;
+      const G = ENG.GOALS[g.tipo];
+      const fast = g.pesoMeta && g.semanas && Math.abs((g.pesoMeta - w) / g.semanas) > Math.abs(r) + 0.01;
+      h += `<section class="hero fade-in"><div class="k">Tu plan</div><h2>${G.n}</h2><p>${g.enfasis.length ? 'Con énfasis en ' + g.enfasis.map(x => ENG.FOCUS[x].toLowerCase()).join(', ') + '.' : G.d + '.'}</p></section>
+        <div class="card"><h2>Comida</h2><div class="stat-grid">
+          ${statB('Calorías al día', T.k.toLocaleString('es-CO') + ' kcal', null, `tu gasto es ≈ ${T.tdee.toLocaleString('es-CO')} kcal`)}
+          ${statB('Proteína', T.p + ' g', null, fmt(Math.round(T.p / w * 10) / 10) + ' g por kg')}
+          ${statB('Carbohidratos', T.c + ' g')}${statB('Grasas', T.f + ' g')}</div>
+          <p class="small" style="margin:12px 0 0">Ritmo: <b>${signed(r)} kg por semana</b>${eta ? ` · llegas a ${fmt(g.pesoMeta)} kg en unas <b>${eta} semanas</b>` : ''}.</p>
+          ${fast ? `<div class="tip">Pediste llegar en ${g.semanas} semanas, pero eso es más rápido de lo sano. El plan va al ritmo máximo recomendado para no perder músculo.</div>` : ''}
+          ${PP ? `<p class="small muted" style="margin:8px 0 0">${PP.slots.length} comidas al día con el menú de la semana, porciones ajustadas a tus calorías. El mercado se calcula con las mismas cantidades.</p>` : ''}</div>
+        <div class="card"><h2>Rutina: ${TPL[rt.tpl].n}</h2><p class="small muted" style="margin-top:-4px">${TPL[rt.tpl].d}</p>
+          ${rt.schedule.map((rid, i) => `<div class="list-item"><div style="width:44px;font-weight:700">${DAYS[i]}</div><div class="grow"><div class="t">${rid ? rt.routines[rid].n : 'Descanso'}</div>${rid ? `<div class="d">${rt.routines[rid].slots.length} ejercicios · ${rt.routines[rid].d}</div>` : ''}</div></div>`).join('')}
+          <label class="lbl" for="obTpl">¿Prefieres otra rutina?</label><select class="field" id="obTpl" data-ob="tpl">${Object.entries(TPL).map(([v, t]) => `<option value="${v}" ${rt.tpl === v ? 'selected' : ''}>${t.n}${v === ENG.pickTemplate(g, P) ? ' (recomendada)' : ''}</option>`).join('')}</select>
+          <p class="small muted" style="margin:8px 0 0">Los días los puedes mover cada semana y cambiar cualquier ejercicio por una variación.</p></div>
+        <p class="small muted" style="margin:0 4px 12px">Son estimaciones con fórmulas estándar (Mifflin-St Jeor), no una consulta médica. Cada 2 semanas la app revisa tu peso y ajusta las calorías si hace falta.</p>`;
+    }
+    h += `<div class="row" style="gap:8px;margin-top:4px">${st > 0 ? `<button class="btn big" data-a="ob-go" data-v="${st - 1}">${ic('back', 2.4)} Atrás</button>` : ''}
+      <button class="btn pri big grow" data-a="${st === 3 ? 'ob-finish' : 'ob-next'}">${st === 3 ? (OB.edit ? 'Guardar mi nuevo plan' : 'Empezar') : 'Siguiente'} ${st === 3 ? ic('check', 2.6) : ic('right', 2.4)}</button></div>
+      ${!OB.edit && UID !== 'local' ? '<p style="text-align:center;margin:18px 0 0"><button class="link-btn" data-a="logout" style="color:var(--muted)">Cerrar sesión</button></p>' : ''}`;
+    app.innerHTML = h;
+  }
+  function obRead() {
+    const t = $('#obText');
+    if (t) OB.texto = t.value;
+    const it = ENG.interpret(OB.texto, +OB.weight);
+    OB.read = true;
+    if (it.tipo) OB.tipo = it.tipo;
+    if (it.enfasis.length) OB.enfasis = it.enfasis;
+    if (it.pesoMeta) OB.pesoMeta = it.pesoMeta;
+    if (it.semanas) OB.semanas = it.semanas;
+    OB.notas = it.notas;
+    if (!it.tipo && !it.enfasis.length) OB.notas = ['No encontré un objetivo claro en el texto. Elige abajo el que más se parezca.'].concat(it.notas);
+  }
+  function obValid(st) {
+    if (st === 0) {
+      if (!OB.sex) return 'Elige mujer u hombre';
+      if (!(+OB.age >= 14 && +OB.age <= 90)) return 'Escribe tu edad';
+      if (!(+OB.height >= 120 && +OB.height <= 230)) return 'Escribe tu estatura en centímetros';
+      if (!(+OB.weight >= 30 && +OB.weight <= 250)) return 'Escribe tu peso en kg';
+    }
+    if (st === 2) {
+      if (!OB.tipo) return OB.read ? 'Elige tu objetivo principal' : 'Toca "Interpretar mi objetivo" o elige uno';
+      if (OB.pesoMeta && !(+OB.pesoMeta >= 30 && +OB.pesoMeta <= 250)) return 'El peso meta no parece válido';
+    }
+    return null;
+  }
+  function obFinish() {
+    const P = obProfile(), g = obGoal(), w = +OB.weight;
+    const T = ENG.targets(P, w, g);
+    const rt = ENG.buildRoutines(window.PF_DATA, g, P, OB.tpl);
+    const k = dk(now()), first = !S.onboarded;
+    const keepStart = !first && S.goal && S.goal.tipo === g.tipo && S.goal.peso;
+    S.profile = Object.assign(S.profile, P);
+    S.settings.name = OB.name.trim();
+    S.settings.defLoc = OB.loc;
+    const lb = lastBody();
+    if (!lb || Math.abs(lb.kg - w) >= 0.05) S.body = S.body.filter(b => b.d !== k).concat({ d: k, kg: Math.round(w * 10) / 10 });
+    S.goal = Object.assign(g, { tpl: rt.tpl, dias: rt.days, desde: k, peso: keepStart ? S.goal.peso : w });
+    S.nutri = { k: T.k, p: T.p, c: T.c, f: T.f };
+    S.routines = rt.routines;
+    S.schedule = rt.schedule;
+    S.planMode = 'auto';
+    if (first) {
+      S.start = dk(monday(now()));
+      // Presupuesto inicial: lo que cuesta su mercado a precios de referencia (lo puede cambiar en Ajustes)
+      const mk = PLAN_RAW ? ENG.personalize(PLAN_RAW, T).market.total : 250000 * T.k / 2800;
+      S.settings.budget = Math.max(80000, Math.ceil(mk / 10000) * 10000);
+      S.settings.waterGoal = Math.max(6, Math.min(14, Math.round((w * 0.035 + 0.5) / 0.25)));
+    } else {
+      S.adjLog = []; S.adjSkip = null;
+      // El entreno de hoy sin series hechas se rehace con la rutina nueva
+      const L = S.logs[k];
+      if (L && !hasDone(L)) delete S.logs[k];
+      delete S.weekMoves[dk(monday(now()))];
+    }
+    S.onboarded = true;
+    save(); applyUser();
+    GATE = null; OB = null;
+    toast(first ? 'Tu plan está listo' : 'Plan actualizado');
+    location.hash = '#/hoy';
+    render();
+  }
+
   /* ---------- ajustes ---------- */
   function viewAjustes() {
     const st = S.settings;
-    const opts = (v) => `<option value="">Descanso</option>` + Object.keys(R).map(r => `<option value="${r}" ${v === r ? 'selected' : ''}>${R[r].n}</option>`).join('');
+    const opts = (v) => `<option value="">Descanso</option>` + (S.routines ? Object.keys(S.routines) : TPL.hipertrofia.ids).map(r => `<option value="${r}" ${v === r ? 'selected' : ''}>${R[r].n}</option>`).join('');
     let h = `<div class="page-head">${backBtn}<div class="ttl">Ajustes</div></div>
       <div class="card"><h2>Apariencia</h2><div class="seg">${[['auto', 'Auto'], ['light', 'Claro'], ['dark', 'Oscuro']].map(([v, l]) => `<button class="${st.theme === v ? 'on' : ''}" data-a="theme" data-v="${v}">${l}</button>`).join('')}</div></div>
+      ${UID !== 'local' ? `<div class="card"><h2>Tu cuenta</h2><p class="small" style="margin:-4px 0 4px"><b>${esc((Cloud.user || {}).email || '')}</b></p>
+        <p class="small muted" style="margin:0 0 10px" id="syncSt">${syncText()}</p>
+        <div class="row" style="gap:8px"><button class="btn grow" data-a="pass-open">Cambiar contraseña</button><button class="btn ghost grow" data-a="logout">Cerrar sesión</button></div></div>` : ''}
+      <div class="card"><h2>Tu objetivo</h2>${S.planMode === 'auto' && S.goal ? `<p style="margin:-4px 0 6px"><b>${ENG.GOALS[S.goal.tipo].n}</b>${S.goal.enfasis && S.goal.enfasis.length ? ' · énfasis en ' + S.goal.enfasis.map(x => ENG.FOCUS[x].toLowerCase()).join(', ') : ''}${S.goal.pesoMeta ? ` · meta ${fmt(S.goal.pesoMeta)} kg` : ''}</p>
+        <p class="small muted" style="margin:0 0 10px">${S.nutri.k.toLocaleString('es-CO')} kcal · ${S.nutri.p} g proteína · rutina ${TPL[S.goal.tpl] ? TPL[S.goal.tpl].n.toLowerCase() : ''}, ${S.goal.dias} días</p>`
+        : '<p class="small muted" style="margin:-4px 0 10px">Usas el plan manual: el menú de plan.json tal cual y la rutina de siempre. Si defines un objetivo, la app ajusta calorías, porciones, mercado y rutina a ti.</p>'}
+        <a class="btn block" href="#/objetivo">${ic('flag')} ${S.planMode === 'auto' ? 'Cambiar objetivo o rutina' : 'Definir mi objetivo'}</a></div>
       <div class="card"><h2>Tus datos</h2>
         <label class="lbl" for="sName">Nombre (para el saludo)</label><input class="field" id="sName" data-set="name" value="${esc(st.name)}" autocomplete="off">
         <label class="lbl" for="sBud">Presupuesto de mercado para 15 días (COP)</label><input class="field num" id="sBud" data-set="budget" type="number" inputmode="numeric" value="${st.budget || ''}" placeholder="Ej: 250000">
         <label class="lbl" for="sWat">Meta de agua (vasos de 250 ml)</label><input class="field num" id="sWat" data-set="waterGoal" type="number" inputmode="numeric" value="${st.waterGoal}">
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><label><span class="lbl" style="margin-top:14px">Edad</span><input class="field num" data-prof="age" type="number" inputmode="numeric" value="${S.profile.age}"></label><label><span class="lbl" style="margin-top:14px">Estatura (cm)</span><input class="field num" data-prof="height" type="number" inputmode="numeric" value="${S.profile.height}"></label></div>
         <label class="lbl">Sexo (para las fórmulas)</label><div class="seg" style="grid-template-columns:1fr 1fr">${[['h', 'Hombre'], ['m', 'Mujer']].map(([v, l]) => `<button class="${S.profile.sex === v ? 'on' : ''}" data-a="prof-sex" data-v="${v}">${l}</button>`).join('')}</div>
-        <label class="lbl" for="sAct">Nivel de actividad</label><select class="field" id="sAct" data-prof="act">${[[1.375, 'Ligero: entreno 1-3 días'], [1.55, 'Moderado: entreno 4-5 días, trabajo sentado'], [1.725, 'Alto: entreno diario o trabajo de pie'], [1.9, 'Muy alto: trabajo físico + entreno']].map(([v, l]) => `<option value="${v}" ${+S.profile.act === v ? 'selected' : ''}>${l}</option>`).join('')}</select>
+        <label class="lbl" for="sAct">Nivel de actividad</label><select class="field" id="sAct" data-prof="act">${[[1.375, 'Ligero: entreno 1-3 días'], [1.55, 'Moderado: entreno 4-5 días, trabajo sentado'], [1.725, 'Alto: entreno diario o trabajo de pie'], [1.9, 'Muy alto: trabajo físico + entreno']].map(([v, l]) => `<option value="${v}" ${+S.profile.act === v ? 'selected' : ''}>${l}</option>`).join('')}${[1.375, 1.55, 1.725, 1.9].includes(+S.profile.act) ? '' : `<option value="${S.profile.act}" selected>Según tu cuestionario (× ${fmt(+S.profile.act)})</option>`}</select>
         <label class="lbl" for="sWd">Día de pesaje</label><select class="field" id="sWd" data-set="weighDay">${DAYS_L.map((d, i) => `<option value="${i}" ${+st.weighDay === i ? 'selected' : ''}>${d}</option>`).join('')}</select></div>
       <div class="card"><h2>Entreno</h2>
         <label class="lbl">Dónde entrenas normalmente</label><div class="seg">${Object.entries(PLACES).map(([v, l]) => `<button class="${(st.defLoc || 'gym') === v ? 'on' : ''}" data-a="loc-def" data-v="${v}">${l}</button>`).join('')}</div>
@@ -1187,10 +1489,10 @@
           <li>Si cambias horarios, vuelve a agregarlos y borra los viejos del calendario.</li></ul></details></div>
       <div class="card"><h2>Plan semanal</h2><p class="small muted" style="margin-top:0">Plan del ${PLAN ? shortDate(PLAN.generated) : '—'}. Cada lunes llega uno nuevo con menú, recetas, precios y noticias.</p>
         <button class="btn block" data-a="plan-refresh">${ic('refresh')} Buscar actualización</button></div>
-      <div class="card"><h2>Respaldo</h2><p class="small muted" style="margin-top:0">Tus registros viven en este celular. Descarga un respaldo de vez en cuando.</p>
+      <div class="card"><h2>Respaldo</h2><p class="small muted" style="margin-top:0">${UID !== 'local' ? 'Tus registros se guardan en tu cuenta y los ves desde cualquier celular. Si quieres, descarga también una copia.' : 'Tus registros viven en este celular. Descarga un respaldo de vez en cuando.'}</p>
         <div class="row"><button class="btn grow" data-a="export">${ic('dl')} Descargar</button><button class="btn grow" data-a="import">${ic('ul')} Restaurar</button></div>
         <input type="file" id="impFile" accept="application/json,.json" class="hidden"></div>
-      <button class="btn ghost block danger" data-a="wipe">Borrar todos mis datos</button>
+      <button class="btn ghost block danger" data-a="wipe">Borrar todos mis registros</button>
       <p class="small muted" style="text-align:center;margin:18px 0 0">Plan Fitness · v1</p>`;
     app.innerHTML = h;
   }
@@ -1206,14 +1508,29 @@
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyTheme);
 
   /* ---------- router ---------- */
+  const GATES = {
+    cargando: () => { app.innerHTML = brand('Cargando tu plan…'); },
+    login: viewLogin, clave: viewNewPass, migrar: viewMigrar, bienvenida: viewBienvenida
+  };
   function render(keepScroll) {
+    if (GATE) {
+      app.className = 'app full';
+      nav.classList.add('hidden');
+      keepAwake(false);
+      GATES[GATE]();
+      if (GATE !== lastRoute && !keepScroll) window.scrollTo(0, 0);
+      lastRoute = GATE;
+      return;
+    }
     const raw = location.hash.replace(/^#\/?/, '') || 'hoy';
     const [name, ...args] = raw.split('/').map(decodeURIComponent);
-    const full = ['entreno', 'ej', 'ajustes', 'resumen', 'noticias', 'cuerpo', 'fotos'].includes(name);
+    if (name === 'objetivo' && (!OB || !OB.edit)) { obInit(); OB.edit = true; }
+    const full = ['entreno', 'ej', 'ajustes', 'resumen', 'noticias', 'cuerpo', 'fotos', 'objetivo'].includes(name);
     app.className = 'app' + (full ? ' full' : '');
     nav.classList.toggle('hidden', full);
     if (name !== 'entreno') keepAwake(false);
-    const views = { hoy: viewHoy, semana: viewSemana, progreso: viewProgreso, comida: viewComida, mercado: viewMercado, entreno: viewEntreno, ej: viewEj, ajustes: viewAjustes, resumen: viewResumen, noticias: viewNoticias, cuerpo: viewCuerpo, fotos: viewFotos };
+    const views = { hoy: viewHoy, semana: viewSemana, progreso: viewProgreso, comida: viewComida, mercado: viewMercado, entreno: viewEntreno, ej: viewEj, ajustes: viewAjustes, resumen: viewResumen, noticias: viewNoticias, cuerpo: viewCuerpo, fotos: viewFotos, objetivo: viewBienvenida };
+    if (name !== 'objetivo') OB = null;
     (views[name] || viewHoy)(...args);
     nav.querySelectorAll('a').forEach(a => a.classList.toggle('on', a.dataset.r === name));
     if (raw !== lastRoute && !keepScroll) window.scrollTo(0, 0);
@@ -1362,7 +1679,7 @@
       S.measures = S.measures.filter(x => x.d !== m.d).concat(m);
       save(); toast('Medidas guardadas'); rerender();
     },
-    'prof-sex'(b) { S.profile.sex = b.dataset.v; save(); rerender(); },
+    'prof-sex'(b) { S.profile.sex = b.dataset.v; recalcNutri(); save(); applyUser(); rerender(); },
     'adj-apply'(b) {
       const t = weightTrend();
       S.adjLog.push({ d: dk(now()), delta: +b.dataset.v, rate: t.rate || 0 });
@@ -1623,10 +1940,69 @@
     },
     import() { $('#impFile').click(); },
     wipe() {
-      if (!confirm('Esto borra todos tus registros de este celular. ¿Seguro?')) return;
-      S = defaults(); save(); applyTheme(); toast('Datos borrados'); location.hash = '#/hoy';
-    }
+      if (!confirm(UID !== 'local' ? 'Esto borra todos tus registros de tu cuenta (entrenos, pesos, comidas) y vuelves a empezar con el cuestionario. ¿Seguro?' : 'Esto borra todos tus registros de este celular. ¿Seguro?')) return;
+      const name = S.settings.name;
+      S = defaults(); S.settings.name = name; save(); applyUser(); toast('Datos borrados');
+      if (UID !== 'local') { GATE = 'bienvenida'; OB = null; }
+      location.hash = '#/hoy'; render();
+    },
+
+    // cuentas
+    'auth-tab'(b) { authTab = b.dataset.v; authMsg = ''; rerender(); },
+    async logout() {
+      if (!confirm('¿Cerrar sesión en este celular?')) return;
+      try { await Cloud.signOut(); } catch (e) { /* igual se sale */ }
+      UID = 'local'; KEY = LEGACY_KEY; S = defaults(); OB = null; applyUser();
+      GATE = 'login'; authTab = 'entrar'; authMsg = ''; location.hash = '#/hoy'; render();
+    },
+    'pass-open'() {
+      openSheet(`<h3>Cambiar contraseña</h3><p class="small muted" style="margin:0 0 6px">Mínimo 8 caracteres.</p>
+        <input class="field" id="chPass" type="password" autocomplete="new-password" placeholder="Nueva contraseña">
+        <button class="btn pri block big" style="margin-top:12px" data-a="pass-save">Guardar</button>`);
+    },
+    async 'pass-save'() {
+      const p = $('#chPass').value || '';
+      if (p.length < 8) return toast('Mínimo 8 caracteres');
+      try { await Cloud.setPassword(p); closeSheet(); toast('Contraseña actualizada'); } catch (e) { toast(e.message); }
+    },
+    'mig-yes'() {
+      const L = readLS(LEGACY_KEY);
+      const name = S.settings.name;
+      S = load(L); if (!S.settings.name) S.settings.name = name;
+      S.planMode = 'base'; S.onboarded = true; S.legacyPhotos = true;
+      save(); applyUser(); GATE = null; toast('Listo: tus datos ya están en tu cuenta'); render();
+    },
+    'mig-no'() { GATE = 'bienvenida'; render(); },
+
+    // bienvenida
+    'ob-set'(b) { readOb(); OB[b.dataset.k] = b.dataset.v; if (b.dataset.k === 'tipo') OB.read = true; rerender(); },
+    'ob-focus'(b) { readOb(); const v = b.dataset.v, i = OB.enfasis.indexOf(v); if (i < 0) OB.enfasis.push(v); else OB.enfasis.splice(i, 1); rerender(); },
+    'ob-read'() { readOb(); obRead(); rerender(); },
+    'ob-go'(b) { readOb(); OB.step = +b.dataset.v; render(); },
+    'ob-next'() {
+      readOb();
+      if (OB.step === 2 && !OB.read && OB.texto.trim()) obRead();
+      const err = obValid(OB.step);
+      if (err) { if (OB.step === 2) rerender(); return toast(err); }
+      OB.step++; render();
+    },
+    'ob-finish'() { readOb(); obFinish(); }
   };
+  // Lee los campos del cuestionario antes de redibujar
+  function readOb() {
+    if (!OB) return;
+    document.querySelectorAll('[data-ob]').forEach(el => { OB[el.dataset.ob] = el.value; });
+  }
+  function syncText() {
+    const st = Cloud.status;
+    return st === 'ok' ? 'Todo guardado en la nube.' : st === 'pending' ? 'Guardando…' : st === 'offline' ? 'Sin conexión: se guarda en el celular y se sube cuando vuelva el internet.' : 'No se pudo guardar en la nube; se reintenta solo.';
+  }
+  Cloud.onStatus(() => { const el = $('#syncSt'); if (el) el.textContent = syncText(); });
+
+  document.addEventListener('submit', e => {
+    if (e.target.id === 'authForm') { e.preventDefault(); submitAuth(); }
+    if (e.target.id === 'passForm') { e.preventDefault(); submitNewPass(); }
+  });
 
   document.addEventListener('click', e => {
     const b = e.target.closest('[data-a]');
@@ -1648,7 +2024,7 @@
       const pose = A._pose || 'frente', wk = thisWeek();
       toast('Guardando foto…');
       compressPhoto(t.files[0])
-        .then(blob => IDB.put({ id: wk + '_' + pose, week: wk, pose, d: dk(now()), blob }))
+        .then(blob => IDB.put(Object.assign({ id: (UID === 'local' ? '' : UID + '_') + wk + '_' + pose, week: wk, pose, d: dk(now()), blob }, UID === 'local' ? {} : { u: UID })))
         .then(() => { toast('Foto guardada'); renderFotos(); })
         .catch(() => toast('No se pudo guardar la foto'));
       return;
@@ -1660,14 +2036,13 @@
         try {
           const data = JSON.parse(r.result);
           if (!data || !data.settings || !data.logs) throw new Error('formato');
-          localStorage.setItem(KEY, JSON.stringify(data));
-          S = load(); applyTheme(); toast('Respaldo restaurado'); rerender();
+          S = load(data); save(); applyUser(); toast('Respaldo restaurado'); rerender();
         } catch (err) { toast('Ese archivo no es un respaldo válido'); }
       };
       r.readAsText(t.files[0]);
       return;
     }
-    if (t.dataset.prof) { const v = parseFloat(t.value); if (v > 0) { S.profile[t.dataset.prof] = v; save(); toast('Guardado'); } return; }
+    if (t.dataset.prof) { const v = parseFloat(t.value); if (v > 0) { S.profile[t.dataset.prof] = v; recalcNutri(); save(); toast(S.planMode === 'auto' ? 'Guardado · metas recalculadas' : 'Guardado'); } return; }
     if (t.dataset.set) {
       const f = t.dataset.set;
       if (f === 'start') { if (t.value) S.start = t.value; }
@@ -1683,9 +2058,19 @@
   });
 
   /* ---------- arranque ---------- */
-  applyTheme();
-  render();
-  loadPlan(false);
+  async function boot() {
+    if (!Cloud.on) { applyUser(); render(); loadPlan(false); return; }
+    GATE = 'cargando'; applyTheme(); render();
+    Cloud.onAuth((ev, u) => {
+      if (ev === 'PASSWORD_RECOVERY') { GATE = 'clave'; authMsg = ''; render(); }
+    });
+    let u = null;
+    try { u = await Cloud.init(); } catch (e) { u = null; }
+    if (Cloud.recovery) { GATE = 'clave'; authMsg = ''; applyUser(); return render(); }
+    if (!u) { GATE = 'login'; applyUser(); render(); loadPlan(false); return; }
+    enter(u);
+  }
+  boot();
   if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') { if (location.hash.startsWith('#/entreno')) keepAwake(true); loadPlan(false); } });
 })();
