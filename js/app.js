@@ -148,11 +148,13 @@
   const PLACES = { gym: 'Gimnasio', casa: 'Casa', parque: 'Parque' };
   const locOn = d => S.locs[dk(d || now())] || S.settings.defLoc || 'gym';
   const swapKey = (slotId, d) => { const l = locOn(d); return l === 'gym' ? slotId : l + ':' + slotId; };
+  // Ejercicios posibles de un grupo según el lugar; en casa con mancuernas, primero los de mancuerna
+  const locList = (loc, g) => [...new Set((loc === 'casa' && S.settings.homeEq === 'db' ? LOC.casa_db[g] || [] : []).concat((LOC[loc] || {})[g] || []))];
   // Alternativas de un ejercicio según el lugar
   function altsFor(exId, loc) {
     const g = E[exId].g;
     if (loc === 'gym') return G[g].filter(x => x !== exId && !E[x].cal);
-    return ((LOC[loc] || {})[g] || []).filter(x => x !== exId);
+    return locList(loc, g).filter(x => x !== exId);
   }
 
   // Descarga: última semana de cada bloque (o forzada/saltada a mano)
@@ -180,7 +182,7 @@
     if (loc !== 'gym') {
       const used = new Set();
       return r.slots.map(s => {
-        const list = (LOC[loc] || {})[E[s.ex].g] || [s.ex];
+        const ll = locList(loc, E[s.ex].g), list = ll.length ? ll : [s.ex];
         let ex = list[0];
         const sw = S.swaps[loc + ':' + s.id];
         if (sw && sw.block === block && E[sw.ex]) ex = sw.ex;
@@ -1321,7 +1323,7 @@
     OB = {
       step: 0, name: S.settings.name || '', sex: S.onboarded ? S.profile.sex : null, age: S.onboarded ? S.profile.age : '', height: S.onboarded ? S.profile.height : '',
       weight: S.onboarded ? (lastBody() || {}).kg || '' : '', act: S.profile.actBase || 1.2, dias: g.dias || 4, loc: S.settings.defLoc || 'gym', nivel: g.nivel || 'nuevo',
-      texto: g.texto || '', tipo: g.tipo || null, enfasis: (g.enfasis || []).slice(), pesoMeta: g.pesoMeta || '', semanas: g.semanas || '', notas: [], tpl: g.tpl || (TPL[PRESET] ? PRESET : null), read: !!g.tipo, edit: !!S.onboarded
+      homeEq: S.settings.homeEq || 'none', texto: g.texto || '', tipo: g.tipo || null, enfasis: (g.enfasis || []).slice(), pesoMeta: g.pesoMeta || '', semanas: g.semanas || '', notas: [], tpl: g.tpl || (TPL[PRESET] ? PRESET : null), read: !!g.tipo, edit: !!S.onboarded
     };
     if (!g.tpl && TPL[PRESET] && TPL[PRESET].fija) OB.dias = Object.keys(TPL[PRESET].days)[0];
   }
@@ -1349,6 +1351,8 @@
         <label class="lbl">¿Cuántos días a la semana puedes entrenar?</label><div class="seg" style="grid-template-columns:repeat(5,1fr)">${[2, 3, 4, 5, 6].map(n => `<button class="${+OB.dias === n ? 'on' : ''}" data-a="ob-set" data-k="dias" data-v="${n}">${n}</button>`).join('')}</div>
         <label class="lbl">¿Dónde entrenas?</label><div class="seg">${Object.entries(PLACES).map(([v, l]) => `<button class="${OB.loc === v ? 'on' : ''}" data-a="ob-set" data-k="loc" data-v="${v}">${l}</button>`).join('')}</div>
         <p class="small muted" style="margin:6px 0 0">Cada día lo puedes cambiar; en casa y parque la app te da ejercicios sin máquinas.</p>
+        <label class="lbl">¿Tienes mancuernas en casa?</label><div class="seg" style="grid-template-columns:1fr 1fr">${[['db', 'Sí, tengo'], ['none', 'No']].map(([v, l]) => `<button class="${OB.homeEq === v ? 'on' : ''}" data-a="ob-set" data-k="homeEq" data-v="${v}">${l}</button>`).join('')}</div>
+        <p class="small muted" style="margin:6px 0 0">Sirven las de cualquier almacén, aunque sean livianas. Sin mancuernas, en casa usas peso corporal y una mochila con peso.</p>
         <label class="lbl">¿Cuánta experiencia tienes con pesas?</label>${Object.entries(ENG.LEVELS).map(([v, l]) => `<button class="opt ${OB.nivel === v ? 'on' : ''}" data-a="ob-set" data-k="nivel" data-v="${v}"><div class="grow"><div class="t">${l}</div></div></button>`).join('')}</div>`;
     } else if (st === 2) {
       const it = OB.tipo;
@@ -1425,6 +1429,7 @@
     S.profile = Object.assign(S.profile, P);
     S.settings.name = OB.name.trim();
     S.settings.defLoc = OB.loc;
+    S.settings.homeEq = OB.homeEq;
     const lb = lastBody();
     if (!lb || Math.abs(lb.kg - w) >= 0.05) S.body = S.body.filter(b => b.d !== k).concat({ d: k, kg: Math.round(w * 10) / 10 });
     S.goal = Object.assign(g, { tpl: rt.tpl, dias: rt.days, desde: k, peso: keepStart ? S.goal.peso : w });
@@ -1477,6 +1482,7 @@
       <div class="card"><h2>Entreno</h2>
         <label class="lbl">Dónde entrenas normalmente</label><div class="seg">${Object.entries(PLACES).map(([v, l]) => `<button class="${(st.defLoc || 'gym') === v ? 'on' : ''}" data-a="loc-def" data-v="${v}">${l}</button>`).join('')}</div>
         <p class="small muted" style="margin:6px 0 0">Cada día lo puedes cambiar en Hoy o en Semana.</p>
+        <label class="lbl">En casa tengo</label><div class="seg" style="grid-template-columns:1fr 1fr">${[['db', 'Mancuernas'], ['none', 'Nada (peso corporal)']].map(([v, l]) => `<button class="${(st.homeEq || 'none') === v ? 'on' : ''}" data-a="home-eq" data-v="${v}" style="font-size:13px">${l}</button>`).join('')}</div>
         <label class="lbl">Semana de descarga automática</label><div class="seg" style="grid-template-columns:1fr 1fr">${[[true, 'Sí, al final de cada bloque'], [false, 'No']].map(([v, l]) => `<button class="${(st.autoDeload !== false) === v ? 'on' : ''}" data-a="deload-auto" data-v="${v ? 1 : 0}" style="font-size:13px">${l}</button>`).join('')}</div>
         <label class="lbl">Duración del bloque (accesorios + descarga al final)</label><div class="seg">${[4, 5, 6].map(n => `<button class="${+st.rotWeeks === n ? 'on' : ''}" data-a="rot" data-v="${n}">${n} semanas</button>`).join('')}</div>
         <label class="lbl" for="sStart">Inicio del programa</label><input class="field" id="sStart" type="date" data-set="start" value="${S.start}">
@@ -1728,6 +1734,13 @@
       const L = S.logs[dk(now())];
       if (L && !hasDone(L)) { L.ex = {}; ensureLog(dk(now()), L.routine); }
       save(); toast(isDeload() ? 'Semana de descarga activada' : 'Semana normal'); rerender();
+    },
+    'home-eq'(b) {
+      S.settings.homeEq = b.dataset.v;
+      // Si hoy entrena en casa, los ejercicios sin series hechas se rehacen con el equipo nuevo
+      const k = dk(now());
+      if (S.logs[k] && locOn() === 'casa') setLoc(k, 'casa');
+      save(); rerender(); toast(b.dataset.v === 'db' ? 'En casa: ejercicios con mancuernas' : 'En casa: peso corporal');
     },
     'deload-auto'(b) { S.settings.autoDeload = b.dataset.v === '1'; save(); rerender(); toast('Guardado'); },
     'week-reset'() { delete S.weekMoves[dk(monday(now()))]; save(); rerender(); },

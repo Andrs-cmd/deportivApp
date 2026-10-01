@@ -745,6 +745,48 @@
     [['Glúteo mayor'], ['Isquiotibiales', 'Core']],
     ['En cuatro apoyos: manos bajo los hombros, rodillas bajo la cadera', 'Sube una pierna con la rodilla doblada, planta del pie hacia el techo', 'Aprieta el glúteo arriba 1 segundo', 'Tobillera o mancuerna detrás de la rodilla para más carga'],
     ['Arquear la lumbar', 'Girar la cadera', 'Balancear la pierna'], '2-1-1', 45, { reps: [12, 20] });
+  C('patada_lateral_pie', 'Patada lateral de pie', 'standing hip abduction', 'gluteo_med', 'cableabd',
+    [['Glúteo medio'], ['Glúteo menor']],
+    ['De pie, agarrada de una silla o una pared', 'Abre la pierna de afuera hacia el lado, con la punta del pie mirando al frente', 'Sube hasta donde no se mueva la cadera y baja lento', 'Con banda en los tobillos o tobillera con peso es más difícil'],
+    ['Inclinar el cuerpo hacia el otro lado', 'Girar el pie hacia el techo', 'Ir rápido'], '2-1-2', 45, { reps: [15, 25] });
+  C('aduccion_cojin', 'Aducción apretando un cojín', 'pillow squeeze adduction', 'aductores', 'adduction',
+    [['Aductores'], ['Core']],
+    ['Sentada en el borde de una silla o acostada boca arriba con las rodillas dobladas', 'Pon un cojín, una pelota o un balón entre las rodillas', 'Apriétalo con fuerza 2-3 segundos y suelta un poco', 'En el parque sirve un balón o una chaqueta enrollada'],
+    ['Apretar sin control y soltar de golpe', 'Aguantar la respiración', 'Usar algo muy blando que no ofrezca resistencia'], '1-2-1', 45, { reps: [15, 20] });
+
+  /* ---------- CASA CON MANCUERNAS (sirven las de cualquier almacén) ---------- */
+  X('press_suelo_manc', 'Press de pecho en el piso con mancuernas', 'dumbbell floor press', 'pecho_h', 'bench', 'db',
+    [['Pectoral mayor'], ['Tríceps', 'Deltoides anterior']],
+    ['Acostada boca arriba en el piso o un tapete, rodillas dobladas', 'Mancuernas a los lados del pecho, codos a unos 45° del cuerpo', 'Empuja hacia arriba hasta casi estirar los brazos', 'Baja hasta que los codos toquen suave el piso y vuelve a subir'],
+    ['Abrir los codos a 90°', 'Rebotar los codos en el piso', 'Arquear la espalda'], '2-1-1', 75, { inc: 1 });
+  X('aperturas_suelo_manc', 'Aperturas en el piso con mancuernas', 'dumbbell floor fly', 'pecho_ais', 'bench', 'db',
+    [['Pectoral mayor'], ['Deltoides anterior']],
+    ['Acostada boca arriba, mancuernas arriba del pecho con las palmas enfrentadas', 'Codos un poco doblados y fijos', 'Abre los brazos en arco hasta que los codos rocen el piso', 'Cierra apretando el pecho como si abrazaras un árbol'],
+    ['Estirar del todo los codos', 'Usar mucho peso', 'Dejar caer los brazos'], '3-0-1', 60, { inc: 1 });
+  X('hip_thrust_manc', 'Hip thrust con mancuerna', 'dumbbell hip thrust', 'peso_muerto', 'hipthrust', 'db',
+    [['Glúteo mayor'], ['Isquiotibiales', 'Core']],
+    ['Espalda alta apoyada en el borde del sofá o la cama', 'Una mancuerna sobre la cadera, sostenida con las dos manos', 'Sube la cadera apretando la cola hasta quedar recta de rodillas a hombros', 'Aguanta 1 segundo arriba y baja controlada'],
+    ['Arquear la espalda baja arriba', 'Empujar con la punta de los pies', 'Bajar sin control'], '2-1-1', 75, { inc: 1, reps: [10, 15] });
+  X('sentadilla_sumo_manc', 'Sentadilla sumo con mancuerna', 'dumbbell sumo squat', 'sentadilla', 'squat', 'db',
+    [['Cuádriceps', 'Aductores'], ['Glúteo mayor']],
+    ['Pies bien abiertos, puntas hacia afuera', 'Una mancuerna colgando con las dos manos entre las piernas', 'Baja con el pecho arriba y las rodillas siguiendo la punta de los pies', 'Sube empujando el piso y apretando la cola'],
+    ['Rodillas hacia adentro', 'Inclinarse mucho hacia adelante', 'Bajar poco'], '3-0-1', 75, { inc: 1, reps: [10, 15] });
+  X('zancada_atras_manc', 'Zancada hacia atrás con mancuernas', 'dumbbell reverse lunge', 'unilateral', 'lunge', 'db',
+    [['Cuádriceps', 'Glúteo mayor'], ['Isquiotibiales', 'Aductores']],
+    ['De pie con una mancuerna en cada mano', 'Da un paso largo hacia atrás y baja la rodilla de atrás cerca del piso', 'El peso va en la pierna de adelante', 'Vuelve empujando con el talón de adelante; alterna o termina un lado'],
+    ['Rodilla de adelante hacia adentro', 'Paso muy corto', 'Torso caído hacia adelante'], '2-0-1', 75, { inc: 1, reps: [8, 12] });
+  X('pullover_manc', 'Pullover con mancuerna', 'dumbbell pullover', 'espalda_v', 'bench', 'db',
+    [['Dorsal ancho'], ['Pectoral mayor', 'Tríceps (cabeza larga)']],
+    ['Acostada en el piso o atravesada en la cama, una mancuerna con las dos manos sobre el pecho', 'Brazos casi rectos', 'Llévala por detrás de la cabeza hasta sentir el estiramiento de la espalda', 'Vuelve apretando la espalda hasta encima del pecho'],
+    ['Doblar mucho los codos', 'Arquear la espalda baja', 'Usar mucho peso'], '3-0-1', 60, { inc: 1, reps: [10, 15] });
+  X('curl_manc', 'Curl de bíceps con mancuernas', 'dumbbell biceps curl', 'biceps', 'curl', 'db',
+    [['Bíceps'], ['Braquial', 'Braquiorradial']],
+    ['De pie, una mancuerna en cada mano con las palmas hacia adelante', 'Codos pegados al cuerpo', 'Sube girando un poco la muñeca hacia afuera', 'Baja lento hasta estirar del todo'],
+    ['Balancear el cuerpo', 'Mover los codos hacia adelante', 'Bajar a medias'], '2-0-2', 60, { inc: 1, reps: [10, 15] });
+  X('curl_femoral_manc', 'Curl femoral con mancuerna', 'dumbbell lying leg curl', 'femoral', 'legcurl', 'db',
+    [['Isquiotibiales'], ['Gemelos']],
+    ['Boca abajo en la cama o el piso, una mancuerna liviana apretada entre los pies', 'Dobla las rodillas llevando los talones hacia la cola', 'Sube y baja lento, sin despegar la cadera', 'Sin mancuerna: tobilleras con peso o banda elástica'],
+    ['Despegar la cadera', 'Dejar caer el peso', 'Usar una mancuerna que no puedas sostener con los pies'], '2-1-2', 60, { inc: 1, reps: [10, 15] });
   C('flexiones', 'Flexiones', 'push up', 'pecho_h', 'pushup',
     [['Pectoral mayor'], ['Tríceps', 'Deltoides anterior', 'Core']],
     ['Manos un poco más anchas que los hombros', 'Cuerpo recto de cabeza a talones, glúteo apretado', 'Baja hasta que el pecho casi toque el piso', 'Cuando hagas 20 limpias, pasa a declinadas o ponte una mochila con peso'],
@@ -903,7 +945,7 @@
       bisagra: ['pmr_una_pierna', 'puente_gluteo'], peso_muerto: ['puente_gluteo', 'hip_thrust_una_pierna'],
       femoral: ['curl_deslizante', 'curl_nordico'], gemelos: ['elev_talones_una_pierna'],
       core_flex: ['crunch_suelo', 'escaladores'], core_cadera: ['elev_piernas_suelo'], core_est: ['plancha', 'plancha_lateral'],
-      gluteo_med: ['abduccion_banda'], gluteo_ais: ['patada_gluteo_cuadrupedia', 'hip_thrust_una_pierna']
+      gluteo_med: ['abduccion_banda', 'patada_lateral_pie'], gluteo_ais: ['patada_gluteo_cuadrupedia', 'hip_thrust_una_pierna'], aductores: ['aduccion_cojin']
     },
     parque: {
       pecho_h: ['fondos_pecho', 'flexiones'], pecho_inc: ['flexiones_profundas_paralelas', 'flexiones_declinadas'], pecho_ais: ['flexiones', 'flexiones_arquero'],
@@ -916,8 +958,19 @@
       bisagra: ['hip_thrust_una_pierna', 'pmr_una_pierna'], peso_muerto: ['pmr_una_pierna', 'hip_thrust_una_pierna'],
       femoral: ['curl_nordico', 'curl_deslizante'], gemelos: ['elev_talones_una_pierna'],
       core_flex: ['elev_rodillas_paralelas', 'escaladores'], core_cadera: ['elev_piernas_colgado', 'elev_rodillas_paralelas'], core_est: ['l_sit_paralelas', 'plancha_lateral'],
-      gluteo_med: ['abduccion_banda'], gluteo_ais: ['patada_gluteo_cuadrupedia', 'hip_thrust_una_pierna']
+      gluteo_med: ['abduccion_banda', 'patada_lateral_pie'], gluteo_ais: ['patada_gluteo_cuadrupedia', 'hip_thrust_una_pierna'], aductores: ['aduccion_cojin']
     }
+  };
+  // En casa con mancuernas: estos van primero (luego los de peso corporal) y rotan por bloque para dar variedad
+  LOC.casa_db = {
+    pecho_h: ['press_suelo_manc'], pecho_inc: ['press_suelo_manc'], pecho_ais: ['aperturas_suelo_manc'],
+    hombro_v: ['press_hombro_manc'], hombro_lat: ['elev_laterales_manc'], hombro_post: ['pajaros_manc'],
+    triceps: ['ext_sobre_cabeza_manc'], triceps_oh: ['ext_sobre_cabeza_manc'],
+    espalda_v: ['pullover_manc', 'remo_mancuerna'], espalda_h: ['remo_mancuerna'],
+    biceps: ['curl_manc'], biceps_b: ['curl_martillo'],
+    sentadilla: ['sentadilla_sumo_manc', 'sentadilla_goblet'], prensa: ['sentadilla_goblet', 'zancada_atras_manc'],
+    unilateral: ['zancada_atras_manc', 'sentadilla_bulgara'], bisagra: ['peso_muerto_rumano_manc'],
+    peso_muerto: ['hip_thrust_manc'], femoral: ['curl_femoral_manc'], gluteo_ais: ['hip_thrust_manc']
   };
   // Ejercicios con peso corporal que sirven fuera del gimnasio (aparte de los nuevos)
   ['zancadas_caminando', 'step_up', 'sentadilla_bulgara', 'sentadilla_sissy', 'curl_nordico', 'elev_piernas_suelo', 'plancha', 'plancha_lateral', 'fondos', 'dominadas', 'elev_piernas_colgado', 'elev_rodillas_paralelas'].forEach(id => { E[id].out = 1; });
